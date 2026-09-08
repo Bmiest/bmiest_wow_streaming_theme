@@ -168,6 +168,11 @@ begint nu 120px lager.
 > Zet StreamElements' eigen alert-overlay uit als je deze gebruikt, anders
 > krijg je elke follow dubbel.
 
+De alert is een ribbon: bijschrift met het type, gekleurd kopblok met icoon,
+en de naam groot. Hij schuift 34px omlaag terwijl hij invaagt, het kopblok
+licht kort op, en na 5,2 seconden schuift hij weer weg. Subs en tips krijgen
+er een pilletje met tier of bedrag bij en het bericht eronder.
+
 ### Webcam
 
 Video Capture Device, dan **Transform > Edit Transform**:

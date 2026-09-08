@@ -1,65 +1,54 @@
 /* =====================================================================
    ALERTS  --  aparte browser source, transparant, over je beeld
-   Ontwerpmaat 2560 x 1072 (de gameplay-zone, niet de banner).
+   Ontwerpmaat 2560 x 1072 (de gameplay-zone).
+   Zelfde ribbon-taal als de balken en de scenes.
    ===================================================================== */
 
 html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
 #stage{position:absolute;top:0;left:0;transform-origin:0 0}
 
+#alertHost{position:absolute;left:0;right:0;top:52px;display:grid;justify-items:center}
+
 .alert{
-  position:absolute;left:50%;top:56px;
-  display:flex;align-items:center;gap:22px;
-  padding:16px 42px 16px 16px;
-  background:#0a0b0de6;
-  border:1px solid var(--ink-700);
-  border-radius:var(--r-pill);
-  opacity:0;
-  transform:translate(-50%,-30px);
-  will-change:transform,opacity;
+  grid-area:1/1;display:flex;flex-direction:column;align-items:center;gap:14px;
+  opacity:0;transform:translateY(-34px);will-change:transform,opacity;
 }
-.alert.in {animation:alertIn  var(--t-slow) var(--ease) forwards}
-.alert.out{animation:alertOut var(--t-med)  var(--ease) forwards}
+.alert .rib{--rib-h:96px;--rib-cut:30px}
+.alert .rib__cap{height:32px;padding:0 18px;font-size:16px;letter-spacing:.24em;
+  margin-left:30px;border-radius:7px}
+.alert .rib__bar{margin-top:-12px}
+.alert .rib__val{font-size:44px;padding-left:26px}
+.alert .rib__in{padding-right:54px}
+.alert .rib__acc svg{width:40px;height:40px;margin-right:8px}
 
-@keyframes alertIn{
-  from{opacity:0;transform:translate(-50%,-30px)}
-  to  {opacity:1;transform:translate(-50%,0)}
+/* bedrag of tier, in een eigen pilletje onder de ribbon */
+.alert__meta{
+  font-family:var(--f-mono);font-size:17px;color:var(--acc,var(--jade));
+  background:#0a0b0de6;border:1px solid var(--ink-700);
+  border-radius:var(--r-pill);padding:7px 18px;
 }
-@keyframes alertOut{
-  from{opacity:1;transform:translate(-50%,0)}
-  to  {opacity:0;transform:translate(-50%,-22px)}
-}
+.alert__meta:empty{display:none}
 
-/* ---- ring: de Priest-halo, hier als aanloop van de alert ---------- */
-.alert__ring{position:relative;width:72px;height:72px;flex:0 0 72px}
-.alert__ring svg{position:absolute;inset:0;width:72px;height:72px}
-.alert__ring .track{fill:none;stroke:var(--ink-700);stroke-width:2}
-.alert__ring .draw{
-  fill:none;stroke:var(--acc,var(--jade));stroke-width:2.5;stroke-linecap:round;
-  stroke-dasharray:207;stroke-dashoffset:207;
-  transform:rotate(-90deg);transform-origin:50% 50%;
-}
-.alert.in .alert__ring .draw{animation:draw 620ms var(--ease) 120ms forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
-
-.alert__glyph{
-  position:absolute;inset:0;display:grid;place-items:center;
-  color:var(--acc,var(--jade));
-}
-.alert__glyph svg{width:28px;height:28px;position:static}
-
-/* ---- tekst -------------------------------------------------------- */
-.alert__kind{
-  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--acc,var(--jade));margin-bottom:4px;
-}
-.alert__who{font-size:34px;font-weight:600;line-height:1.05;letter-spacing:-.01em}
-.alert__extra{font-family:var(--f-mono);font-size:14px;color:var(--ink-300);margin-top:5px}
-.alert__extra:empty{display:none}
-
-/* Bericht bij een sub/tip. Afgekapt zodat een roman je beeld niet vult. */
+/* Bericht bij een sub of tip. Afgekapt zodat een roman je beeld niet vult. */
 .alert__msg{
-  max-width:620px;margin-top:6px;
-  font-size:15px;color:var(--paper-dim);
+  max-width:900px;font-size:19px;color:var(--paper-dim);text-align:center;
+  background:#0a0b0dd9;border-radius:14px;padding:10px 22px;
   overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
 }
 .alert__msg:empty{display:none}
+
+.alert.in {animation:alertIn  420ms var(--ease) forwards}
+.alert.out{animation:alertOut 300ms var(--ease) forwards}
+@keyframes alertIn {from{opacity:0;transform:translateY(-34px)}
+                    to  {opacity:1;transform:translateY(0)}}
+@keyframes alertOut{from{opacity:1;transform:translateY(0)}
+                    to  {opacity:0;transform:translateY(-26px)}}
+
+/* het kopblok licht kort op bij binnenkomst */
+.alert.in .rib__acc{animation:accHit 520ms var(--ease) 120ms}
+@keyframes accHit{0%{filter:brightness(2.1)}100%{filter:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .alert,.alert.in,.alert.out{animation:none;opacity:1;transform:none}
+  .alert.in .rib__acc{animation:none}
+}

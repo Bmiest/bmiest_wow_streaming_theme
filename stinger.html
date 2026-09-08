@@ -139,8 +139,11 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin
   }
 
   /* ---- merk --------------------------------------------------------- */
+  /* Trapezium in plaats van een punt: volledig dekkend op het moment dat
+     het beeld dicht is, en helemaal weg voordat de iris opengaat. Anders
+     hangt de naam halfdoorzichtig over de nieuwe scene. */
   var m  = document.getElementById('mark');
-  var op = cl(1 - Math.abs(t - 0.47) / 0.19);
+  var op = Math.min(cl((t - 0.25) / 0.14), cl((0.515 - t) / 0.05));
   m.style.opacity   = op.toFixed(3);
   m.style.transform = 'scale(' + (0.965 + 0.035 * op).toFixed(4) + ')';
 })();
