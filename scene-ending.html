@@ -1,0 +1,42 @@
+<meta charset="utf-8">
+<title>Scene: ending</title>
+<!-- Wrapper zodat OBS' "Local file"-vinkje bruikbaar is: dat veld is een
+     bestandskiezer en slikt geen ?mode=ending. -->
+<script>window.SCENE_MODE = 'ending';</script>
+<script>
+  document.write('<link rel="stylesheet" href="css/tokens.css">' +
+                 '<link rel="stylesheet" href="css/ribbon.css">' +
+                 '<link rel="stylesheet" href="css/backdrop.css">' +
+                 '<link rel="stylesheet" href="css/scene.css">');
+</script>
+<div id="stage">
+  <svg class="halo-big" viewBox="0 0 400 400" aria-hidden="true">
+    <circle class="r3" cx="200" cy="200" r="198"></circle>
+    <circle class="r1" cx="200" cy="200" r="190"></circle>
+    <circle class="r2" cx="200" cy="200" r="168"></circle>
+  </svg>
+  <svg class="wm-feather-big" viewBox="0 0 100 100" aria-hidden="true">
+    <path fill="currentColor" d="M66 10c-16 5-30 17-38 33-6 13-8 28-6 42l8-13c10-3 20-10 28-19 11-12 14-29 8-43z"></path>
+    <path stroke="currentColor" stroke-width="2.4" fill="none" d="M62 16 27 80"></path>
+  </svg>
+  <div class="scene">
+    <div class="scene__top" id="sceneTop"></div>
+    <div class="scene__mid">
+      <div class="eyebrow-xl" id="eyebrow"></div>
+      <div class="clock" id="clock">--:--</div>
+      <div class="headline" id="headline" style="display:none"></div>
+      <div class="topic" id="topic"></div>
+    </div>
+    <div class="scene__foot" id="foot"></div>
+  </div>
+</div>
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+<script src="js/util.js"></script>
+<script src="js/ribbon.js"></script>
+<script src="js/backdrop.js"></script>
+<script src="js/raiderio.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/streamelements.js"></script>
+<script src="js/scene.js"></script>

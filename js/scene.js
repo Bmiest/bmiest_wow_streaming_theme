@@ -4,7 +4,9 @@
 'use strict';
 var U = window.U, CFG = U.CFG;
 var SC = CFG.scenes || {};
-var MODE = (location.search.match(/[?&]mode=([a-z]+)/) || [,'starting'])[1];
+// Modus uit de URL, of uit een wrapper-bestand (scene-starting.html enz.)
+// zodat OBS' "Local file"-vinkje bruikbaar blijft -- dat slikt geen querystring.
+var MODE = (location.search.match(/[?&]mode=([a-z]+)/) || [, window.SCENE_MODE || 'starting'])[1];
 
 (function(){
   var stage = document.getElementById('stage');

@@ -14,8 +14,11 @@ Je bestaande collecties blijven ongemoeid; dit is er een naast.
 import argparse, json, os, platform, re, shutil, subprocess, sys, uuid
 
 ap = argparse.ArgumentParser()
-ap.add_argument('--base-url', default=None,
-                help='alleen nodig als je toch via een webserver wil; standaard file:// URLs')
+ap.add_argument('--base-url', default='http://localhost:8777',
+                help='waar serve.sh draait (standaard)')
+ap.add_argument('--local-files', action='store_true',
+                help="OBS' Local file-modus in plaats van een server; geen serve.sh nodig, "
+                     "maar minder beproefd")
 ap.add_argument('--root', default=None,
                 help='pad naar de overlaymap zoals OBS het ziet, bv. C:\\overlay')
 ap.add_argument('--name', default='bmiest overlay')
@@ -29,19 +32,19 @@ ap.add_argument('--install', action='store_true',
 a = ap.parse_args()
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
-def file_url(root):
-    """file:///C:/overlay  of  file:///home/benne/overlay"""
-    r = root.replace('\\', '/').rstrip('/')
-    return 'file:///' + r.lstrip('/')
-
-ROOT   = a.root or HERE
-BASE   = a.base_url.rstrip('/') if a.base_url else file_url(ROOT)
 def join_as_target(root, name):
     """os.path.join kiest de scheiding van dit systeem, niet die van het
     doelsysteem. Een Windows-pad moet backslashes houden."""
     sep = '\\' if ('\\' in root or (len(root) > 1 and root[1] == ':')) else '/'
     return root.rstrip('/\\') + sep + name
 
+def file_url(root):
+    """file:///C:/overlay  of  file:///home/benne/overlay"""
+    r = root.replace('\\', '/').rstrip('/')
+    return 'file:///' + r.lstrip('/')
+
+ROOT   = a.root or HERE
+BASE   = a.base_url.rstrip('/')
 STING  = a.stinger or join_as_target(ROOT, 'stinger.webm')
 
 def stinger_point_ms(default=500):
@@ -90,20 +93,39 @@ def src(name, sid, settings, **extra):
     return s
 
 def browser(name, path, w, h):
+    """OBS' CEF weigert een file:// URL in het gewone url-veld. Voor lokale
+    bestanden moet is_local_file aan met een pad in local_file -- en dat veld
+    slikt geen querystring, vandaar de scene-*.html wrappers."""
+    if a.local_files:
+        base = path.split('?')[0]
+        if base == 'scene.html':
+            mode = path.split('mode=')[1]
+            base = 'scene-%s.html' % mode
+        return src(name, 'browser_source', {
+            'is_local_file': True,
+            'local_file': join_as_target(ROOT, base),
+            'width': w, 'height': h,
+            'fps_custom': True, 'fps': 30,
+            'shutdown': False, 'restart_when_active': False,
+            'reroute_audio': False,
+        })
     return src(name, 'browser_source', {
-        # Geen 'is_local_file': dat veld dwingt een bestandskiezer af en die
-        # slikt geen ?mode=starting. Een file:// URL in het gewone url-veld
-        # doet hetzelfde en houdt de querystring.
+        'is_local_file': False,
         'url': BASE + '/' + path, 'width': w, 'height': h,
         'fps_custom': True, 'fps': 30,
         'shutdown': False, 'restart_when_active': False,
         'reroute_audio': False,
     })
 
-def placeholder(name, w, h, colour=0xFF202830):
+def rgb(hexcolour):
+    """OBS bewaart kleuren als ABGR (0xAABBGGRR), niet als RGB."""
+    r = (hexcolour >> 16) & 0xFF; g = (hexcolour >> 8) & 0xFF; b = hexcolour & 0xFF
+    return 0xFF000000 | (b << 16) | (g << 8) | r
+
+def placeholder(name, w, h, colour=0x202830):
     # Kleurvlak als maatvoorbeeld: vervang door je echte capture of camera
     # en plak de transform erop (rechtsklik > Transform > Copy/Paste Transform).
-    return src(name, 'color_source_v3', {'color': colour, 'width': w, 'height': h})
+    return src(name, 'color_source_v3', {'color': rgb(colour), 'width': w, 'height': h})
 
 def item(source, x, y, item_id, bounds=None, btype=0):
     return {
@@ -129,8 +151,8 @@ sc_start = browser('Straks live',   'scene.html?mode=starting',    CANVAS_W, CAN
 sc_brb   = browser('Even weg',      'scene.html?mode=brb',         CANVAS_W, CANVAS_H)
 sc_end   = browser('Einde',         'scene.html?mode=ending',      CANVAS_W, CANVAS_H)
 
-cam      = placeholder('[VERVANG] Webcam',   1280, 720, 0xFF1E5B4A)
-game     = placeholder('[VERVANG] Gameplay', 3440, 1440, 0xFF161A20)
+cam      = placeholder('[VERVANG] Webcam',   1280, 720, 0x1E5B4A)
+game     = placeholder('[VERVANG] Gameplay', 3440, 1440, 0x161A20)
 
 def scene(name, items):
     return src(name, 'scene', {'custom_size': False, 'id_counter': len(items) + 1,
@@ -231,9 +253,11 @@ if not a.install:
     print('Dat zet het bestand in de scenes-map van OBS. Gebruik NIET de')
     print('Import-knop: die is bedoeld voor het overnemen van andere software')
     print('en doet niets met een OBS-collectie.')
-if not a.base_url:
-    print()
-    print('De pagina\'s laden rechtstreeks van schijf; er hoeft geen server te draaien.')
+print()
+if a.local_files:
+    print('Lokale-bestandsmodus: geen server nodig.')
+else:
+    print('Start ./serve.sh (of serve.bat) en laat dat venster open staan.')
 print()
 print('Daarna nog twee dingen zelf: vervang de sources die met [VERVANG]')
 print('beginnen door je echte Game Capture en Video Capture Device.')

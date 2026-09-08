@@ -37,44 +37,51 @@ transparant gat. In OBS zie je daar je webcam.
 
 ---
 
-## 1b. Er hoeft geen server te draaien
+## 1b. Collectie installeren
 
-De pagina's laden rechtstreeks van schijf. Getest: een `file://`-pagina stuurt
-`Origin: null`, en Raider.IO, DecAPI en StreamElements sturen allemaal open
-CORS-headers, dus de fetches gaan gewoon door. Chat en de SE-socket zijn
-websockets en kennen sowieso geen CORS.
+**Sluit eerst OBS af.** OBS houdt de actieve collectie in het geheugen en
+schrijft die bij het afsluiten over het bestand op schijf heen. Installeer je
+terwijl OBS open staat, dan ben je je nieuwe versie kwijt.
 
-`make-obs-collection.py` zet daarom `file://` URLs in de scene collection.
-Geen `serve.sh`, geen poort, geen tweede venster dat open moet blijven.
+```bash
+./serve.sh &                      # laat dit draaien
+./make-obs-collection.py --install
+```
 
-> In OBS moet je die URL in het **gewone url-veld** zetten, niet via het vinkje
-> "Local file". Dat vinkje geeft een bestandskiezer en die slikt geen
-> `?mode=starting`. De import doet dat al goed.
+Start OBS en kies **bmiest overlay** onder **Scene Collection**.
 
-Het enige dat hierdoor niet werkt is de Streamlabs-labelbron: `file://` mag
-geen andere `file://`-bestanden lezen. Gebruik je StreamElements (de standaard),
-dan raakt je dat niet.
+> **Niet de Import-knop.** Die is voor het overnemen van Streamlabs en
+> dergelijke en doet niets met een OBS-eigen collectie. `--install` zet het
+> bestand rechtstreeks in de scenes-map (`~/.config/obs-studio/basic/scenes`,
+> op Windows `%APPDATA%\obs-studio\basic\scenes`).
 
-**Draait OBS op een andere machine?** Zet het project daar neer, niet over je
-netwerk serveren -- `config.js` bevat je StreamElements-token en een statische
-server biedt dat bestand gewoon aan.
+### Waarom een server, en niet gewoon van schijf
+
+OBS' CEF weigert een `file://` URL in het gewone url-veld -- de source blijft
+dan leeg. Voor lokale bestanden moet je `is_local_file` gebruiken, en dat veld
+is een bestandskiezer die geen `?mode=starting` slikt. Vandaar de wrappers
+`scene-starting.html`, `scene-brb.html` en `scene-ending.html`.
+
+Wil je het zonder server proberen:
+
+```bash
+./make-obs-collection.py --local-files --install
+```
+
+Dat zet `is_local_file` aan en verwijst naar die wrappers. Minder beproefd dan
+de serverroute; werkt het niet, dan is `./serve.sh` de zekere weg.
+
+**Draait OBS op een andere machine?** Zet het project daar neer in plaats van
+het over je netwerk te serveren -- `config.js` bevat je StreamElements-token en
+een statische server biedt dat bestand gewoon aan.
 
 ```bat
 git clone https://github.com/Bmiest/wow_streaming_overlay.git
 cd wow_streaming_overlay
 copy config.example.js config.js
-:: config.js openen en je JWT invullen
-python make-obs-collection.py
+serve.bat
+python make-obs-collection.py --install
 ```
-
-Wil je het bestand vanaf hier genereren voor die machine:
-
-```bash
-./make-obs-collection.py --root 'C:\Users\benne\wow_streaming_overlay'
-```
-
-`serve.sh` en `serve.bat` blijven bestaan voor als je toch liever via een
-webserver werkt (`--base-url http://localhost:8777`), maar nodig is het niet.
 
 ## 2. OBS -- video-instellingen
 
