@@ -269,7 +269,7 @@ print()
 if a.local_files:
     print('Lokale-bestandsmodus: geen server nodig.')
 else:
-    print('Start ./serve.sh (of serve.bat) en laat dat venster open staan.')
+    print('Start ./serve.sh en laat dat venster open staan.')
 print()
 print('Daarna nog twee dingen zelf: vervang de sources die met [VERVANG]')
 print('beginnen door je echte Game Capture en Video Capture Device.')

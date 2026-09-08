@@ -1,0 +1,287 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bmiest overlay</title>
+<meta name="description" content="Eigen Twitch-overlay: bovenbalk, onderbalk, alerts, scene-schermen en stinger. Gehost, niets te installeren.">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/ribbon.css">
+<link rel="stylesheet" href="css/index.css">
+
+<div class="page">
+
+  <header class="head">
+    <div class="rib rib--sm" style="--acc:var(--jade)">
+      <div class="rib__bar"><div class="rib__in">
+        <span class="rib__acc"><svg viewBox="0 0 18 18">
+          <circle cx="9" cy="9" r="3" fill="currentColor"></circle>
+          <path d="M4.2 4.2a6.8 6.8 0 0 0 0 9.6M13.8 4.2a6.8 6.8 0 0 1 0 9.6"
+                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg></span>
+        <span class="rib__val">bmiest</span>
+      </div></div>
+    </div>
+
+    <h1>Overlay voor Twitch</h1>
+    <p class="lead">
+      Bovenbalk, onderbalk, alerts, drie scene-schermen en een stinger. De
+      pagina's draaien vanaf deze site, dus in OBS zet je er een browser
+      source op en verder is er niets te installeren. Bijwerken gaat met een
+      <code>git push</code>.
+    </p>
+    <p class="base">basis-URL <b id="base">…</b></p>
+  </header>
+
+  <!-- Hero: de echte pagina's, op schaal, in de verhouding waarin ze op je
+       stream liggen. Geen screenshot -- dit is de overlay zelf, met live
+       data. -->
+  <section class="hero">
+    <div class="hero__frame" id="heroFrame">
+      <div class="zone zone--top">
+        <iframe src="topbar.html?demo=1" title="Bovenbalk" scrolling="no"></iframe>
+      </div>
+
+      <div class="zone zone--game">
+        <span class="zone__tag">gameplay <b>2560 × 1072</b></span>
+      </div>
+
+      <div class="zone zone--bottom">
+        <span class="cam-ghost">camera</span>
+        <iframe src="banner.html?demo=1" title="Onderbalk" scrolling="no"></iframe>
+      </div>
+    </div>
+
+    <p class="hero__note">
+      De 1440 pixels hoogte zijn verdeeld als 120 boven, 1072 gameplay en 248
+      onder. Boven staat de sessiestatus, onder de inhoud: camera, characters,
+      raidprogress, chat en recente events. Het cameravlak is een gat in de
+      onderbalk — daar ligt je webcam achter.
+    </p>
+  </section>
+
+  <!-- URL's + de getallen die OBS wil weten -->
+  <section class="rcard-wrap card" style="--acc:var(--jade)">
+    <span class="rcard__cap">in obs</span>
+    <div class="rcard"><div class="rcard__in">
+
+      <div class="scroll">
+        <table class="srcs">
+          <thead>
+            <tr><th>Bron</th><th>Wat</th><th>Formaat</th><th>Positie</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr data-file="topbar.html">
+              <td>Bovenbalk</td><td class="t-mono">topbar.html</td>
+              <td class="t-mono">2560 × 120</td><td class="t-mono">0, 0</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="banner.html">
+              <td>Onderbalk</td><td class="t-mono">banner.html</td>
+              <td class="t-mono">2560 × 248</td><td class="t-mono">0, 1192</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="alerts.html">
+              <td>Alerts</td><td class="t-mono">alerts.html</td>
+              <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="scene-starting.html">
+              <td>Straks live</td><td class="t-mono">scene-starting.html</td>
+              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="scene-brb.html">
+              <td>Even weg</td><td class="t-mono">scene-brb.html</td>
+              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="scene-ending.html">
+              <td>Einde</td><td class="t-mono">scene-ending.html</td>
+              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr data-file="chatting.html">
+              <td>Just Chatting</td><td class="t-mono">chatting.html</td>
+              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
+              <td><button class="copy" type="button">kopieer</button></td>
+            </tr>
+            <tr class="srcs--other">
+              <td>Game Capture</td><td>jouw spel, <i>scale to inner bounds</i></td>
+              <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td><td></td>
+            </tr>
+            <tr class="srcs--other">
+              <td>Webcam</td><td>Video Capture, <i>scale to outer bounds</i></td>
+              <td class="t-mono">340 × 200</td><td class="t-mono">24, 1216</td><td></td>
+            </tr>
+            <tr class="srcs--other">
+              <td>Stinger</td><td><i>Scene Transitions</i> → Stinger, punt op 500 ms</td>
+              <td class="t-mono">stinger.webm</td><td>lokaal bestand</td><td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="hint">
+        <b>Je StreamElements-token hoort in de URL</b>, als
+        <code>?jwt=eyJ…</code>. Die URL staat alleen in jouw OBS-configuratie,
+        precies zoals de overlay-URL van StreamElements zelf werkt — zo staat
+        het token nergens op deze site. Zonder token draait alles door, maar
+        blijven alerts, events en de labels leeg. De kopieerknop geeft je de
+        URL zonder token; plak die er in OBS achter.
+      </p>
+
+      <p class="hint">
+        Zet bij de balken <i>Custom frame rate</i> op 30 FPS, en laat
+        <i>Shutdown source when not visible</i> en <i>Refresh browser when
+        scene becomes active</i> uit. Dan overleeft je chatgeschiedenis een
+        scenewissel, en beginnen de klokken op de scene-schermen alsnog
+        opnieuw zodra die in beeld komen.
+      </p>
+
+    </div></div>
+  </section>
+
+  <!-- De schermen zelf, ook live -->
+  <section class="screens">
+    <h2>De schermen</h2>
+    <div class="grid">
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1440">
+          <iframe src="scene-starting.html" title="Straks live" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Straks live — aftelklok, streamtitel, schema en socials</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1440">
+          <iframe src="scene-brb.html" title="Even weg" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Even weg — klok loopt op, chat blijft in beeld</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1440">
+          <iframe src="scene-ending.html" title="Einde" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Einde — afsluiter met schema en socials</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1440">
+          <iframe src="chatting.html?demo=1" title="Just Chatting" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Just Chatting — camera links, chat rechts</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="cols">
+    <div class="rcard-wrap card" style="--acc:var(--paper)">
+      <span class="rcard__cap">waar het vandaan komt</span>
+      <div class="rcard"><div class="rcard__in">
+        <dl class="facts">
+          <dt>Chat</dt><dd>Twitch IRC over websocket, anoniem</dd>
+          <dt>Characters, raidprogress</dt><dd>Raider.IO, publieke API</dd>
+          <dt>Kijkers, volgers, uptime, titel</dt><dd>DecAPI</dd>
+          <dt>Follows, subs, bits, tips, raids</dt><dd>StreamElements, socket + REST</dd>
+        </dl>
+        <p class="hint">
+          De onderdelen falen los van elkaar, met opzet. Valt Raider.IO weg,
+          dan blijft alleen die kaart leeg; valt de StreamElements-socket weg,
+          dan blijven de labels het doen via de REST-aanroep. Wat er niet
+          reageert zie je met <code>?health=1</code> achter een URL — dat
+          staat standaard uit, want een rode melding in beeld is erger dan het
+          probleem dat hij meldt.
+        </p>
+      </div></div>
+    </div>
+
+    <div class="rcard-wrap card" style="--acc:var(--gold)">
+      <span class="rcard__cap">parameters</span>
+      <div class="rcard"><div class="rcard__in">
+        <dl class="facts">
+          <dt><code>?jwt=eyJ…</code></dt><dd>je StreamElements-token</dd>
+          <dt><code>?demo=1</code></dt><dd>nepdata, om uit te lijnen zonder te streamen</dd>
+          <dt><code>?test=1</code></dt><dd>op alerts.html: loopt door alle types</dd>
+          <dt><code>?health=1</code></dt><dd>meldt rechtsboven wat er niet reageert</dd>
+          <dt><code>?rio=native</code></dt><dd>raidkaart in de huisstijl, <code>widget</code> of <code>off</code> kan ook</dd>
+          <dt><code>?channel=…</code></dt><dd>ander kanaal dan dat in de config</dd>
+        </dl>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="rcard-wrap card card--wide" style="--acc:var(--paper-dim)">
+    <span class="rcard__cap">de vormtaal</span>
+    <div class="rcard"><div class="rcard__in">
+      <p>
+        Alles deelt één vorm: balken die naar rechts taps toelopen, een
+        bijschrift als tag op de rand, en een gekleurd kopblok met icoon. De
+        kaarten zijn dezelfde taal als vlak, met de hoek rechtsonder
+        afgesneden. Die 1px omlijning komt overal uit twee lagen
+        <code>clip-path</code> over elkaar, want een gewone <code>border</code>
+        volgt een schuine rand niet mee.
+      </p>
+      <p>
+        Wat er bewust <i>niet</i> in zit zijn verlopen. Een zachte was over
+        2560 pixels is maar een handvol 8-bit stappen en gaat banden op 8000
+        kbps — bitrate die je gameplay nodig heeft. De kleur zit daarom in
+        kleine vlakken: het kopblok, de ring om een portret, een bolletje. De
+        achtergrond van de scene-schermen haalt zijn diepte uit gebogen banen
+        die elkaar kruisen; waar twee over elkaar liggen is het vlak iets
+        lichter, en dat is de enige schaduw in het hele ontwerp.
+      </p>
+    </div></div>
+  </section>
+
+  <footer class="foot">
+    <a href="README.md">README — installatie, OBS-instellingen, achtergrond</a>
+    <a href="obs-scene-collection.pages.json">OBS scene collection (kant-en-klaar)</a>
+    <a href="stinger.webm">stinger.webm</a>
+    <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme">Repo op GitHub</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* Basis-URL van deze site, zodat de kopieerknoppen lokaal net zo goed
+     werken als op github.io. */
+  var base = location.href.replace(/[^/]*$/, '');
+  document.getElementById('base').textContent = base;
+
+  /* De previews zijn echte pagina's op ontwerpmaat (2560 breed), geschaald
+     naar de breedte die ze hier krijgen. Bij resize opnieuw meten. */
+  function fit(){
+    var hero = document.getElementById('heroFrame');
+    if(hero) hero.style.setProperty('--s', (hero.clientWidth / 2560).toFixed(5));
+    Array.prototype.forEach.call(document.querySelectorAll('.shot__box'), function(b){
+      b.style.setProperty('--s', (b.clientWidth / +b.dataset.w).toFixed(5));
+    });
+  }
+  fit();
+  addEventListener('resize', fit);
+
+  /* Kopieren: de volledige URL van de bron, zonder token. */
+  function copy(text, btn){
+    var done = function(){
+      var was = btn.textContent;
+      btn.textContent = 'gekopieerd';
+      btn.classList.add('ok');
+      setTimeout(function(){ btn.textContent = was; btn.classList.remove('ok'); }, 1400);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){});
+      return;
+    }
+    var t = document.createElement('textarea');
+    t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); done(); } catch(e){}
+    document.body.removeChild(t);
+  }
+
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest ? e.target.closest('.copy') : null;
+    if(!btn) return;
+    var row = btn.closest('tr');
+    if(row && row.dataset.file) copy(base + row.dataset.file, btn);
+  });
+})();
+</script>

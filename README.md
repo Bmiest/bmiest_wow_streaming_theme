@@ -71,6 +71,12 @@ https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...
 Die URL staat alleen in jouw OBS-configuratie. `config.js` staat in
 `.gitignore` en geeft op de site een 404, dus je token staat nergens publiek.
 
+De **voorpagina van de site** (`index.html`) is een overzicht: een live
+preview van de overlay in de verhoudingen waarin hij op je stream ligt, alle
+bron-URL's met een kopieerknop, en de formaten en posities die OBS wil weten.
+Die previews zijn de echte pagina's in een `iframe`, op schaal -- geen
+screenshots, dus er is niets dat verouderd raakt als de overlay verandert.
+
 ### De collectie
 
 Klaar om te downloaden:
@@ -146,6 +152,11 @@ frame. Zet ze aan.
 
 ## 3. OBS -- de sources
 
+De URL's hieronder zijn die van de gehoste site; de kant-en-klare collectie
+uit 1b vult ze al in. Wil je lokaal werken, dan zet je `./serve.sh` ervoor
+en wordt het `http://localhost:8777/...` -- dan hoeft `?jwt=` er niet achter,
+want lokaal leest de overlay je token uit `config.js`.
+
 De 368px die overblijft is opgesplitst: een dunne statusstrook **boven** de
 gameplay en een bredere databalk **eronder**.
 
@@ -182,7 +193,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `http://localhost:8777/topbar.html` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `120` |
 | Custom frame rate | aan, `30` FPS |
@@ -214,7 +225,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `http://localhost:8777/banner.html` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `248` |
 | Custom frame rate | aan, `30` FPS |
@@ -261,7 +272,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `http://localhost:8777/alerts.html` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `1072` |
 | Shutdown source when not visible | uit |
@@ -706,13 +717,15 @@ krijg je elke follow dubbel.
 ## 8. Bestanden
 
 ```
+index.html       voorpagina: previews, URL's, OBS-getallen
+css/index.css    voorpagina
 topbar.html      sessiestatus boven je beeld  (2560 x 120)
 banner.html      databalk onder je beeld      (2560 x 248)
 alerts.html      alerts over je beeld         (2560 x 1072)
 config.js        jouw instellingen            (gitignored)
 css/tokens.css   palet, typografie, motion
 css/ribbon.css   gedeelde vormtaal (ribbons, kaarten)
-css/backdrop.css achtergrond van scenes en Just Chatting
+css/backdrop.css achtergrond van de scene-schermen
 css/topbar.css   bovenbalk
 css/banner.css   onderbalk
 css/alerts.css   alerts
@@ -720,6 +733,9 @@ js/util.js       helpers
 js/raiderio.js   character + guild
 js/rio-live.js   live boss progress + pull-historie
 scene.html       starting / brb / ending      (2560 x 1440)
+scene-starting.html  wrappers voor OBS' Local file-modus, die geen
+scene-brb.html       querystring slikt; ze zetten window.SCENE_MODE
+scene-ending.html
 chatting.html    Just Chatting                (2560 x 1440)
 stinger.html     één frame van de transitie
 build-stinger.sh rendert stinger.webm
@@ -738,4 +754,9 @@ js/camevent.js   gebeurtenisbalk onder de camera
 js/topbar.js     bovenbalk
 js/banner.js     onderbalk
 js/alerts.js     alert-wachtrij
+
+serve.sh         lokale preview op http://localhost:8777
+build-stinger.sh rendert stinger.webm
+make-obs-collection.py           bouwt een OBS scene collection
+obs-scene-collection.pages.json  kant-en-klaar, wijst naar de gehoste site
 ```
