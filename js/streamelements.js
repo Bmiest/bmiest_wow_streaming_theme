@@ -113,13 +113,16 @@ function start(cb){
     console.info('[SE] geen JWT ingevuld -- live events staan uit');
     return;
   }
+  /* De labels komen via REST en hebben socket.io niet nodig. Die aanroep
+     staat daarom vóór de check: valt de socket weg, dan blijft de bovenbalk
+     het gewoon doen. */
+  U.poll(loadSession, 90);
+
   if(typeof io === 'undefined'){
-    console.warn('[SE] socket.io niet geladen');
+    console.warn('[SE] socket.io niet geladen -- live events staan uit, labels werken wel');
     U.setHealth('streamelements', false);
     return;
   }
-
-  U.poll(loadSession, 90);
 
   var socket = io('https://realtime.streamelements.com', { transports:['websocket'] });
 

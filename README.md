@@ -551,6 +551,26 @@ Technisch: VP9 met `yuva420p` en `-auto-alt-ref 0`; zonder die laatste vlag
 gooit libvpx het alphakanaal weg. `ffprobe` meldt `pix_fmt=yuv420p` -- dat
 klopt, VP9 zet alpha in een aparte stream, zichtbaar aan `alpha_mode=1`.
 
+## 7b. Als er iets niet werkt
+
+Zet `?health=1` achter de URL van een browser source. Dan verschijnt rechtsboven
+een regeltje met de bronnen die niet reageren. Standaard staat dat uit: een rode
+"offline" in beeld is erger dan het probleem dat hij meldt.
+
+De onderdelen falen onafhankelijk van elkaar, met opzet:
+
+| Valt weg | Gevolg |
+|---|---|
+| StreamElements-socket | geen live events; labels blijven werken via de REST-aanroep |
+| StreamElements-REST | labels blijven leeg; events komen nog binnen |
+| Raider.IO | character en boss progress leeg; de rest draait door |
+| DecAPI | kijkers en uptime leeg |
+| Twitch IRC | chat leeg; herverbindt vanzelf met oplopende wachttijd |
+
+`socket.io` wordt **meegeleverd** in `vendor/`, niet van een CDN gehaald. Dat
+was eerder wel zo, en als die aanroep faalde viel niet alleen de socket weg maar
+ook de labels -- die stonden achter dezelfde controle.
+
 ## 8. Bestanden
 
 ```
@@ -577,6 +597,7 @@ js/scene.js      scenes
 js/chatting.js   Just Chatting
 js/chat.js       Twitch IRC
 js/labels.js     labelopslag
+vendor/socket.io.js  meegeleverd, geen CDN
 js/stats.js      DecAPI
 js/streamelements.js  SE socket
 js/ribbon.js     ribbon- en kaartbouwer

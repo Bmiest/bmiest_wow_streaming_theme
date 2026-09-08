@@ -107,10 +107,14 @@ function poll(fn,seconds){
   setInterval(run, seconds*1000 + Math.random()*2000);
 }
 
-// Statusregeltje rechtsboven; alleen zichtbaar als iets stuk is.
+/* Statusregeltje rechtsboven. Dit is een diagnosehulpje, geen onderdeel van
+   je stream -- een rode "offline" in beeld is erger dan het probleem dat hij
+   meldt. Daarom alleen zichtbaar met ?health=1 in de URL. */
 var health = {};
+var SHOW_HEALTH = /[?&]health=1/.test(location.search);
 function setHealth(key,ok){
   health[key]=ok;
+  if(!SHOW_HEALTH) return;
   var node=document.getElementById('health'); if(!node) return;
   var bad=Object.keys(health).filter(function(k){ return !health[k]; });
   node.textContent = bad.length ? bad.join(' \u00b7 ')+' offline' : '';
