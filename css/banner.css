@@ -93,8 +93,9 @@ body.demo .cam__hint{display:grid}
 /* =====================================================================
    2. CHARACTERS
    ===================================================================== */
-.wm--feather{position:absolute;right:-40px;top:-46px;width:180px;height:180px;
-  color:var(--holy);opacity:.04;transform:rotate(18deg);pointer-events:none}
+/* Hier stond een verenwatermerk. In een kaart van 189px hoog viel er maar
+   een lob van binnen beeld, en die lag precies achter de naam van het
+   tweede character: geen watermerk meer, wel een vlek. */
 
 /* Eén kaart, één kolom per character, met een scheidslijn ertussen. Twee
    kolommen is het maximum dat op 900px leesbaar blijft; staan er meer

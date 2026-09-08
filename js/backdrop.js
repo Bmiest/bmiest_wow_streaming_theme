@@ -1,8 +1,44 @@
-/* Achtergrond voor de scenes en Just Chatting.
-   Zet scenes.background op 'plain' in config.js om hem uit te zetten. */
+/* Achtergrond voor de scene-schermen.
+   Zet scenes.background op 'plain' in config.js om hem uit te zetten.
+
+   Just Chatting heeft er geen: dat vlak ligt over de hele stage en de
+   camera is daar een transparant gat, dus de banen zouden dwars over de
+   webcam drijven. */
 (function(){
 'use strict';
 var U = window.U;
+
+/* Eén baan van constante dikte: bovenrand als kromme naar rechts, dan
+   dezelfde kromme h lager terug. Vier controlepunten op vaste x -- de
+   vorm zit dus volledig in de y-waarden hieronder. De banen lopen aan
+   beide kanten 200 buiten het doek door, zodat je nergens een uiteinde
+   ziet als ze opschuiven. */
+function band(y, h){
+  return 'M-200 ' + y[0] +
+         'C640 ' + y[1] + ' 1780 ' + y[2] + ' 2760 ' + y[3] +
+         'L2760 ' + (y[3] + h) +
+         'C1780 ' + (y[2] + h) + ' 640 ' + (y[1] + h) + ' -200 ' + (y[0] + h) + 'Z';
+}
+function edge(y){
+  return 'M-200 ' + y[0] + 'C640 ' + y[1] + ' 1780 ' + y[2] + ' 2760 ' + y[3];
+}
+
+/* Doek 2560x1440. De compositie is een langzame golf, en de klok moet in
+   een gat vallen: in het midden zit tussen y 520 en 800 dus niets. Baan 1
+   en 4 kruisen elkaar in de bovenste derde, baan 3 loopt door de open
+   strook tussen het onderwerp (y 870) en de kaarten (y 1130) en klimt aan
+   beide kanten het lege flank in. Alle vier hebben genoeg hoogteverschil
+   om nergens een lange vlakke rand te hebben -- dat is wat een baan weer
+   in een streep verandert. */
+var BANDS = [
+  { y:[ 420, 120,  180,  460], h:150 },   // 1 jade, bovenste flank
+  { y:[1120,1300, 1240, 1080], h:320 },   // 2 wit, onderste massa
+  { y:[ 760,1150, 1150,  700], h: 80 },   // 3 jade, dun, door de open strook
+  { y:[ 180, 520,  380,  120], h:110 }    // 4 wit, dun, kruist baan 1
+];
+/* Haarlijn op de bovenrand van baan 3. Beide krijgen in de CSS dezelfde
+   animatie, anders schuift de lijn van zijn baan af. */
+var EDGE = 2;
 
 function mount(root, opts){
   opts = opts || {};
@@ -11,12 +47,14 @@ function mount(root, opts){
 
   var bg = U.el('div','bg');
   bg.setAttribute('aria-hidden','true');
-  bg.innerHTML =
-    '<span class="bg__rib bg__rib--1"></span>' +
-    '<span class="bg__rib bg__rib--2"></span>' +
-    '<span class="bg__rib bg__rib--3"></span>' +
-    '<span class="bg__corner bg__corner--tl"></span>' +
-    '<span class="bg__corner bg__corner--br"></span>';
+
+  var svg = '<svg class="bg__flow" viewBox="0 0 2560 1440" preserveAspectRatio="none">';
+  BANDS.forEach(function(b, i){
+    svg += '<g class="bg__band bg__band--' + (i+1) + '"><path d="' + band(b.y, b.h) + '"/></g>';
+  });
+  svg += '<path class="bg__edge" d="' + edge(BANDS[EDGE].y) + '"/></svg>';
+
+  bg.innerHTML = svg;
 
   /* Stofjes: deterministisch geplaatst, niet willekeurig -- anders ziet
      elke scenewissel er net anders uit. */

@@ -227,6 +227,11 @@ Transform > Position `0`, `1192`.
 scheelt rendertijd die je encoder beter kan gebruiken. Die twee vinkjes uit
 zorgen dat je chatgeschiedenis een scenewissel overleeft.
 
+In de characterkaart stond een verenwatermerk. In een kaart van 189px hoog
+viel daar maar een lob van binnen beeld, en die lag precies achter de naam
+van het tweede character: geen watermerk meer, wel een vlek. Op de
+scene-schermen staat hij nog wel -- daar heeft hij de ruimte.
+
 De vier vlakken (characters, raid, chat, recent) zijn `rcard`s uit
 `css/ribbon.css`: schuine hoek rechtsonder, 1px omlijning uit twee geklipte
 lagen, en het bijschrift als tag op de bovenrand met hetzelfde icoon dat een
@@ -529,17 +534,41 @@ beweging wél. Maar geen verlopen: een zachte was van `#0a0b0d` naar iets
 lichters is over 1000px maar een handvol 8-bit stappen, en dat geeft
 zichtbare concentrische banden. De diepte komt daarom uit vlakke vormen.
 
-`css/backdrop.css` + `js/backdrop.js` leggen achter de scenes en Just
-Chatting:
+Het motief komt van Amused: *flowing ribbons*. `css/backdrop.css` +
+`js/backdrop.js` leggen achter de scene-schermen:
 
-- drie grote schuine ribbons op 2--4,5% dekking, die over 60 tot 96 seconden
-  een paar honderd pixels opschuiven -- genoeg om te leven, te traag om te
-  kosten;
+- **vier banen** als bezier-paden, die aan beide kanten 200px buiten het doek
+  doorlopen en elkaar kruisen. Dat kruisen is het punt: waar twee banen over
+  elkaar liggen is het vlak iets lichter, en dat is de enige schaduw in het
+  hele ontwerp -- gemaakt met geometrie in plaats van met een verloop. Ze
+  schuiven over 62 tot 110 seconden een stukje op;
+- **één scherpe jade haarlijn** op de bovenrand van de dunne baan, door de
+  open strook onder de klok. Zonder zo'n lijn wordt een veld van vlakken op
+  een paar procent dekking pap; met meer dan één gaat het strepen;
 - een handvol traag opstijgende stofjes (de mist van een Mistweaver),
-  deterministisch geplaatst zodat elke scenewissel er hetzelfde uitziet;
-- twee hoekhaken die het beeldvlak aftekenen.
+  deterministisch geplaatst zodat elke scenewissel er hetzelfde uitziet.
+
+De vorm van elke baan zit in vier y-waarden in `BANDS` (`js/backdrop.js`);
+de x van de controlepunten staat vast. De compositie houdt het midden leeg:
+tussen y 520 en 800 zit daar niets, want daar staat de klok.
 
 Uitzetten met `scenes.background: 'plain'`.
+
+Drie dingen die hier fout zaten en die de moeite waard zijn als je gaat
+sleutelen:
+
+- De banen stonden op `skewX`. Skew schuift alleen horizontaal: de boven- en
+  onderrand blijven kaarsrecht. Over 2560px las dat niet als een schuine
+  ribbon maar als drie **horizontale strepen** met een harde rand -- precies
+  het bandeneffect dat hierboven de reden is om geen verlopen te gebruiken.
+  Een kromme rand kan alleen uit een pad komen, niet uit een transform.
+- Ze stonden op 2% dekking en waren op stream onzichtbaar. Een plat vlak kost
+  de encoder niets extra, ook niet als het lichter is -- het is het verloop
+  dat betaalt. Nu 2,5 tot 7%.
+- Just Chatting krijgt **geen** achtergrond meer. Dat vlak ligt over de hele
+  stage, en de camera is daar een transparant gat: de banen en de stofjes
+  dreven dwars over de webcam. Buiten het gat is er op die indeling
+  nauwelijks ruimte over, dus er valt niks te missen.
 
 ### Gebeurtenisbalk onder de camera
 

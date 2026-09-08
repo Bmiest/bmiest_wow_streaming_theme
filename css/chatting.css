@@ -12,8 +12,17 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
 .ground{position:absolute;inset:0;z-index:1;pointer-events:none}
 .ground__hole{
   position:absolute;left:60px;top:196px;width:1650px;height:930px;
-  border-radius:26px;
-  box-shadow:0 0 0 3000px var(--ink-900), inset 0 0 0 2px rgba(63,217,164,.38);
+  box-shadow:0 0 0 3000px var(--ink-900);
+}
+/* schuine hoek rechtsonder: driehoekje grondkleur binnen het gat, zelfde
+   30px als de kaarten ernaast */
+.ground__hole::after{
+  content:'';position:absolute;right:0;bottom:0;width:30px;height:30px;
+  background:var(--ink-900);clip-path:polygon(100% 0,100% 100%,0 100%);
+}
+.ground__frame{
+  position:absolute;left:60px;top:196px;width:1650px;height:930px;
+  fill:none;stroke:var(--jade);stroke-opacity:.38;stroke-width:2;
 }
 
 .jc{position:relative;z-index:2;width:100%;height:100%}
@@ -48,7 +57,8 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
 /* alleen met ?demo=1, anders zou het over je cam liggen */
 .jc__camhint{
   position:absolute;left:60px;top:196px;width:1650px;height:930px;
-  display:none;place-items:center;border-radius:26px;
+  display:none;place-items:center;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 30px),calc(100% - 30px) 100%,0 100%);
   background:var(--ink-850);color:var(--ink-500);
   font-size:16px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
 }
@@ -70,7 +80,8 @@ body.demo .jc__camhint{display:grid}
 #jcChat .msg__badges{display:flex;gap:5px;align-self:center}
 #jcChat .bdg{
   font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;
-  border-radius:var(--r-pill);background:var(--ink-600);color:var(--ink-200);
+  clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  background:var(--ink-600);color:var(--ink-200);
   text-transform:uppercase;
 }
 #jcChat .bdg--broadcaster{background:var(--jade);color:var(--ink-900)}

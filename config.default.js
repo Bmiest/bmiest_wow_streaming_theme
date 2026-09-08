@@ -105,10 +105,8 @@ window.OVERLAY_CONFIG = {
     topic: 'Mythic+ push richting 3000',
     // note is optioneel en komt als tagje achter de tijd te staan.
     schedule: [
-      { day: 'maandag',   time: '20:00' },
-      { day: 'woensdag',  time: '20:00 - 23:00', note: 'raid' },
-      { day: 'donderdag', time: '20:00' },
-      { day: 'zondag',    time: '20:00 - 23:00', note: 'raid' },
+      { day: 'woensdag', time: '20:00 - 23:00', note: 'raid' },
+      { day: 'zondag',   time: '20:00 - 23:00', note: 'raid' },
     ],
     // Vul je eigen handles in -- deze verschijnen op de scene-schermen.
     // De guild-regel is informatie voor kijkers, geen huisstijl; weghalen mag.

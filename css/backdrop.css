@@ -1,36 +1,60 @@
 /* =====================================================================
-   ACHTERGROND voor de scenes en Just Chatting
+   ACHTERGROND voor de scene-schermen
 
    Hier mag beweging wél: op deze schermen staat geen gameplay die om
    bitrate vecht. Maar geen verlopen -- een zachte was van #0a0b0d naar
    iets lichters is over 1000px maar een handvol 8-bit stappen, en dat
-   geeft zichtbare concentrische banden. De diepte komt daarom uit vlakke
-   vormen in dezelfde ribbon-taal, plus een paar traag drijvende stofjes.
+   geeft zichtbare banden.
+
+   Het motief komt uit Amused: flowing ribbons. Vier banen zwaaien door
+   het beeld en lopen aan beide kanten buiten de rand door; ze kruisen
+   elkaar, en juist die kruisingen geven diepte. Waar twee banen over
+   elkaar liggen is het vlak iets lichter, en dat is de enige schaduw in
+   het hele ontwerp -- gemaakt met geometrie in plaats van met een verloop.
+
+   Eerdere versie stond op skewX. Skew schuift alleen horizontaal: boven-
+   en onderrand blijven kaarsrecht, dus over 2560px las het als drie
+   horizontale strepen met een harde rand. Precies het bandeneffect dat
+   hierboven de reden is om geen verlopen te gebruiken.
    ===================================================================== */
 
 .bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 
-/* ---- grote schuine ribbons ------------------------------------------
-   Vlakke vlakken op zeer lage dekking. Ze schuiven over een minuut een
-   paar honderd pixels op: genoeg om te leven, te traag om te kosten. */
-.bg__rib{
-  position:absolute;left:-30vw;width:160vw;
-  transform:skewX(-14deg);
-  clip-path:polygon(0 0, 100% 0, calc(100% - 220px) 100%, 220px 100%);
-}
-.bg__rib--1{top:12%;height:190px;background:var(--jade);opacity:.045;
-  animation:bgDrift1 74s ease-in-out infinite alternate}
-.bg__rib--2{top:44%;height:320px;background:var(--holy);opacity:.022;
-  animation:bgDrift2 96s ease-in-out infinite alternate}
-.bg__rib--3{top:76%;height:150px;background:var(--jade);opacity:.032;
-  animation:bgDrift3 62s ease-in-out infinite alternate}
+/* ---- flowing ribbons ------------------------------------------------
+   preserveAspectRatio staat op none: de banen mogen meerekken met het
+   doek, ze hebben geen eigen maat om te bewaren. */
+.bg__flow{position:absolute;inset:0;width:100%;height:100%}
+.bg__band path{fill:currentColor}
 
-@keyframes bgDrift1{from{transform:skewX(-14deg) translateX(-70px)}
-                    to  {transform:skewX(-14deg) translateX(70px)}}
-@keyframes bgDrift2{from{transform:skewX(-14deg) translateX(80px)}
-                    to  {transform:skewX(-14deg) translateX(-80px)}}
-@keyframes bgDrift3{from{transform:skewX(-14deg) translateX(-55px)}
-                    to  {transform:skewX(-14deg) translateX(55px)}}
+/* Elke baan schuift over anderhalve minuut een stukje op. Genoeg om te
+   leven op een scherm waar je twee minuten naar kijkt, te traag om de
+   encoder iets te kosten. */
+/* Dekking. Een plat vlak kost de encoder niets extra, ook niet als het
+   lichter is -- het is het verloop dat betaalt. Op 2% was er op stream
+   niets van te zien; hier zie je de stroming zonder dat het doek van
+   zwart naar grijs verschuift. */
+.bg__band--1{color:var(--jade);opacity:.07}
+.bg__band--2{color:var(--holy);opacity:.03}
+.bg__band--3{color:var(--jade);opacity:.055}
+.bg__band--4{color:var(--holy);opacity:.025}
+
+/* De haarlijn hoort bij baan 3 en staat daarom in dezelfde regel: geven
+   ze een eigen animatie, dan schuift de lijn van zijn baan af. */
+.bg__band--1{animation:bgFlow1 74s ease-in-out infinite alternate}
+.bg__band--2{animation:bgFlow2 96s ease-in-out infinite alternate}
+.bg__band--3,
+.bg__edge   {animation:bgFlow3 62s ease-in-out infinite alternate}
+.bg__band--4{animation:bgFlow4 110s ease-in-out infinite alternate}
+
+@keyframes bgFlow1{from{transform:translateX(-70px)}to{transform:translateX(70px)}}
+@keyframes bgFlow2{from{transform:translateX(80px)} to{transform:translateX(-80px)}}
+@keyframes bgFlow3{from{transform:translateX(-55px)}to{transform:translateX(55px)}}
+@keyframes bgFlow4{from{transform:translateX(40px)} to{transform:translateX(-40px)}}
+
+/* Eén scherpe lijn, door de open strook onder de klok: hij rijdt op de
+   bovenrand van baan 3 en leest als een horizon. Zonder zo'n lijn wordt een
+   veld van vlakken op 2% dekking pap; met meer dan één gaat het strepen. */
+.bg__edge{fill:none;stroke:var(--jade);stroke-opacity:.26;stroke-width:2}
 
 /* ---- stofjes --------------------------------------------------------
    De mist van een Mistweaver. Een handvol, traag, klein. */
@@ -45,20 +69,11 @@
   100%{transform:translateY(-460px) translateX(38px);opacity:0}
 }
 
-/* ---- hoekmarkering --------------------------------------------------
-   Twee haakjes die het beeldvlak aftekenen, zelfde hoek als de ribbons. */
-.bg__corner{position:absolute;width:120px;height:120px;opacity:.5}
-.bg__corner::before,.bg__corner::after{content:'';position:absolute;background:var(--ink-600)}
-.bg__corner::before{width:100%;height:2px}
-.bg__corner::after {width:2px;height:100%}
-.bg__corner--tl{top:44px;left:44px}
-.bg__corner--tl::before{top:0;left:0}
-.bg__corner--tl::after {top:0;left:0}
-.bg__corner--br{bottom:44px;right:44px}
-.bg__corner--br::before{bottom:0;right:0}
-.bg__corner--br::after {bottom:0;right:0}
+/* Hier stonden twee hoekhaken die het beeldvlak aftekenden. Ze zeiden
+   niets, en de rechteronderste viel achter de 'recent'-kaart: wat je zag
+   was een streepje dat er per ongeluk leek te staan. */
 
 @media (prefers-reduced-motion:reduce){
-  .bg__rib,.bg__mote{animation:none}
+  .bg__band,.bg__edge,.bg__mote{animation:none}
   .bg__mote{opacity:.6}
 }

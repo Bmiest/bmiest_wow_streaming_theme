@@ -6,7 +6,14 @@
 <link rel="stylesheet" href="css/chatting.css">
 
 <div id="stage">
-  <div class="ground"><div class="ground__hole"></div></div>
+  <!-- Camera-gat met dezelfde schuine hoek als de kaarten; de omlijning is
+       een polygon, want een border volgt geen diagonaal. -->
+  <div class="ground">
+    <div class="ground__hole"></div>
+    <svg class="ground__frame" viewBox="0 0 1650 930" aria-hidden="true">
+      <polygon points="1,1 1649,1 1649,899 1619,929 1,929"></polygon>
+    </svg>
+  </div>
 
   <div class="jc jc__cam">
     <div class="jc__camhint">camera</div>

@@ -15,7 +15,11 @@ if(DEMO) document.body.classList.add('demo');
   stage.style.transform = 'scale(' + ((CFG.outputWidth || dw) / dw) + ')';
 })();
 
-window.Backdrop.mount(document.getElementById('stage'), {motes:12});
+/* Geen Backdrop op dit scherm. Dat vlak ligt over de hele stage, en de
+   camera is hier een transparant gat: de schuine vlakken en de stofjes
+   dreven dus dwars over je webcam. Buiten het gat is er op deze indeling
+   nauwelijks ruimte over om te vullen, dus er valt niks te missen. Op de
+   scene-schermen (geen camera) blijft hij staan. */
 
 /* ---- kop ------------------------------------------------------------ */
 var ribChar = R.make('sword',  'character', '—');
