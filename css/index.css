@@ -11,8 +11,12 @@
    overlay, want dit ís de overlay.
    ===================================================================== */
 
-html{background:var(--ink-900)}
-body{background:var(--ink-900);color:var(--paper);overflow-x:hidden}
+/* tokens.css zet body{overflow:hidden}, want elke overlay-pagina is een vast
+   doek dat nooit mag scrollen. Deze pagina wel. overflow-x:hidden alleen was
+   niet genoeg: dat overschrijft alleen de x-as en laat de y-as op hidden
+   staan, waardoor de pagina muurvast zat. */
+html{background:var(--ink-900);overflow-x:hidden}
+body{background:var(--ink-900);color:var(--paper);overflow:visible}
 
 .page{max-width:1280px;margin:0 auto;padding:72px 40px 96px;
   display:flex;flex-direction:column;gap:64px}
