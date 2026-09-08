@@ -1,0 +1,64 @@
+/* =====================================================================
+   ACHTERGROND voor de scenes en Just Chatting
+
+   Hier mag beweging wél: op deze schermen staat geen gameplay die om
+   bitrate vecht. Maar geen verlopen -- een zachte was van #0a0b0d naar
+   iets lichters is over 1000px maar een handvol 8-bit stappen, en dat
+   geeft zichtbare concentrische banden. De diepte komt daarom uit vlakke
+   vormen in dezelfde ribbon-taal, plus een paar traag drijvende stofjes.
+   ===================================================================== */
+
+.bg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+
+/* ---- grote schuine ribbons ------------------------------------------
+   Vlakke vlakken op zeer lage dekking. Ze schuiven over een minuut een
+   paar honderd pixels op: genoeg om te leven, te traag om te kosten. */
+.bg__rib{
+  position:absolute;left:-30vw;width:160vw;
+  transform:skewX(-14deg);
+  clip-path:polygon(0 0, 100% 0, calc(100% - 220px) 100%, 220px 100%);
+}
+.bg__rib--1{top:12%;height:190px;background:var(--jade);opacity:.045;
+  animation:bgDrift1 74s ease-in-out infinite alternate}
+.bg__rib--2{top:44%;height:320px;background:var(--holy);opacity:.022;
+  animation:bgDrift2 96s ease-in-out infinite alternate}
+.bg__rib--3{top:76%;height:150px;background:var(--jade);opacity:.032;
+  animation:bgDrift3 62s ease-in-out infinite alternate}
+
+@keyframes bgDrift1{from{transform:skewX(-14deg) translateX(-70px)}
+                    to  {transform:skewX(-14deg) translateX(70px)}}
+@keyframes bgDrift2{from{transform:skewX(-14deg) translateX(80px)}
+                    to  {transform:skewX(-14deg) translateX(-80px)}}
+@keyframes bgDrift3{from{transform:skewX(-14deg) translateX(-55px)}
+                    to  {transform:skewX(-14deg) translateX(55px)}}
+
+/* ---- stofjes --------------------------------------------------------
+   De mist van een Mistweaver. Een handvol, traag, klein. */
+.bg__mote{
+  position:absolute;border-radius:50%;
+  animation:moteRise linear infinite;
+}
+@keyframes moteRise{
+  0%  {transform:translateY(0)      translateX(0);   opacity:0}
+  12% {opacity:1}
+  88% {opacity:1}
+  100%{transform:translateY(-460px) translateX(38px);opacity:0}
+}
+
+/* ---- hoekmarkering --------------------------------------------------
+   Twee haakjes die het beeldvlak aftekenen, zelfde hoek als de ribbons. */
+.bg__corner{position:absolute;width:120px;height:120px;opacity:.5}
+.bg__corner::before,.bg__corner::after{content:'';position:absolute;background:var(--ink-600)}
+.bg__corner::before{width:100%;height:2px}
+.bg__corner::after {width:2px;height:100%}
+.bg__corner--tl{top:44px;left:44px}
+.bg__corner--tl::before{top:0;left:0}
+.bg__corner--tl::after {top:0;left:0}
+.bg__corner--br{bottom:44px;right:44px}
+.bg__corner--br::before{bottom:0;right:0}
+.bg__corner--br::after {bottom:0;right:0}
+
+@media (prefers-reduced-motion:reduce){
+  .bg__rib,.bg__mote{animation:none}
+  .bg__mote{opacity:.6}
+}

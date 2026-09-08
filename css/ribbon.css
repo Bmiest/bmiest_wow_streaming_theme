@@ -1,0 +1,89 @@
+/* =====================================================================
+   RIBBON  --  de gedeelde vormtaal
+   Geleend van Amused ("flowing ribbons", "angled ribbon aesthetic"):
+   balken die taps toelopen, bijschriften als tag op de rand, en een
+   gekleurd kopblok met icoon.
+
+   Wat er niet in zit is het volvlakse kleurverloop uit het origineel.
+   Grote verzadigde vlakken en gradients kosten bitrate die de gameplay
+   nodig heeft, en banden op 8000 kbps. De kleur zit hier in het kopblok
+   en het bijschrift -- kleine vlakken.
+
+   De 1px omlijning komt overal uit twee lagen clip-path over elkaar: een
+   gewone border volgt een schuine clip-path niet mee.
+   ===================================================================== */
+
+:root{
+  --rib-h  : 44px;   /* hoogte van de balk        */
+  --rib-cut: 14px;   /* hoe ver hij taps toeloopt */
+}
+
+/* ---- ribbon --------------------------------------------------------- */
+.rib{display:flex;flex-direction:column;flex:0 0 auto;min-width:0}
+
+.rib__cap{
+  align-self:flex-start;margin-left:16px;position:relative;z-index:2;
+  height:20px;display:flex;align-items:center;padding:0 10px;
+  background:var(--ink-900);border:1px solid var(--ink-600);border-radius:5px;
+  font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acc,var(--ink-300));white-space:nowrap;
+}
+
+.rib__bar{
+  height:var(--rib-h);margin-top:-7px;padding:1px;
+  background:var(--ink-600);
+  clip-path:polygon(0 0, 100% 0, calc(100% - var(--rib-cut)) 100%, 0 100%);
+}
+.rib__in{
+  height:100%;display:flex;align-items:center;
+  background:var(--ink-800);
+  clip-path:polygon(0 0, 100% 0, calc(100% - var(--rib-cut) + 1px) 100%, 0 100%);
+  padding-right:calc(var(--rib-cut) + 12px);
+}
+.rib__acc{
+  flex:0 0 var(--rib-h);width:var(--rib-h);height:100%;
+  background:var(--acc,var(--jade));color:var(--ink-900);
+  clip-path:polygon(0 0, 100% 0, calc(100% - 13px) 100%, 0 100%);
+  display:grid;place-items:center;
+}
+.rib__acc svg{width:calc(var(--rib-h) * .39);height:calc(var(--rib-h) * .39);margin-right:6px}
+.rib__val{
+  padding-left:13px;font-size:calc(var(--rib-h) * .455);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* korte oplichting bij een wijziging: alleen het kopblok, klein vlak */
+.rib.hit .rib__acc{animation:ribHit 420ms cubic-bezier(.22,.61,.36,1)}
+@keyframes ribHit{0%{filter:brightness(1.9)}100%{filter:none}}
+
+/* maatvarianten */
+.rib--sm{--rib-h:34px;--rib-cut:11px}
+.rib--lg{--rib-h:58px;--rib-cut:18px}
+.rib--xl{--rib-h:72px;--rib-cut:22px}
+
+/* ---- kaart met schuine hoek ----------------------------------------
+   Zelfde taal, maar dan als vlak: rechtsonder afgesneden.
+
+   Het bijschrift staat bewust BUITEN het geklipte element. clip-path klipt
+   ook absoluut gepositioneerde kinderen, dus een tag die op de bovenrand
+   rijdt wordt anders half weggesneden. */
+.rcard-wrap{position:relative;display:flex;flex-direction:column;
+  min-width:0;padding-top:11px}
+
+.rcard__cap{
+  position:absolute;top:0;left:26px;z-index:3;
+  height:22px;display:flex;align-items:center;padding:0 12px;
+  background:var(--ink-900);border:1px solid var(--ink-600);border-radius:5px;
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acc,var(--ink-400));white-space:nowrap;
+}
+
+.rcard{
+  flex:1;min-height:0;padding:1px;background:var(--ink-700);
+  clip-path:polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+}
+.rcard__in{
+  height:100%;background:var(--ink-800);
+  clip-path:polygon(0 0, 100% 0, 100% calc(100% - 29px), calc(100% - 29px) 100%, 0 100%);
+  display:flex;flex-direction:column;
+}

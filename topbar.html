@@ -1,0 +1,46 @@
+<meta charset="utf-8">
+<title>Bovenbalk</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/ribbon.css">
+<link rel="stylesheet" href="css/topbar.css">
+
+<div id="stage">
+  <div class="top">
+
+    <div class="pill pill--live" id="livePill">
+      <span class="dot"></span>
+      <span class="state" id="liveState">offline</span>
+      <span class="num" id="uptime"></span>
+    </div>
+
+    <div class="title" id="title" style="display:none"></div>
+
+    <!-- labels worden hier opgebouwd uit config.topbar.labels -->
+    <div class="rail" id="rail"></div>
+
+    <div class="top__r">
+      <div class="pill">
+        <span class="num" id="viewers">—</span>
+        <span class="lbl">kijkers</span>
+      </div>
+      <div class="pill">
+        <span class="num" id="followCount" data-v="0">—</span>
+        <span class="lbl">volgers</span>
+        <span class="goal">
+          <span class="goal__track"><span class="goal__fill" id="goalFill"></span></span>
+          <span class="num" id="goalTarget" style="font-size:14px;color:var(--ink-400)"></span>
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="js/util.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+<script src="js/ribbon.js"></script>
+<script src="js/labels.js"></script>
+<script src="js/streamelements.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/topbar.js"></script>

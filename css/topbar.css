@@ -1,0 +1,52 @@
+/* =====================================================================
+   BOVENBALK  --  2560 x 120, boven de gameplay (y = 0)
+   Links de live-status, in het midden een rail met labels, rechts de
+   cijfers. Labels zonder waarde worden verborgen, zodat de balk zich
+   vult naarmate er iets gebeurt.
+   ===================================================================== */
+
+html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
+#stage{position:absolute;top:0;left:0;transform-origin:0 0;
+  background:var(--ink-900);overflow:hidden}
+
+/* naad naar de gameplay toe, dus onderaan deze strook */
+#stage::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--jade);opacity:.55;z-index:20}
+#stage::before{content:'';position:absolute;bottom:2px;left:0;right:0;height:1px;
+  background:var(--holy);opacity:.05;z-index:20}
+
+.top{height:100%;padding:0 24px;display:flex;align-items:center;gap:14px}
+.rail{flex:1;min-width:0;display:flex;align-items:center;gap:12px;overflow:hidden}
+.top__r{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+
+.pill{
+  display:flex;align-items:center;gap:12px;
+  height:52px;padding:0 20px;flex:0 0 auto;
+  background:var(--ink-800);border:1px solid var(--ink-700);
+  border-radius:var(--r-pill);
+  font-size:20px;font-weight:600;white-space:nowrap;
+}
+.pill .lbl{font-size:11px;font-weight:600;color:var(--ink-400);
+  letter-spacing:.16em;text-transform:uppercase}
+.pill .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
+
+/* live-indicator */
+.dot{width:9px;height:9px;border-radius:50%;background:var(--jade);flex:0 0 9px}
+.pill--live .state{color:var(--jade);letter-spacing:.16em;text-transform:uppercase;font-size:13px}
+.pill--off  .dot{background:var(--ink-500)}
+.pill--off  .state{color:var(--ink-400)}
+
+/* titel, alleen als topbar.showTitle aan staat */
+.title{font-size:22px;font-weight:600;letter-spacing:-.015em;color:var(--paper-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:520px;
+  padding:0 6px;flex:0 1 auto}
+
+/* volgersdoel als ribbon in de pil */
+.goal{display:flex;align-items:center;gap:11px}
+.goal__track{position:relative;width:94px;height:6px;background:var(--ink-700);
+  border-radius:var(--r-pill);overflow:hidden}
+.goal__fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--jade);
+  border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease)}
+
+.num.flash{animation:flash var(--t-slow) var(--ease)}
+@keyframes flash{0%{color:var(--jade)}100%{color:var(--paper)}}

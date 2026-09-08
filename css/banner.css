@@ -1,0 +1,213 @@
+/* =====================================================================
+   ONDERBALK  --  2560 x 248, onder de gameplay (y = 1192)
+   Raster: cam 340 | character 620 | boss 330 | chat 800 | events 342
+   Boven zit een aparte strook (topbar.html) met de sessiestatus.
+   ===================================================================== */
+
+html,body{
+  width:100vw;height:100vh;
+  background:transparent;          /* grond komt uit .ground__hole */
+  overflow:hidden;
+}
+#stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden}
+
+/* ---- grond met camera-gat ------------------------------------------
+   De box-shadow vult de hele strook en laat het cameravlak leeg. Je OBS
+   camera-source ligt daarachter en krijgt zo ronde hoeken zonder mask. */
+.ground{position:absolute;inset:0;z-index:0;pointer-events:none}
+.ground__hole{
+  position:absolute;left:24px;top:24px;width:340px;height:200px;
+  border-radius:24px;
+  box-shadow:0 0 0 3000px var(--ink-900), inset 0 0 0 2px rgba(63,217,164,.38);
+}
+
+/* naad tussen gameplay en balk: twee kale lijnen, goedkoop voor de encoder */
+#stage::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--jade);opacity:.55;z-index:20}
+#stage::after{content:'';position:absolute;top:2px;left:0;right:0;height:1px;
+  background:var(--holy);opacity:.05;z-index:20}
+
+.banner{
+  position:relative;z-index:1;height:100%;
+  display:grid;grid-template-columns:340px 620px 330px 1fr 342px;
+  gap:20px;padding:24px;
+}
+
+.cap{
+  position:relative;background:var(--ink-800);border:1px solid var(--ink-700);
+  border-radius:24px;padding:18px 22px;overflow:hidden;
+}
+.cap__label{font-size:11px;font-weight:600;color:var(--ink-400);
+  letter-spacing:.16em;text-transform:uppercase;margin-bottom:11px}
+
+/* =====================================================================
+   1. CAMERA -- leeg vlak boven het gat
+   ===================================================================== */
+.cam{position:relative}
+.cam__plate{
+  position:absolute;left:12px;bottom:12px;
+  display:flex;align-items:center;gap:8px;
+  padding:6px 14px 6px 10px;background:#0a0b0dd9;
+  border:1px solid var(--ink-700);border-radius:var(--r-pill);
+  font-size:14px;font-weight:600;
+}
+.cam__plate .live{width:7px;height:7px;border-radius:50%;background:var(--jade);flex:0 0 7px}
+.cam__hint{
+  position:absolute;inset:0;display:none;place-items:center;border-radius:24px;
+  background:var(--ink-850);color:var(--ink-500);font-size:11px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+}
+body.demo .cam__hint{display:grid}
+
+/* gebeurtenisbalk onder de camera: schuift omhoog over het naamplaatje */
+.cam__plate{transition:opacity 240ms var(--ease)}
+.cam.busy .cam__plate{opacity:0}
+.camev{
+  position:absolute;left:12px;right:12px;bottom:12px;z-index:4;
+  transform:translateY(150%);opacity:0;
+  transition:transform 400ms var(--ease), opacity 260ms var(--ease);
+}
+.camev.on{transform:none;opacity:1}
+.camev .rib{--rib-h:38px;--rib-cut:12px}
+.camev .rib__val{font-size:17px}
+
+/* =====================================================================
+   2. CHARACTER
+   ===================================================================== */
+.cap--char{display:flex;gap:20px;align-items:center}
+.wm--feather{position:absolute;right:-40px;top:-46px;width:180px;height:180px;
+  color:var(--holy);opacity:.04;transform:rotate(18deg);pointer-events:none}
+
+.char__portrait{position:relative;width:104px;height:104px;flex:0 0 104px}
+.char__portrait img{position:absolute;inset:8px;width:88px;height:88px;
+  border-radius:50%;object-fit:cover;background:var(--ink-700)}
+.char__halo{position:absolute;inset:0;width:104px;height:104px}
+.char__halo circle{fill:none;stroke:var(--jade);stroke-width:2.5;
+  stroke-dasharray:210 92;stroke-linecap:round;
+  transform:rotate(-96deg);transform-origin:50% 50%}
+.char__halo circle.inner{stroke:var(--holy);stroke-width:1;opacity:.22;stroke-dasharray:3 9}
+
+.char__meta{flex:1;min-width:0;line-height:1.3}
+.char__name{font-size:29px;font-weight:600;line-height:1.04;letter-spacing:-.015em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.char__sub{display:flex;align-items:center;gap:8px;font-size:14px;
+  color:var(--paper-dim);margin-top:3px;white-space:nowrap;overflow:hidden}
+.char__sub .swatch{width:8px;height:8px;border-radius:50%;background:var(--ink-400);flex:0 0 8px}
+.char__sub .sep{color:var(--ink-500)}
+
+.char__stats{display:flex;gap:28px;margin-top:12px}
+.stat__v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:25px;font-weight:500;line-height:1}
+.stat__l{font-size:9px;font-weight:600;color:var(--ink-400);margin-top:6px;
+  letter-spacing:.14em;text-transform:uppercase}
+
+/* keys op één regel; ze horen bij het character, niet bij de raid */
+.keys{display:flex;gap:22px;margin-top:12px;padding-top:10px;
+  border-top:1px solid var(--ink-700);overflow:hidden}
+.key{display:flex;align-items:baseline;gap:8px;font-size:13px;white-space:nowrap;min-width:0}
+.key__lvl{font-family:var(--f-mono);font-weight:700;color:var(--jade)}
+.key__n{color:var(--paper-dim);overflow:hidden;text-overflow:ellipsis}
+.keys__empty{font-size:13px;color:var(--ink-500)}
+
+.rotdots{position:absolute;right:18px;top:16px;display:flex;gap:5px}
+.rotdots i{width:15px;height:3px;border-radius:var(--r-pill);background:var(--ink-600);
+  transition:background var(--t-med) var(--ease)}
+.rotdots i.on{background:var(--jade)}
+
+/* =====================================================================
+   3. BOSS PROGRESS  --  widget of eigen weergave
+   ===================================================================== */
+.cap--boss{padding:0;background:var(--ink-850)}
+
+/* ingesloten Raider.IO widget */
+.rio{position:absolute;inset:0;overflow:hidden;border-radius:24px}
+.rio iframe{position:absolute;left:50%;top:50%;width:500px;height:312px;
+  border:0;transform-origin:50% 50%}
+
+/* eigen weergave van dezelfde gegevens */
+.boss{position:absolute;inset:0;padding:18px 20px;overflow:hidden}
+.boss__art{
+  position:absolute;right:-28px;top:-22px;width:190px;height:190px;
+  background-size:cover;background-position:center 14%;
+  opacity:.17;pointer-events:none;z-index:0;
+  -webkit-mask-image:linear-gradient(to left,#000 8%,transparent 94%);
+          mask-image:linear-gradient(to left,#000 8%,transparent 94%);
+}
+.boss__over,.boss__top,.boss__sub,.boss__stat{position:relative;z-index:1}
+.boss__over{font-size:9px;font-weight:600;color:var(--ink-400);
+  letter-spacing:.14em;text-transform:uppercase;line-height:1.3}
+.boss__top{display:flex;align-items:flex-start;gap:10px;margin-top:4px}
+.boss__nm{font-size:19px;font-weight:600;line-height:1.14;letter-spacing:-.012em;
+  flex:1;min-width:0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.boss__tag{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:var(--r-pill);flex:0 0 auto;margin-top:3px}
+.boss__tag.down{background:var(--jade-ghost);color:var(--jade)}
+.boss__tag.prog{background:rgba(216,178,99,.15);color:var(--gold)}
+.boss__sub{font-size:11px;color:var(--ink-300);margin-top:5px;line-height:1.3}
+.boss__sub b{color:var(--paper-dim);font-weight:500;font-family:var(--f-mono)}
+.boss__stat{display:flex;align-items:flex-end;gap:18px;margin-top:14px}
+.boss__v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:26px;font-weight:500;line-height:1}
+.boss__v.jade{color:var(--jade)}
+.boss__v.gold{color:var(--gold)}
+.boss__l{font-size:8px;font-weight:600;color:var(--ink-400);margin-top:5px;
+  letter-spacing:.14em;text-transform:uppercase}
+
+/* pull-historie: hoger = meer boss-HP eraf; statisch */
+.spark{display:flex;align-items:flex-end;gap:3px;height:30px;flex:0 0 auto;padding-bottom:2px}
+.spark i{width:6px;min-height:2px;display:block;background:var(--ink-500);border-radius:2px 2px 0 0}
+.spark i.best{background:var(--paper-dim)}
+.spark i.kill{background:var(--jade)}
+
+/* =====================================================================
+   4. CHAT
+   ===================================================================== */
+.cap--chat{padding:18px 0 14px}
+.cap--chat .cap__label{padding:0 22px}
+#chatList{
+  display:flex;flex-direction:column;justify-content:flex-end;gap:8px;
+  height:calc(100% - 26px);padding:0 22px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
+}
+.msg{font-size:19px;line-height:1.32;display:flex;gap:9px;align-items:baseline;
+  animation:msgIn var(--t-fast) var(--ease) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg__badges{display:flex;gap:4px;flex:0 0 auto;align-self:center}
+.bdg{font-size:9px;font-weight:700;letter-spacing:.08em;padding:2px 6px;
+  border-radius:var(--r-pill);background:var(--ink-600);color:var(--ink-200);
+  text-transform:uppercase;line-height:1.35}
+.bdg--broadcaster{background:var(--jade);color:var(--ink-900)}
+.bdg--moderator  {background:var(--jade-deep);color:var(--paper)}
+.bdg--vip        {background:var(--rose);color:var(--ink-900)}
+.bdg--subscriber {background:var(--ink-500);color:var(--paper)}
+.msg__name{font-weight:600;flex:0 0 auto}
+.msg__body{color:var(--paper-dim);word-break:break-word;min-width:0}
+.msg__body img.emote{height:24px;vertical-align:-6px;margin:0 1px}
+.msg--action .msg__body{font-style:italic;color:var(--jade)}
+
+/* =====================================================================
+   5. RECENTE EVENTS  --  lijst, geen doorlopende ticker: constante
+      beweging over de volle breedte eet bitrate die je gameplay nodig heeft
+   ===================================================================== */
+.events{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.ev{display:flex;align-items:center;gap:10px;font-size:17px;
+  animation:msgIn var(--t-fast) var(--ease) both}
+.ev .tag{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:4px 8px;border-radius:var(--r-pill);flex:0 0 auto;
+  background:var(--ink-600);color:var(--ink-200)}
+.ev .tag--follow{background:var(--jade-ghost);color:var(--jade)}
+.ev .tag--sub   {background:rgba(255,255,255,.11);color:var(--holy)}
+.ev .tag--cheer,
+.ev .tag--tip   {background:rgba(216,178,99,.14);color:var(--gold)}
+.ev .tag--raid  {background:var(--jade-ghost);color:var(--jade)}
+.ev b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ev i{margin-left:auto;font-style:normal;font-family:var(--f-mono);
+  font-size:13px;color:var(--ink-400);flex:0 0 auto}
+.events__empty{font-size:16px;color:var(--ink-500)}
+
+#health{position:absolute;right:8px;top:4px;z-index:30;
+  font-family:var(--f-mono);font-size:10px;color:var(--rose);
+  opacity:0;transition:opacity var(--t-med)}
+#health.show{opacity:.75}

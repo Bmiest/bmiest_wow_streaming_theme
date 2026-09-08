@@ -1,0 +1,92 @@
+/* =====================================================================
+   JUST CHATTING  --  2560 x 1440
+   Camera links als transparant gat, chat rechts. Zelfde stanstruc als de
+   onderbalk: je OBS camera-source ligt achter deze browser source.
+
+   Camera-rechthoek:  x 60   y 196   1650 x 930
+   ===================================================================== */
+
+html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
+#stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden}
+
+.ground{position:absolute;inset:0;z-index:1;pointer-events:none}
+.ground__hole{
+  position:absolute;left:60px;top:196px;width:1650px;height:930px;
+  border-radius:26px;
+  box-shadow:0 0 0 3000px var(--ink-900), inset 0 0 0 2px rgba(63,217,164,.38);
+}
+
+.jc{position:relative;z-index:2;width:100%;height:100%}
+
+/* ---- bovenbalk ------------------------------------------------------ */
+.jc__top{
+  position:absolute;left:60px;top:52px;width:2440px;height:112px;
+  display:flex;align-items:center;gap:20px;
+}
+.jc__title{
+  font-size:40px;font-weight:600;letter-spacing:-.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;
+}
+.jc__top .rib{--rib-h:58px;--rib-cut:18px}
+
+/* ---- naamplaatje op de camera --------------------------------------- */
+.jc__plate{position:absolute;left:88px;top:1010px}
+.jc__plate .rib{--rib-h:52px;--rib-cut:17px}
+
+/* gebeurtenisbalk over de onderrand van de camera -- daar is ruimte zat */
+.jc__plate{transition:opacity 240ms var(--ease)}
+.jc__cam.busy .jc__plate{opacity:0}
+.camev{
+  position:absolute;left:88px;top:1010px;width:1594px;z-index:4;
+  transform:translateY(150%);opacity:0;
+  transition:transform 420ms var(--ease), opacity 260ms var(--ease);
+}
+.camev.on{transform:none;opacity:1}
+.camev .rib{--rib-h:64px;--rib-cut:20px}
+.camev .rib__val{font-size:30px}
+
+/* alleen met ?demo=1, anders zou het over je cam liggen */
+.jc__camhint{
+  position:absolute;left:60px;top:196px;width:1650px;height:930px;
+  display:none;place-items:center;border-radius:26px;
+  background:var(--ink-850);color:var(--ink-500);
+  font-size:16px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+}
+body.demo .jc__camhint{display:grid}
+
+/* ---- chat rechts ---------------------------------------------------- */
+.jc__chat{position:absolute;left:1740px;top:185px;width:760px;height:1195px}
+/* de wrapper krimpt anders naar zijn inhoud */
+.jc__chat .rcard-wrap,
+.jc__strip .rcard-wrap{height:100%}
+.jc__chat .rcard__in{padding:30px 0 26px}
+#jcChat{
+  flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:13px;
+  padding:0 30px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 46px,#000 100%);
+          mask-image:linear-gradient(to bottom,transparent 0,#000 46px,#000 100%);
+}
+#jcChat .msg{font-size:25px;line-height:1.33;display:flex;gap:11px;align-items:baseline}
+#jcChat .msg__badges{display:flex;gap:5px;align-self:center}
+#jcChat .bdg{
+  font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;
+  border-radius:var(--r-pill);background:var(--ink-600);color:var(--ink-200);
+  text-transform:uppercase;
+}
+#jcChat .bdg--broadcaster{background:var(--jade);color:var(--ink-900)}
+#jcChat .bdg--moderator  {background:var(--jade-deep);color:var(--paper)}
+#jcChat .bdg--vip        {background:var(--rose);color:var(--ink-900)}
+#jcChat .msg__name{font-weight:600}
+#jcChat .msg__body{color:var(--paper-dim);word-break:break-word;min-width:0}
+#jcChat .msg__body img.emote{height:30px;vertical-align:-8px}
+
+/* ---- strook onder de camera ----------------------------------------- */
+.jc__strip{position:absolute;left:60px;top:1139px;width:1650px;height:241px}
+.jc__strip .rcard__in{
+  padding:28px 34px;flex-direction:row;align-items:center;gap:38px;
+}
+.jc__cols{display:flex;flex-direction:column;gap:14px;align-items:flex-start;min-width:0}
+.jc__cols .rib{--rib-h:44px;--rib-cut:14px;max-width:100%}
+.jc__div{width:1px;align-self:stretch;background:var(--ink-700);flex:0 0 1px;margin:4px 0}
+.jc__recent{flex:1;min-width:0}
+.jc__empty{color:var(--ink-500);font-size:20px}

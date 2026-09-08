@@ -1,0 +1,110 @@
+<meta charset="utf-8">
+<title>Stinger frame</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/ribbon.css">
+<style>
+/* Eén frame van de stinger. Het framenummer komt uit de URL (?f=..&n=..)
+   zodat elk frame deterministisch is -- build-stinger.sh schiet ze los af
+   en ffmpeg plakt er een webm met alpha van. Geen CSS-animatie dus.
+
+   Zeven banden schuiven om beurten van links en rechts in, met een korte
+   vertraging tussen elkaar. Daardoor is er altijd een schuine rand in
+   beweging; een enkel vlak paneel gaf een halve seconde dood zwart, en
+   dat leest als een blackout in plaats van een overgang.
+
+   Ze staan alle zeven precies op de helft van de duur op hun plek, dus het
+   transitiepunt is een gegeven en geen schatting. */
+html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin:0}
+
+.band{
+  position:absolute;left:-30vw;width:160vw;
+  transform:skewX(-16deg);
+  will-change:transform;
+}
+.band--a{background:var(--ink-900)}
+.band--b{background:var(--ink-850)}
+
+/* slierten net buiten de randen: ze leiden de beweging */
+.band i{position:absolute;top:0;bottom:0;width:8px;font-style:normal}
+.band .jr{right:-26px;background:var(--jade)}
+.band .wr{right:-11px;background:var(--paper)}
+.band .jl{left:-26px;background:var(--jade)}
+.band .wl{left:-11px;background:var(--paper)}
+
+#mark{position:absolute;inset:0;display:grid;place-items:center;
+  opacity:0;pointer-events:none;z-index:10}
+#mark .rib{--rib-h:176px;--rib-cut:54px}
+#mark .rib__cap{height:46px;padding:0 24px;font-size:23px;letter-spacing:.26em;
+  margin-left:44px;border-radius:9px;border-width:2px}
+#mark .rib__bar{margin-top:-17px;padding:2px}
+#mark .rib__val{font-size:80px;padding-left:38px}
+#mark .rib__in{padding-right:92px}
+#mark .rib__acc svg{width:74px;height:74px;margin-right:10px}
+</style>
+
+<div id="bands"></div>
+
+<div id="mark">
+  <div class="rib" style="--acc:var(--jade)">
+    <span class="rib__cap">kanaal</span>
+    <div class="rib__bar"><div class="rib__in">
+      <span class="rib__acc"><svg viewBox="0 0 18 18">
+        <path d="M14.6 3.4 7.8 10.2M12.4 3.4h2.2v2.2M3.4 14.6l3.2-3.2M4.6 12.2l1.2 1.2"
+              fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></span>
+      <span class="rib__val" id="markTxt">bmiest</span>
+    </div></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  var n = Math.max(2, +(q.get('n') || 24));
+  var f = Math.min(n - 1, Math.max(0, +(q.get('f') || 0)));
+  var t = f / (n - 1);
+
+  var C = (window.OVERLAY_CONFIG || {});
+  document.getElementById('markTxt').textContent =
+    (C.stinger && C.stinger.text) || C.camName || 'bmiest';
+
+  var N      = 7;      // aantal banden
+  var SPREAD = 0.38;   // hoeveel ze op elkaar achterlopen
+  var TRAVEL = 165;    // vw die een band aflegt
+
+  function ease(x){ return x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2; }
+  function clamp(x){ return x < 0 ? 0 : x > 1 ? 1 : x; }
+
+  var root = document.getElementById('bands');
+  var html = '';
+  for(var i = 0; i < N; i++){
+    var top = (i * 100 / N).toFixed(4);
+    var h   = (100 / N).toFixed(4);
+    html += '<div class="band band--' + (i % 2 ? 'b' : 'a') + '" ' +
+            'style="top:calc(' + top + 'vh - 2px);height:calc(' + h + 'vh + 4px)">' +
+            '<i class="jr"></i><i class="wr"></i><i class="jl"></i><i class="wl"></i></div>';
+  }
+  root.innerHTML = html;
+
+  Array.prototype.forEach.call(root.children, function(band, i){
+    var lead = (i / (N - 1)) * SPREAD;
+    var side = (i % 2 === 0) ? -1 : 1;          // -1 = van links
+    var x;
+    if(t <= .5){
+      var pIn = clamp(ease(clamp(t / .5 * (1 + SPREAD) - lead)));
+      x = side * TRAVEL * (1 - pIn);            // schuift naar 0
+    } else {
+      var pOut = clamp(ease(clamp((t - .5) / .5 * (1 + SPREAD) - lead)));
+      x = -side * TRAVEL * pOut;                // schuift door in dezelfde richting
+    }
+    band.style.transform = 'skewX(-16deg) translateX(' + x.toFixed(3) + 'vw)';
+  });
+
+  var m  = document.getElementById('mark');
+  var op = clamp(1 - Math.abs(t - .5) / .26);
+  m.style.opacity   = op.toFixed(3);
+  m.style.transform = 'translateX(' + ((1 - op) * 30).toFixed(2) + 'px)';
+})();
+</script>

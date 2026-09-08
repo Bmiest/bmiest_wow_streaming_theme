@@ -1,0 +1,36 @@
+<meta charset="utf-8">
+<title>Just Chatting</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/ribbon.css">
+<link rel="stylesheet" href="css/backdrop.css">
+<link rel="stylesheet" href="css/chatting.css">
+
+<div id="stage">
+  <div class="ground"><div class="ground__hole"></div></div>
+
+  <div class="jc jc__cam">
+    <div class="jc__camhint">camera</div>
+
+    <div class="jc__top">
+      <div class="jc__title" id="jcTitle">Just Chatting</div>
+      <div id="jcTopRibs" style="display:flex;gap:20px"></div>
+    </div>
+
+    <div class="jc__plate" id="jcPlate"></div>
+
+    <div class="jc__chat" id="jcChatCard"></div>
+    <div class="jc__strip" id="jcStrip"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"></script>
+<script src="js/util.js"></script>
+<script src="js/ribbon.js"></script>
+<script src="js/backdrop.js"></script>
+<script src="js/camevent.js"></script>
+<script src="js/raiderio.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/streamelements.js"></script>
+<script src="js/chatting.js"></script>
