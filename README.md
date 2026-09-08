@@ -347,9 +347,14 @@ SE geeft "nog niets gebeurd" terug als het **getal 0**, niet als leeg. Zowel
 `display()` in `js/streamelements.js` als `Labels.set()` vangen dat af, anders
 staat er letterlijk `0` in je balk.
 
-**Een label zonder waarde blijft verborgen.** Een lege "TOPDONATIE --" is ruis;
-zo vult de balk zich vanzelf naarmate er iets gebeurt. Zolang je nog geen JWT
-hebt ingevuld is de rail dus leeg, en dat hoort zo.
+**Labels zonder waarde** staan standaard wél in beeld, maar gedempt: grijs
+kopblok, streepje als waarde. Dat houdt de indeling vast en laat kijkers zien
+dat bits en tips kunnen. Zodra er een waarde binnenkomt springt de pil in zijn
+eigen kleur aan.
+
+Liever een stillere balk waarin alleen staat wat er echt is? Zet
+`topbar.showEmptyLabels` op `false`; dan verschijnen ze pas als er iets
+gebeurd is.
 
 ### De vorm: ribbons
 

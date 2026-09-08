@@ -45,12 +45,17 @@ var LABELS = {
 var WANT = TB.labels || ['follower-latest','subscriber-latest','cheer-latest','tip-top'];
 var pills = {};
 
+/* Labels zonder waarde: tonen of verbergen. Tonen houdt de indeling vast en
+   laat zien dat bits en tips kunnen; verbergen houdt de balk stiller. */
+var SHOW_EMPTY = TB.showEmptyLabels !== false;
+
 (function buildRail(){
   var rail = U.$('#rail');
   WANT.forEach(function(key){
     var def = LABELS[key] || { text:key.replace(/-/g,' '), kind:'follow' };
-    var el  = window.Ribbon.make(def.kind, def.text, '');
-    el.style.display = 'none';         // pas tonen als er een waarde is
+    var el  = window.Ribbon.make(def.kind, def.text, SHOW_EMPTY ? '\u2014' : '');
+    if(SHOW_EMPTY) el.classList.add('rib--empty');
+    else el.style.display = 'none';
     rail.appendChild(el);
     pills[key] = el;
   });
@@ -60,6 +65,7 @@ window.Labels.on(function(key, val){
   var el = pills[key];
   if(!el) return;
   el.style.display = '';
+  el.classList.remove('rib--empty');
   el.setValue(val);
 });
 /* SE levert de labels: loadSession haalt de huidige stand op, de socket

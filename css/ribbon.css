@@ -56,6 +56,12 @@
 .rib.hit .rib__acc{animation:ribHit 420ms cubic-bezier(.22,.61,.36,1)}
 @keyframes ribHit{0%{filter:brightness(1.9)}100%{filter:none}}
 
+/* Nog geen waarde binnen: aanwezig maar gedempt, zodat een gevuld label
+   er meteen uitspringt. */
+.rib--empty .rib__acc{background:var(--ink-600);color:var(--ink-400)}
+.rib--empty .rib__cap{color:var(--ink-500)}
+.rib--empty .rib__val{color:var(--ink-500)}
+
 /* maatvarianten */
 .rib--sm{--rib-h:34px;--rib-cut:11px}
 .rib--lg{--rib-h:58px;--rib-cut:18px}

@@ -122,6 +122,9 @@ window.OVERLAY_CONFIG = {
   //   tip-latest, tip-session, tip-alltime-top-donator, raid-latest.
   topbar: {
     showTitle: true,           // streamtitel in het midden; vult de balk
+    // Labels waar nog niets voor gebeurd is: tonen met een streepje (true)
+    // of weglaten tot er een waarde is (false).
+    showEmptyLabels: true,
     labels: [
       'follower-latest',
       'subscriber-latest',
