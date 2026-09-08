@@ -13,12 +13,14 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--base-url', default='http://localhost:8777',
                 help='waar serve.sh draait; gebruik het LAN-adres als OBS op een andere machine staat')
 ap.add_argument('--name', default='bmiest overlay')
+ap.add_argument('--stinger', default=None,
+                help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
 a = ap.parse_args()
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
 BASE   = a.base_url.rstrip('/')
-STING  = os.path.join(HERE, 'stinger.webm')
+STING  = a.stinger or os.path.join(HERE, 'stinger.webm')
 
 def stinger_point_ms(default=500):
     """Transitiepunt = halve duur van stinger.webm. Uitlezen in plaats van

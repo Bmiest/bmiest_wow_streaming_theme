@@ -37,6 +37,37 @@ transparant gat. In OBS zie je daar je webcam.
 
 ---
 
+## 1b. Draait OBS op een andere machine?
+
+Dan zet je het project daar neer in plaats van het over je netwerk te
+serveren. **Serveer dit niet over je LAN**: `config.js` bevat je
+StreamElements-token, en een statische server biedt dat bestand gewoon aan.
+Iedereen op je netwerk kan het dan opvragen.
+
+Op de machine waar OBS draait:
+
+```bat
+git clone https://github.com/Bmiest/wow_streaming_overlay.git
+cd wow_streaming_overlay
+copy config.example.js config.js
+:: config.js openen en je JWT invullen
+serve.bat
+python make-obs-collection.py
+```
+
+`serve.bat` bindt bewust op `127.0.0.1`, dus alleen die machine zelf komt
+erbij. Hij zoekt Python, dan `py`, dan `npx http-server`.
+
+`stinger.webm` zit in de repo, dus je hoeft daar geen Chrome en ffmpeg te
+hebben; die heb je alleen nodig als je de transitie wil herbouwen.
+
+Wil je het bestand toch elders genereren, geef dan het pad mee zoals OBS het
+ziet:
+
+```bash
+./make-obs-collection.py --stinger 'C:\overlay\stinger.webm'
+```
+
 ## 2. OBS -- video-instellingen
 
 **Settings > Video**
