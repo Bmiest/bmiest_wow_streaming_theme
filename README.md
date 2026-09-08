@@ -89,10 +89,13 @@ Open het bestand in een teksteditor en vervang:
 | Plaatshouder | Waarmee |
 |---|---|
 | `__JWT__` | je StreamElements JWT |
-| `__STINGER__` | het pad waar je `stinger.webm` hebt opgeslagen |
 
-Let op bij dat pad: het is JSON, dus backslashes moeten dubbel.
-`C:\overlay\stinger.webm` schrijf je als `C:\\overlay\\stinger.webm`.
+Meer niet. De stinger zit er bewust **niet** in: dat zou een pad met
+backslashes in de JSON zetten, en dat is de enige plek waar handmatig
+bewerken stuk kan gaan. Voeg hem in OBS zelf toe:
+
+**Scene Transitions → + → Stinger** → wijs `stinger.webm` aan →
+Transition Point op `500` ms.
 
 Zet het bestand daarna in `%APPDATA%\obs-studio\basic\scenes\`, start OBS
 en kies **bmiest overlay** onder Scene Collection.

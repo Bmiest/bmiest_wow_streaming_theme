@@ -22,6 +22,10 @@ ap.add_argument('--local-files', action='store_true',
 ap.add_argument('--root', default=None,
                 help='pad naar de overlaymap zoals OBS het ziet, bv. C:\\overlay')
 ap.add_argument('--name', default='bmiest overlay')
+ap.add_argument('--no-stinger', action='store_true',
+                help='laat de stinger-transitie weg; voeg hem in OBS zelf toe. '
+                     'Scheelt een pad met backslashes in de JSON, en dat is de '
+                     'enige plek waar handmatig bewerken stuk kan gaan.')
 ap.add_argument('--jwt', default=None,
                 help='StreamElements JWT; wordt aan elke browser-URL gehangen. '
                      'Alleen zinvol bij een gehoste site. Het resultaat bevat dan '
@@ -196,7 +200,7 @@ col = {
     'AuxAudioDevice1': mic,
     'current_scene': 'Gameplay',
     'current_program_scene': 'Gameplay',
-    'current_transition': 'bmiest stinger',
+    'current_transition': 'Fade' if a.no_stinger else 'bmiest stinger',
     'transition_duration': 300,
     'preview_locked': False,
     'scaling_enabled': False, 'scaling_level': 0,
@@ -204,7 +208,7 @@ col = {
     'groups': [], 'modules': {}, 'quick_transitions': [], 'saved_projectors': [],
     'scene_order': [{'name': n} for n in
                     ['Straks live', 'Gameplay', 'Just Chatting', 'Even weg', 'Einde']],
-    'transitions': [{
+    'transitions': [] if a.no_stinger else [{
         'name': 'bmiest stinger', 'id': 'obs_stinger_transition',
         'settings': {'path': STING, 'transition_point': TP, 'tp_type': 0,
                      'audio_monitoring': 0, 'audio_fade_style': 0,
