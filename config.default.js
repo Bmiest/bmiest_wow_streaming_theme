@@ -121,7 +121,7 @@ window.OVERLAY_CONFIG = {
   //   cheer-latest, cheer-session, cheer-alltime-top-donator,
   //   tip-latest, tip-session, tip-alltime-top-donator, raid-latest.
   topbar: {
-    showTitle: false,          // streamtitel erbij; kost ruimte in de rail
+    showTitle: true,           // streamtitel in het midden; vult de balk
     labels: [
       'follower-latest',
       'subscriber-latest',

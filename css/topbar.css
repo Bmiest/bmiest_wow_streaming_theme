@@ -16,7 +16,7 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
   background:var(--holy);opacity:.05;z-index:20}
 
 .top{height:100%;padding:0 24px;display:flex;align-items:center;gap:14px}
-.rail{flex:1;min-width:0;display:flex;align-items:center;gap:12px;overflow:hidden}
+.rail{flex:0 0 auto;display:flex;align-items:center;gap:12px;min-width:0}
 .top__r{display:flex;align-items:center;gap:12px;flex:0 0 auto}
 
 .pill{
@@ -36,10 +36,13 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 .pill--off  .dot{background:var(--ink-500)}
 .pill--off  .state{color:var(--ink-400)}
 
-/* titel, alleen als topbar.showTitle aan staat */
-.title{font-size:22px;font-weight:600;letter-spacing:-.015em;color:var(--paper-dim);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:520px;
-  padding:0 6px;flex:0 1 auto}
+/* De titel vult de ruimte tussen de labels en de cijfers. Zonder hem is de
+   balk in rust voor het grootste deel leeg, want labels waar nog niets voor
+   gebeurd is blijven verborgen. */
+.title{flex:1;min-width:0;text-align:center;padding:0 20px;
+  font-size:23px;font-weight:600;letter-spacing:-.015em;color:var(--paper-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.title:empty{padding:0}
 
 /* volgersdoel als ribbon in de pil */
 .goal{display:flex;align-items:center;gap:11px}

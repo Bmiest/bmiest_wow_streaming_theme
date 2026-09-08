@@ -88,11 +88,9 @@ function refresh(){
     U.$('#viewers').textContent = v == null ? '—' : U.num(v);
   }).catch(function(){});
   window.Stats.uptime().then(function(t){ setLive(!!t, t); }).catch(function(){ setLive(false); });
-  if(TB.showTitle){
+  if(TB.showTitle !== false){
     U.getText('https://decapi.me/twitch/title/' + CH).then(function(t){
-      if(t && !/offline|error|unable|not found/i.test(t)){
-        var el = U.$('#title'); el.style.display = ''; el.textContent = t.trim();
-      }
+      if(t && !/offline|error|unable|not found/i.test(t)) U.$('#title').textContent = t.trim();
     }).catch(function(){});
   }
 }
