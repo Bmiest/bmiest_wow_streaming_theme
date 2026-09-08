@@ -22,14 +22,25 @@ if(DEMO){
   stage.style.transform = 'scale(' + ((CFG.outputWidth || dw) / dw) + ')';
 })();
 
-U.$('#camName').textContent = CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live';
+/* De bijschriften van de kaarten dragen hetzelfde icoon als het kopblok
+   van een ribbon; één bron voor die glyphs (js/ribbon.js). */
+Array.prototype.forEach.call(document.querySelectorAll('[data-icon]'), function(n){
+  var g = window.Ribbon.GLYPH[n.getAttribute('data-icon')];
+  if(g) n.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 18 18">' + g + '</svg>');
+});
+
+/* Naamplaatje onder de camera: dezelfde ribbon als de gebeurtenisbalk die
+   er straks overheen schuift (js/camevent.js). */
+U.$('#camPlate').appendChild(window.Ribbon.make('live', '',
+  CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live'));
 
 /* =====================================================================
    CHARACTERS  --  één kolom per character, naast elkaar in dezelfde kaart
    ===================================================================== */
 var MAX_SLOTS = 2;                 // meer kolommen wordt te smal om te lezen
+var raidSlug  = null;              // huidige tier, komt uit live-tracking
 var chars = [], page = 0, rotTimer = null, slots = [];
-var elCard = U.$('.cap--char'), elRow = U.$('#charRow'), elDots = U.$('#charDots');
+var elCard = U.$('.card--char'), elRow = U.$('#charRow'), elDots = U.$('#charDots');
 
 /* Eén kolom: het gekloonde template plus verwijzingen naar de velden erin. */
 function makeSlot(){
@@ -45,7 +56,8 @@ function makeSlot(){
     guild : U.$('.char__guild',       node),
     ilvl  : U.$('.char__ilvl',        node),
     score : U.$('.char__score',       node),
-    keys  : U.$('.keys',              node)
+    raid  : U.$('.prog__nm',          node),
+    tiers : U.$('.prog__t',           node)
   };
 }
 
@@ -53,20 +65,28 @@ function buildSlots(n){
   if(slots.length === n) return;
   elRow.innerHTML = ''; slots = [];
   for(var i=0;i<n;i++) slots.push(makeSlot());
-  elCard.classList.toggle('cap--char2', n > 1);
+  elCard.classList.toggle('is-two', n > 1);
 }
 
-function paintKeys(box, runs, max){
-  box.innerHTML = '';
-  if(!runs || !runs.length){
-    box.appendChild(U.el('div','keys__empty','geen keys deze week'));
+/* Raidprogress van het character zelf, per moeilijkheid. De hoogste graad
+   waar kills staan krijgt de tint; de rest blijft grijs. */
+function paintProgress(s, raids){
+  var r = window.RaiderIO.pickRaid(raids, raidSlug);
+  s.tiers.innerHTML = '';
+  if(!r || !r.total){
+    s.raid.textContent = '';
+    s.tiers.appendChild(U.el('span','prog__empty','nog geen raidprogress'));
     return;
   }
-  runs.slice(0,max).forEach(function(r){
-    var row = U.el('div','key');
-    row.appendChild(U.el('span','key__lvl','+' + r.level));
-    row.appendChild(U.el('span','key__n', r.name));
-    box.appendChild(row);
+  s.raid.textContent = r.title;
+  var top = null;
+  [['m', r.mythic], ['h', r.heroic], ['n', r.normal]].forEach(function(t){
+    if(top === null && t[1]) top = t[0];
+    var g = U.el('span', 'tier' + (t[1] ? (t[0] === top ? ' tier--top' : '')
+                                        : ' tier--none'));
+    g.appendChild(U.el('span','tier__v', t[1] + '/' + r.total));
+    g.appendChild(U.el('span','tier__l', t[0]));
+    s.tiers.appendChild(g);
   });
 }
 
@@ -83,8 +103,7 @@ function paintSlot(s, c){
   // Klassekleur alleen op ring en bolletje: kleine vlakken, grijs blijft grijs.
   s.swatch.style.background = c.color;
   s.ring.style.stroke = c.color;
-  // Twee kolommen naast elkaar: één key past, twee wordt afgekapt.
-  paintKeys(s.keys, c.runs, slots.length > 1 ? 1 : 2);
+  paintProgress(s, c.raids);
 }
 
 function pageCount(){
@@ -293,11 +312,13 @@ function demo(){
       { name:'Shiftheal', realm:'Ragnaros', klass:'Priest', spec:'Holy',
         guild:'', color:'#FFFFFF', thumb:'',
         ilvl:318.75, score:2932,
-        runs:[{level:16,name:'Den of Nalorakk'},{level:14,name:'Voidscar Arena'}] },
+        raids:{'the-venomous-abyss':{ total_bosses:8, normal_bosses_killed:8,
+                                      heroic_bosses_killed:6, mythic_bosses_killed:2 }} },
       { name:'Bhikhu', realm:'Twisting Nether', klass:'Monk', spec:'Mistweaver',
         guild:'Kelderklasse', color:'#00FF98', thumb:'',
         ilvl:295.5, score:1841,
-        runs:[{level:12,name:'Halls of Atonement'}] }
+        raids:{'the-venomous-abyss':{ total_bosses:8, normal_bosses_killed:8,
+                                      heroic_bosses_killed:3, mythic_bosses_killed:0 }} }
     ]);
   }
   U.$('#rioWidget').style.display = 'none';
@@ -331,7 +352,17 @@ function demo(){
 /* =====================================================================
    START
    ===================================================================== */
-U.poll(loadChars, (CFG.raiderio && CFG.raiderio.pollSeconds) || 300);
+/* Eerst uitzoeken welke tier de huidige is, dan de characters ophalen.
+   Anders staat er in de characterkaart even een andere raid dan in de
+   kaart ernaast. Lukt het niet, dan gaan we door met de terugval. */
+function startChars(){
+  U.poll(loadChars, (CFG.raiderio && CFG.raiderio.pollSeconds) || 300);
+}
+if(window.RioLive){
+  window.RioLive.currentRaid().then(function(s){ raidSlug = s; })
+    .catch(function(e){ console.warn('[rio-live] huidige raid onbekend:', e.message); })
+    .then(startChars);
+} else startChars();
 
 if(LMODE === 'widget' && !DEMO){
   mountWidget();

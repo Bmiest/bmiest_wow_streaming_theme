@@ -8,7 +8,6 @@ var API = 'https://raider.io/api/v1';
 var FIELDS = [
   'gear',
   'mythic_plus_scores_by_season:current',
-  'mythic_plus_weekly_highest_level_runs',
   'raid_progression'
 ].join(',');
 
@@ -20,8 +19,6 @@ function character(c){
 
   return U.getJSON(url).then(function(d){
     var season = (d.mythic_plus_scores_by_season||[])[0];
-    var runs   = (d.mythic_plus_weekly_highest_level_runs||[]).slice();
-    runs.sort(function(a,b){ return b.mythic_level - a.mythic_level; });
 
     return {
       name  : d.name,
@@ -33,10 +30,6 @@ function character(c){
       thumb : d.thumbnail_url,
       ilvl  : d.gear ? d.gear.item_level_equipped : null,
       score : season && season.scores ? Math.round(season.scores.all) : null,
-      bestKey: runs.length ? runs[0].mythic_level : null,
-      runs  : runs.slice(0,3).map(function(r){
-        return { level:r.mythic_level, name:r.dungeon, upgrades:r.num_keystone_upgrades };
-      }),
       raids : d.raid_progression || {}
     };
   });
@@ -54,12 +47,18 @@ function guild(){
   });
 }
 
-/* raid_progression is een object met raid-slugs als sleutel. De laatste
-   sleutel is de nieuwste raid; expliciet instellen kan via raidSlug. */
-function pickRaid(raids){
+/* raid_progression is een object met raid-slugs als sleutel, maar welke
+   daarvan de huidige tier is staat er niet in -- en de laatste sleutel is
+   het niet altijd: Raider.IO zet er ook tiers tussen die nog niet lopen.
+   Vandaar deze voorkeur: de slug die de aanroeper meegeeft (die komt uit
+   live-tracking, dus van Raider.IO zelf), anders raidSlug uit de config,
+   anders alsnog de laatste sleutel. */
+function pickRaid(raids, slug){
   var keys = Object.keys(raids||{});
   if(!keys.length) return null;
-  var key = (CFG.raidSlug && raids[CFG.raidSlug]) ? CFG.raidSlug : keys[keys.length-1];
+  var key = (slug && raids[slug])                 ? slug
+          : (CFG.raidSlug && raids[CFG.raidSlug]) ? CFG.raidSlug
+          : keys[keys.length-1];
   var r = raids[key];
   return {
     slug   : key,

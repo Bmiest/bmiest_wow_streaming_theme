@@ -16,7 +16,6 @@ var DEMO = /[?&]demo=1/.test(location.search);
 
 var CH   = ((CFG.twitch && CFG.twitch.channel) || '').toLowerCase();
 var GOAL = (CFG.goals && CFG.goals.followers) || 0;
-U.$('#goalTarget').textContent = GOAL ? U.num(GOAL) : '';
 
 /* ---- labels --------------------------------------------------------
    Sleutel -> bijschrift en tint. De sleutels zijn die van StreamElements,
@@ -74,24 +73,43 @@ window.Labels.on(function(key, val){
 var LSRC = (CFG.labels && CFG.labels.source) || 'streamelements';
 if(LSRC === 'streamelements' || LSRC === 'both') window.SE.start(function(){});
 
-/* ---- status --------------------------------------------------------- */
+/* ---- status, kijkers en volgers -------------------------------------
+   Dezelfde ribbons als de labelrail: kopblok met icoon, bijschrift op de
+   rand. Zonder waarde staan ze gedempt, net als een leeg label. */
+var ribLive = window.Ribbon.make('live',   'status',  'offline');
+var ribView = window.Ribbon.make('viewers','kijkers', '\u2014');
+var ribFoll = window.Ribbon.make('follow', 'volgers', '\u2014');
+[ribLive, ribView, ribFoll].forEach(function(r){ r.classList.add('rib--num'); });
+ribLive.classList.add('rib--empty');
+
+/* Volgersdoel als staafje achter het getal, binnen dezelfde balk. */
+var goal = U.el('span','goal');
+goal.innerHTML = '<span class="goal__track"><span class="goal__fill"></span></span>' +
+                 '<span class="goal__t"></span>';
+ribFoll.querySelector('.rib__in').appendChild(goal);
+goal.querySelector('.goal__t').textContent = GOAL ? U.num(GOAL) : '';
+var elFill = goal.querySelector('.goal__fill');
+var elFoll = ribFoll.querySelector('.rib__val');
+
+U.$('#status').appendChild(ribLive);
+U.$('#stats').appendChild(ribView);
+U.$('#stats').appendChild(ribFoll);
+
 function setLive(on, up){
-  var p = U.$('#livePill');
-  p.className = 'pill ' + (on ? 'pill--live' : 'pill--off');
-  U.$('#liveState').textContent = on ? 'live' : 'offline';
-  U.$('#uptime').textContent    = on ? (up || '') : '';
+  ribLive.classList.toggle('rib--empty', !on);
+  ribLive.setValue(on ? (up || 'live') : 'offline', true);
 }
 
 function setFollowers(n){
   if(n == null) return;
-  U.countTo(U.$('#followCount'), n);
-  if(GOAL) U.$('#goalFill').style.width = Math.min(100, n / GOAL * 100).toFixed(1) + '%';
+  U.countTo(elFoll, n);
+  if(GOAL) elFill.style.width = Math.min(100, n / GOAL * 100).toFixed(1) + '%';
 }
 
 function refresh(){
   window.Stats.followers().then(setFollowers).catch(function(){});
   window.Stats.viewers().then(function(v){
-    U.$('#viewers').textContent = v == null ? '—' : U.num(v);
+    ribView.setValue(v == null ? '—' : U.num(v), true);
   }).catch(function(){});
   window.Stats.uptime().then(function(t){ setLive(!!t, t); }).catch(function(){ setLive(false); });
   if(TB.showTitle !== false){
@@ -104,7 +122,7 @@ function refresh(){
 if(DEMO){
   setLive(true, '2:14:07');
   setFollowers(154);
-  U.$('#viewers').textContent = '31';
+  ribView.setValue('31', true);
   window.Labels.set('follower-latest',   'joesswow');
   window.Labels.set('subscriber-latest', 'vassham');
   window.Labels.set('cheer-latest',      'TheNoremac · 184');

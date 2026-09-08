@@ -7,31 +7,14 @@
 <div id="stage">
   <div class="top">
 
-    <div class="pill pill--live" id="livePill">
-      <span class="dot"></span>
-      <span class="state" id="liveState">offline</span>
-      <span class="num" id="uptime"></span>
-    </div>
-
-    <!-- labels worden hier opgebouwd uit config.topbar.labels -->
+    <!-- Status, labels en cijfers zijn alledrie ribbons; js/topbar.js bouwt
+         ze met dezelfde Ribbon.make, zodat de balk één taal spreekt. -->
+    <div class="rail" id="status"></div>
     <div class="rail" id="rail"></div>
 
     <div class="title" id="title"></div>
 
-    <div class="top__r">
-      <div class="pill">
-        <span class="num" id="viewers">—</span>
-        <span class="lbl">kijkers</span>
-      </div>
-      <div class="pill">
-        <span class="num" id="followCount" data-v="0">—</span>
-        <span class="lbl">volgers</span>
-        <span class="goal">
-          <span class="goal__track"><span class="goal__fill" id="goalFill"></span></span>
-          <span class="num" id="goalTarget" style="font-size:14px;color:var(--ink-400)"></span>
-        </span>
-      </div>
-    </div>
+    <div class="rail" id="stats"></div>
 
   </div>
 </div>

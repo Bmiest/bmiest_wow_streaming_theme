@@ -64,6 +64,26 @@ if(SC.topic && MODE === 'starting') elTopic.textContent = SC.topic;
 
 if(M.tick){ M.tick(); setInterval(M.tick, 1000); }
 
+/* De klok begint te lopen zodra de scene in beeld komt, niet zodra OBS de
+   pagina laadt. Een browser source blijft namelijk draaien terwijl je in
+   een andere scene zit: zonder dit stond de aftelklok al op 'bijna zover'
+   voordat je 'straks live' opzette, en liep 'even weg' meteen op een half
+   uur. OBS' eigen source-events geven dat moment door; visibilitychange is
+   de terugval in een gewone browser. */
+function restartClock(){
+  t0 = Date.now();
+  if(M.tick) M.tick();
+}
+window.addEventListener('obsSourceActiveChanged', function(e){
+  if(!e.detail || e.detail.active) restartClock();
+});
+window.addEventListener('obsSourceVisibleChanged', function(e){
+  if(!e.detail || e.detail.visible) restartClock();
+});
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden) restartClock();
+});
+
 /* ---- schema -------------------------------------------------------- */
 var DAYS = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
 function buildSchedule(root){
@@ -76,6 +96,7 @@ function buildSchedule(root){
     if(!r.time || /vrij|geen|off/i.test(r.time)) row.className += ' off';
     row.appendChild(U.el('span','sched__d', r.day));
     row.appendChild(U.el('span','sched__t', r.time || 'vrij'));
+    if(r.note) row.appendChild(U.el('span','sched__tag', r.note));
     root.appendChild(row);
   });
 }

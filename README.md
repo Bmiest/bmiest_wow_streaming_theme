@@ -190,6 +190,12 @@ Source > **Browser**:
 
 Transform > Position `0`, `0`.
 
+Alles in deze balk behalve de streamtitel is een ribbon: links de status
+(kopblok met broadcast-icoon, waarde is je uptime of `offline`), dan de
+labelrail, rechts kijkers en volgers. Zolang er geen waarde is staat een
+ribbon gedempt, precies zoals een leeg label. Het volgersdoel zit als staafje
+in de volgersbalk zelf.
+
 ### Gameplay
 
 Game Capture of Display Capture, dan rechtsklik > **Transform > Edit Transform**:
@@ -220,6 +226,13 @@ Transform > Position `0`, `1192`.
 30 FPS is genoeg -- geen enkele animatie in de balken heeft 60 nodig, en het
 scheelt rendertijd die je encoder beter kan gebruiken. Die twee vinkjes uit
 zorgen dat je chatgeschiedenis een scenewissel overleeft.
+
+De vier vlakken (characters, raid, chat, recent) zijn `rcard`s uit
+`css/ribbon.css`: schuine hoek rechtsonder, 1px omlijning uit twee geklipte
+lagen, en het bijschrift als tag op de bovenrand met hetzelfde icoon dat een
+ribbon in zijn kopblok draagt. Het camera-gat heeft diezelfde schuine hoek en
+het naamplaatje eronder is een echte ribbon -- dezelfde die de gebeurtenisbalk
+gebruikt die er overheen schuift.
 
 ### Alerts
 
@@ -255,13 +268,16 @@ Video Capture Device, dan **Transform > Edit Transform**:
 | Alignment in Bounding Box | Center |
 
 *Outer bounds* vult het vlak en snijdt de zijkanten van je 16:9-beeld weg --
-dat is wat je wil, anders krijg je balken. Ronde hoeken hoef je niet te
-regelen: die komen uit het gat dat de banner erover stanst. Geen Image
-Mask/Blend-filter nodig.
+dat is wat je wil, anders krijg je balken. De vorm hoef je niet te regelen:
+die komt uit het gat dat de banner erover stanst -- rechte hoeken met dezelfde
+schuine hoek rechtsonder als de kaarten. Geen Image Mask/Blend-filter nodig.
 
-Wil je de camera elders of groter? Pas `.ground__hole` in `css/banner.css`
-en de `380px`-kolom in `.banner` aan, en neem dezelfde getallen over in de
-transform.
+Wil je de camera elders of groter? Dan zitten de maten op drie plekken in
+`css/banner.css` en `banner.html`, en die moeten gelijk blijven:
+`.ground__hole` (positie en formaat van het gat), `.ground__frame` (dezelfde
+positie; de omlijning is een polygon, want een `border` volgt geen diagonaal)
+en de `340px`-kolom in `.banner`. Neem daarna dezelfde getallen over in de
+OBS-transform.
 
 ---
 
@@ -288,6 +304,12 @@ je followercount niet weg als je SE-sessie hapert.
   Raider.IO geeft bij cross-realm lidmaatschap geen guild terug op het
   character zelf, dus staat onder zo'n naam de realm; de guild staat al bij
   de raid progress.
+- Onder elk character staat zijn **eigen raidprogress** per moeilijkheid
+  (`2/8 M · 8/8 H · 8/8 N`), niet meer de hoogste key van de week. De hoogste
+  graad waar kills staan kleurt jade. Welke tier dat is komt uit Raider.IO's
+  live-tracking, dezelfde bron als de raidkaart ernaast -- `raid_progression`
+  zelf zegt niet welke van zijn sleutels de huidige is, en de laatste is het
+  niet altijd.
 - `raiderio.guild` = Kelderklasse op EU-Draenor.
 - `goals.followers` = 200.
 
@@ -370,9 +392,18 @@ pagina's, zodat de balken, de scenes, Just Chatting en de transitie niet uit
 elkaar gaan lopen. `Ribbon.make(soort, bijschrift, waarde, maat)` maakt een
 ribbon, `Ribbon.card(bijschrift, soort)` een kaart met schuine hoek.
 
-Soorten en hun tint: `follow` en `raid` jade, `sub` wit, `cheer` en `tip` goud,
-`sword` wit, `link`/`info`/`neutral` grijs. Elk heeft een eigen icoon.
+Soorten en hun tint: `follow`, `raid`, `live` en `cam` jade, `sub` wit,
+`cheer` en `tip` goud, `sword` wit, `link`/`info`/`neutral`/`viewers` grijs.
+Elk heeft een eigen icoon.
 Maten: `rib--sm` 34px, standaard 44px, `rib--lg` 58px, `rib--xl` 72px.
+`rib--num` zet de waarde in mono met tabelcijfers -- voor getallen die
+bijwerken, zodat ze niet staan te dansen.
+
+Alle vlakken spreken die taal, ook de onderbalk: de vier kaarten daar zijn
+`rcard`s en hun bijschrift draagt hetzelfde icoon als het kopblok van een
+ribbon. Wat de taal *niet* kan bijstylen is het Raider.IO-widget-iframe;
+dat komt van een ander domein. Vandaar dat de raidkaart standaard op
+`liveTracking.mode: 'native'` staat -- dezelfde gegevens, zelf getekend.
 
 **Wat er niet in zit** is het volvlakse kleurverloop uit het origineel. Grote
 verzadigde vlakken en gradients kosten bitrate die de gameplay nodig heeft, en
@@ -447,6 +478,14 @@ netwerkverzoeken van `raider.io/widgets`. Praktische gevolgen:
 - CORS staat open (de server spiegelt je Origin) en de responses hebben
   `cache-control: max-age=10`, dus pollen is goedkoop. Standaard elke 30 s.
 - Uitzetten kan met `liveTracking.enabled: false` in `config.js`.
+- `mode: 'native'` is de standaard, omdat het widget-iframe van een ander
+  domein komt en dus niet in de huisstijl te krijgen is. Wil je toch hun
+  eigen widget: `mode: 'widget'`.
+- `difficulty` staat op `mythic`, niet op `latest`. 'latest' betekent bij
+  Raider.IO "waar het laatst iets gebeurde", en dat sleept eenbaas-raids mee:
+  de kaart stond zo op `1/1 Heroic` in de Tidebound Grotto terwijl de guild
+  op `2/8 Mythic` in de hoofdraid zat. Diezelfde slug bepaalt welke tier de
+  characterkaart toont, zodat de twee kaarten niet uit elkaar lopen.
 
 Het handmatige `progressNote` blijft bestaan als terugvaloptie voor als je
 het zelf wil typen.
@@ -467,7 +506,17 @@ Eén pagina, drie standen via de URL:
 
 Allemaal browser source, `2560 x 1440`, positie `0, 0`. Aftelduur, onderwerp,
 schema en socials staan in `config.js` onder `scenes`. De dag van vandaag
-kleurt jade in het schema.
+kleurt jade in het schema, en een regel met `note` krijgt er een tagje bij --
+zo staat er `20:00 - 23:00` `RAID` achter je raidavonden.
+
+**De klok begint te lopen zodra de scene in beeld komt**, niet zodra OBS de
+pagina laadt. Dat is het verschil tussen een aftelklok die op 10:00 begint als
+je 'straks live' opzet, en een die al op 'bijna zover' staat omdat de browser
+source al een uur meedraaide in een andere scene. Hetzelfde geldt voor 'even
+weg', die anders meteen op een half uur stond. OBS' eigen
+`obsSourceActiveChanged` / `obsSourceVisibleChanged` geven dat moment door;
+in een gewone browser doet `visibilitychange` hetzelfde. Je hoeft *Refresh
+browser when scene becomes active* dus niet aan te zetten.
 
 Hier mag wél animatie staan -- de halo draait langzaam rond, de klok tikt --
 want op deze schermen is er geen gameplay die om bitrate vecht. Dat is precies
@@ -578,6 +627,24 @@ De onderdelen falen onafhankelijk van elkaar, met opzet:
 `socket.io` wordt **meegeleverd** in `vendor/`, niet van een CDN gehaald. Dat
 was eerder wel zo, en als die aanroep faalde viel niet alleen de socket weg maar
 ook de labels -- die stonden achter dezelfde controle.
+
+### Geen alerts, geen events
+
+Twee dingen om na te lopen, in deze volgorde:
+
+1. **Staat `__JWT__` nog in je bron-URL?** De kant-en-klare collectie levert
+   die plaatshouder mee en je hoort hem te vervangen. Deed je dat niet, dan
+   weigert SE het token en komt er nooit een event binnen -- geen alerts, geen
+   regels in 'recent', geen labels. Sinds kort schrijft de overlay daar een
+   duidelijke fout over in de console (F12 in de bron-eigenschappen) en gooit
+   ze het neptoken weg in plaats van het te proberen. `?health=1` zet
+   `streamelements` dan op offline.
+2. **Werkt de alert zelf?** `alerts.html?test=1` loopt door alle types heen:
+   volger, sub, bits, raid, tip. Zie je die wel en echte events niet, dan zit
+   het in het token of in de socket, niet in de weergave.
+
+En zet StreamElements' eigen alert-overlay uit als je deze gebruikt, anders
+krijg je elke follow dubbel.
 
 ## 8. Bestanden
 

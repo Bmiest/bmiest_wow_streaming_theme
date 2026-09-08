@@ -6,62 +6,85 @@
 
 <div id="stage">
   <div id="health"></div>
-  <div class="ground"><div class="ground__hole"></div></div>
+
+  <!-- Grond met het camera-gat. Het gat heeft dezelfde schuine hoek als de
+       kaarten; de omlijning is een polygon, want een border volgt geen
+       diagonaal. -->
+  <div class="ground">
+    <div class="ground__hole"></div>
+    <svg class="ground__frame" viewBox="0 0 340 200" aria-hidden="true">
+      <polygon points="1,1 339,1 339,169 309,199 1,199"></polygon>
+    </svg>
+  </div>
 
   <div class="banner">
 
     <!-- 1 ─ camera (leeg vlak, je OBS-cam ligt hierachter) ------------->
     <section class="cam">
       <div class="cam__hint">camera</div>
-      <div class="cam__plate"><span class="live"></span><span id="camName">live</span></div>
+      <div class="cam__plate" id="camPlate"></div>
     </section>
 
     <!-- 2 ─ characters (één kolom per character, gevuld uit charTpl) ---->
-    <section class="cap cap--char">
-      <svg class="wm--feather" viewBox="0 0 100 100" aria-hidden="true">
-        <path fill="currentColor" d="M66 10c-16 5-30 17-38 33-6 13-8 28-6 42l8-13c10-3 20-10 28-19 11-12 14-29 8-43z"></path>
-        <path stroke="currentColor" stroke-width="2.4" fill="none" d="M62 16 27 80"></path>
-      </svg>
+    <div class="rcard-wrap card--char">
+      <span class="rcard__cap" data-icon="sword">characters</span>
+      <div class="rcard"><div class="rcard__in">
 
-      <div class="chars" id="charRow"></div>
-      <div class="rotdots" id="charDots"></div>
-    </section>
+        <svg class="wm--feather" viewBox="0 0 100 100" aria-hidden="true">
+          <path fill="currentColor" d="M66 10c-16 5-30 17-38 33-6 13-8 28-6 42l8-13c10-3 20-10 28-19 11-12 14-29 8-43z"></path>
+          <path stroke="currentColor" stroke-width="2.4" fill="none" d="M62 16 27 80"></path>
+        </svg>
 
-    <!-- 3 ─ boss progress ---------------------------------------------->
-    <section class="cap cap--boss">
-      <div class="rio" id="rioWidget" style="display:none">
-        <iframe id="rioFrame" scrolling="no" frameborder="0" title="Raider.IO boss progress"></iframe>
-      </div>
+        <div class="chars" id="charRow"></div>
+        <div class="rotdots" id="charDots"></div>
 
-      <div class="boss" id="bossNative" style="display:none">
-        <div class="boss__art" id="bossArt"></div>
-        <div class="boss__over" id="raidName">—</div>
-        <div class="boss__top">
-          <div class="boss__nm" id="bossName">—</div>
-          <span class="boss__tag" id="bossTag" style="display:none"></span>
+      </div></div>
+    </div>
+
+    <!-- 3 ─ boss progress van de guild ---------------------------------->
+    <div class="rcard-wrap card--boss">
+      <span class="rcard__cap" data-icon="raid">raid</span>
+      <div class="rcard"><div class="rcard__in">
+
+        <div class="rio" id="rioWidget" style="display:none">
+          <iframe id="rioFrame" scrolling="no" frameborder="0" title="Raider.IO boss progress"></iframe>
         </div>
-        <div class="boss__sub" id="bossSub"></div>
-        <div class="boss__stat">
-          <div>
-            <div class="boss__v" id="bossBig">—</div>
-            <div class="boss__l" id="bossLbl"></div>
+
+        <div class="boss" id="bossNative" style="display:none">
+          <div class="boss__art" id="bossArt"></div>
+          <div class="boss__over" id="raidName">—</div>
+          <div class="boss__top">
+            <div class="boss__nm" id="bossName">—</div>
+            <span class="boss__tag" id="bossTag" style="display:none"></span>
           </div>
-          <span class="spark" id="bossSpark"></span>
+          <div class="boss__sub" id="bossSub"></div>
+          <div class="boss__stat">
+            <div>
+              <div class="boss__v" id="bossBig">—</div>
+              <div class="boss__l" id="bossLbl"></div>
+            </div>
+            <span class="spark" id="bossSpark"></span>
+          </div>
         </div>
-      </div>
-    </section>
+
+      </div></div>
+    </div>
 
     <!-- 4 ─ chat -------------------------------------------------------->
-    <section class="cap cap--chat">
-      <div class="cap__label">chat</div>
-      <div id="chatList"></div>
-    </section>
+    <div class="rcard-wrap card--chat">
+      <span class="rcard__cap" data-icon="chat">chat</span>
+      <div class="rcard"><div class="rcard__in">
+        <div id="chatList"></div>
+      </div></div>
+    </div>
 
     <!-- 5 ─ recente events ---------------------------------------------->
-    <section class="cap cap--events">
-      <div class="cap__label">recent</div>
-      <div class="events" id="events"><div class="events__empty">nog niets deze sessie</div></div>
-    </section>
+    <div class="rcard-wrap card--events">
+      <span class="rcard__cap" data-icon="follow">recent</span>
+      <div class="rcard"><div class="rcard__in">
+        <div class="events" id="events"><div class="events__empty">nog niets deze sessie</div></div>
+      </div></div>
+    </div>
 
   </div>
 </div>
@@ -89,7 +112,10 @@
         <div class="stat"><div class="stat__v char__ilvl">—</div><div class="stat__l">item level</div></div>
         <div class="stat"><div class="stat__v char__score">—</div><div class="stat__l">m+ score</div></div>
       </div>
-      <div class="keys"></div>
+      <div class="prog">
+        <span class="prog__nm"></span>
+        <span class="prog__t"></span>
+      </div>
     </div>
   </div>
 </template>

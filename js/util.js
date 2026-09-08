@@ -26,6 +26,15 @@ var CFG = merge(window.OVERLAY_CONFIG || {}, window.OVERLAY_OVERRIDE);
 (function(){
   var q = new URLSearchParams(location.search);
   var jwt = q.get('jwt');
+  /* De kant-en-klare OBS-collectie bevat de plaatshouder __JWT__. Wie die
+     vergeet te vervangen kreeg een overlay die stil deed alsof er nooit
+     iets gebeurde: SE weigert het token, dus geen alerts en geen events.
+     Een echt token is base64.base64.base64. */
+  if(jwt && !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(jwt)){
+    console.error('[config] jwt in de URL is geen token (' + jwt + '). ' +
+      'Vervang __JWT__ in je OBS-bron door je StreamElements JWT.');
+    jwt = null;
+  }
   if(jwt){ CFG.streamelements = CFG.streamelements || {}; CFG.streamelements.jwt = jwt; }
   var ch = q.get('channel');
   if(ch){ CFG.twitch = CFG.twitch || {}; CFG.twitch.channel = ch; }

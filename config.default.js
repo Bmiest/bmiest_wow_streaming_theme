@@ -62,14 +62,22 @@ window.OVERLAY_CONFIG = {
 
       // 'widget' = Raider.IO's eigen boss-progress widget in een iframe.
       //            Simpel en onderhoudsvrij, maar komt in hun Dragonflight-
-      //            thema: bossart, serif-tekst, volle kleur.
+      //            thema: bossart, serif-tekst, volle kleur. Het is een
+      //            iframe van een ander domein, dus niet bij te stylen --
+      //            in een balk die verder één vormtaal spreekt valt dat op.
       // 'native' = dezelfde gegevens, maar getekend in de huisstijl van de
       //            banner, met de pull-historie als staafjes.
       // 'off'    = blok verbergen.
-      mode       : 'widget',
+      mode       : 'native',
 
       raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'
-      difficulty : 'latest',        // latest | normal | heroic | mythic
+
+      // latest | normal | heroic | mythic. 'latest' betekent bij Raider.IO
+      // "waar het laatst iets gebeurde", en dat sleept eenbaas-raids mee:
+      // de kaart stond zo op 1/1 Heroic in de Tidebound Grotto terwijl de
+      // guild op 2/8 Mythic in de hoofdraid zat. 'mythic' houdt hem op de
+      // hoofdtier, dezelfde die de characterkaart toont.
+      difficulty : 'mythic',
       period     : 'until_kill',    // until_kill | week
       pollSeconds: 30,              // alleen voor mode 'native'
 
@@ -95,11 +103,12 @@ window.OVERLAY_CONFIG = {
 
     countdownMinutes: 10,
     topic: 'Mythic+ push richting 3000',
+    // note is optioneel en komt als tagje achter de tijd te staan.
     schedule: [
       { day: 'maandag',   time: '20:00' },
-      { day: 'woensdag',  time: '20:00' },
+      { day: 'woensdag',  time: '20:00 - 23:00', note: 'raid' },
       { day: 'donderdag', time: '20:00' },
-      { day: 'zondag',    time: '19:30' },
+      { day: 'zondag',    time: '20:00 - 23:00', note: 'raid' },
     ],
     // Vul je eigen handles in -- deze verschijnen op de scene-schermen.
     // De guild-regel is informatie voor kijkers, geen huisstijl; weghalen mag.

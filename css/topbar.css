@@ -1,8 +1,9 @@
 /* =====================================================================
    BOVENBALK  --  2560 x 120, boven de gameplay (y = 0)
-   Links de live-status, in het midden een rail met labels, rechts de
-   cijfers. Labels zonder waarde worden verborgen, zodat de balk zich
-   vult naarmate er iets gebeurt.
+   Links de status, dan de labelrail, in het midden de streamtitel, rechts
+   de cijfers. Alles behalve de titel is een ribbon uit css/ribbon.css:
+   kopblok met icoon, bijschrift op de rand, gedempt zolang er geen waarde
+   is. Labels zonder waarde kunnen ook helemaal weg (showEmptyLabels).
    ===================================================================== */
 
 html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
@@ -17,24 +18,6 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 
 .top{height:100%;padding:0 24px;display:flex;align-items:center;gap:14px}
 .rail{flex:0 0 auto;display:flex;align-items:center;gap:12px;min-width:0}
-.top__r{display:flex;align-items:center;gap:12px;flex:0 0 auto}
-
-.pill{
-  display:flex;align-items:center;gap:12px;
-  height:52px;padding:0 20px;flex:0 0 auto;
-  background:var(--ink-800);border:1px solid var(--ink-700);
-  border-radius:var(--r-pill);
-  font-size:20px;font-weight:600;white-space:nowrap;
-}
-.pill .lbl{font-size:11px;font-weight:600;color:var(--ink-400);
-  letter-spacing:.16em;text-transform:uppercase}
-.pill .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:500}
-
-/* live-indicator */
-.dot{width:9px;height:9px;border-radius:50%;background:var(--jade);flex:0 0 9px}
-.pill--live .state{color:var(--jade);letter-spacing:.16em;text-transform:uppercase;font-size:13px}
-.pill--off  .dot{background:var(--ink-500)}
-.pill--off  .state{color:var(--ink-400)}
 
 /* De titel vult de ruimte tussen de labels en de cijfers. Zonder hem is de
    balk in rust voor het grootste deel leeg, want labels waar nog niets voor
@@ -44,12 +27,14 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .title:empty{padding:0}
 
-/* volgersdoel als ribbon in de pil */
-.goal{display:flex;align-items:center;gap:11px}
-.goal__track{position:relative;width:94px;height:6px;background:var(--ink-700);
-  border-radius:var(--r-pill);overflow:hidden}
+/* volgersdoel: staafje in de volgersbalk zelf, met dezelfde taps als de
+   balk waar het in staat */
+.goal{display:flex;align-items:center;gap:11px;margin-left:15px;flex:0 0 auto}
+.goal__track{position:relative;width:94px;height:5px;background:var(--ink-700);
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%)}
 .goal__fill{position:absolute;inset:0 auto 0 0;width:0;background:var(--jade);
-  border-radius:var(--r-pill);transition:width var(--t-slow) var(--ease)}
+  transition:width var(--t-slow) var(--ease)}
+.goal__t{font-family:var(--f-mono);font-size:14px;color:var(--ink-400)}
 
-.num.flash{animation:flash var(--t-slow) var(--ease)}
+.rib__val.flash{animation:flash var(--t-slow) var(--ease)}
 @keyframes flash{0%{color:var(--jade)}100%{color:var(--paper)}}

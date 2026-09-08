@@ -111,6 +111,7 @@ function start(cb){
 
   if(!CFG.jwt){
     console.info('[SE] geen JWT ingevuld -- live events staan uit');
+    U.setHealth('streamelements', false);
     return;
   }
   /* De labels komen via REST en hebben socket.io niet nodig. Die aanroep

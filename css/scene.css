@@ -79,6 +79,12 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 .sched__row.today .sched__d{color:var(--jade)}
 .sched__row.today .sched__t{color:var(--paper)}
 .sched__row.off .sched__t{color:var(--ink-500)}
+.sched__tag{
+  align-self:center;padding:2px 9px;
+  background:var(--ink-900);border:1px solid var(--ink-600);border-radius:5px;
+  font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--jade);
+}
 
 /* socials */
 .socials{display:flex;flex-direction:column;gap:15px;align-items:flex-start}

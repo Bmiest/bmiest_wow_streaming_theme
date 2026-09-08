@@ -98,5 +98,27 @@ function load(){
   });
 }
 
-window.RioLive = { load:load };
+/* Welke tier is de huidige? raid_progression geeft dat niet weg -- de
+   laatste sleutel is soms een tier die nog niet loopt. Live-tracking weet
+   het wel.
+
+   Bewust difficulty=mythic, ook als de kaart zelf op 'latest' staat:
+   'latest' betekent bij Raider.IO "waar het laatst iets gebeurde", en dat
+   sleept eenbaas-raids mee (Kelderklasse stond zo op 1/1 Heroic in de
+   Tidebound Grotto). Met mythic komt de hoofdtier eruit, en dat is wat er
+   in de characterkaart hoort. */
+function currentRaid(){
+  if(LT.enabled === false) return Promise.resolve(null);
+  var g = CFG.guild || {};
+  var q = 'raid=' + encodeURIComponent(LT.raid || 'latest')
+        + '&difficulty=mythic&boss=latest&period=until_kill'
+        + '&region=' + encodeURIComponent(CFG.region || 'eu')
+        + '&realm='  + encodeURIComponent(U.slug(g.realm || ''))
+        + '&guild='  + encodeURIComponent(g.name || '');
+  return U.getJSON(BASE + '/bossprogress?' + q, 9000).then(function(d){
+    return (d.raid && d.raid.slug) || null;
+  });
+}
+
+window.RioLive = { load:load, currentRaid:currentRaid };
 })();
