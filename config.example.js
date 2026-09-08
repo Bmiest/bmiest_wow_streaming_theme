@@ -108,16 +108,19 @@ window.OVERLAY_CONFIG = {
   // ---- bovenbalk -----------------------------------------------------
   // Welke labels in de rail staan, en in welke volgorde. Een label dat nog
   // geen waarde heeft blijft verborgen, dus de balk vult zich vanzelf.
-  // Beschikbaar: follower-latest, follower-session, subscriber-latest,
-  // subscriber-session, cheer-latest, cheer-top, tip-latest, tip-top,
-  // tip-session-top, raid-latest.
+  // Beschikbaar (sleutels exact zoals StreamElements ze levert):
+  //   follower-latest, follower-session, follower-week, follower-total,
+  //   subscriber-latest, subscriber-new-latest, subscriber-gifted-latest,
+  //   subscriber-alltime-gifter, subscriber-session,
+  //   cheer-latest, cheer-session, cheer-alltime-top-donator,
+  //   tip-latest, tip-session, tip-alltime-top-donator, raid-latest.
   topbar: {
     showTitle: false,          // streamtitel erbij; kost ruimte in de rail
     labels: [
       'follower-latest',
       'subscriber-latest',
       'cheer-latest',
-      'tip-top',
+      'tip-alltime-top-donator',
     ],
   },
 

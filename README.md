@@ -251,9 +251,30 @@ topbar: {
 },
 ```
 
-Beschikbaar: `follower-latest`, `follower-session`, `subscriber-latest`,
-`subscriber-session`, `cheer-latest`, `cheer-top`, `tip-latest`, `tip-top`,
-`tip-session-top`, `raid-latest`.
+Beschikbaar, met de sleutelnamen **exact zoals StreamElements ze levert**:
+
+| Sleutel | Toont |
+|---|---|
+| `follower-latest` | laatste volger |
+| `follower-session` / `-week` / `-total` | volgers deze stream / week / totaal |
+| `subscriber-latest` | laatste sub |
+| `subscriber-new-latest` | laatste nieuwe sub |
+| `subscriber-gifted-latest` | laatste gift-sub |
+| `subscriber-alltime-gifter` | grootste gifter |
+| `subscriber-session` | subs deze stream |
+| `cheer-latest` / `cheer-session` | laatste bits / bits deze stream |
+| `cheer-alltime-top-donator` | topcheer |
+| `tip-latest` / `tip-session` | laatste tip / tips deze stream |
+| `tip-alltime-top-donator` | topdonatie |
+| `raid-latest` | laatste raid |
+
+Let op: er bestaat bij SE geen `tip-top` of `cheer-top` -- dat zijn
+`tip-alltime-top-donator` en `cheer-alltime-top-donator`. Een sleutel die niet
+bestaat geeft geen foutmelding, de pil verschijnt gewoon nooit.
+
+SE geeft "nog niets gebeurd" terug als het **getal 0**, niet als leeg. Zowel
+`display()` in `js/streamelements.js` als `Labels.set()` vangen dat af, anders
+staat er letterlijk `0` in je balk.
 
 **Een label zonder waarde blijft verborgen.** Een lege "TOPDONATIE --" is ruis;
 zo vult de balk zich vanzelf naarmate er iets gebeurt. Zolang je nog geen JWT

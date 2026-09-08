@@ -68,12 +68,16 @@ var API = 'https://api.streamelements.com/kappa/v2';
 
 function auth(){ return { headers: { Authorization: 'Bearer ' + CFG.jwt } }; }
 
+/* SE geeft "nog niets gebeurd" terug als het getal 0, niet als null of een
+   lege string. Zonder deze check toont de balk letterlijk "0" bij een label
+   waar nog nooit iets voor binnenkwam. */
 function display(v){
-  if(v == null) return null;
-  if(typeof v !== 'object') return v;
-  if(v.name || v.username || v.displayName) return v.name || v.username || v.displayName;
-  if(v.amount != null) return v.amount;
-  if(v.count  != null) return v.count;
+  if(v == null || Array.isArray(v)) return null;
+  if(typeof v !== 'object') return (v === 0 || v === '') ? null : v;
+  var n = v.name || v.username || v.displayName;
+  if(n) return n;
+  if(v.amount) return v.amount;   // 0 telt als leeg
+  if(v.count)  return v.count;
   return null;
 }
 

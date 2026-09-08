@@ -21,17 +21,25 @@ U.$('#goalTarget').textContent = GOAL ? U.num(GOAL) : '';
 /* ---- labels --------------------------------------------------------
    Sleutel -> bijschrift en tint. De sleutels zijn die van StreamElements,
    en de bestandsherkenning in labels.js gebruikt dezelfde. */
+/* Sleutels exact zoals StreamElements ze in de sessiedata zet. Namen als
+   'tip-top' bestaan daar niet -- dat is 'tip-alltime-top-donator'. */
 var LABELS = {
-  'follower-latest'    : { text:'laatste volger',      kind:'follow' },
-  'follower-session'   : { text:'volgers deze stream', kind:'follow' },
-  'subscriber-latest'  : { text:'laatste sub',         kind:'sub'    },
-  'subscriber-session' : { text:'subs deze stream',    kind:'sub'    },
-  'cheer-latest'       : { text:'laatste bits',        kind:'cheer'  },
-  'cheer-top'          : { text:'topcheer',            kind:'cheer'  },
-  'tip-latest'         : { text:'laatste tip',         kind:'tip'    },
-  'tip-top'            : { text:'topdonatie',          kind:'tip'    },
-  'tip-session-top'    : { text:'topdonatie sessie',   kind:'tip'    },
-  'raid-latest'        : { text:'laatste raid',        kind:'raid'   }
+  'follower-latest'           : { text:'laatste volger',      kind:'follow' },
+  'follower-session'          : { text:'volgers deze stream', kind:'follow' },
+  'follower-week'             : { text:'volgers deze week',   kind:'follow' },
+  'follower-total'            : { text:'volgers totaal',      kind:'follow' },
+  'subscriber-latest'         : { text:'laatste sub',         kind:'sub'    },
+  'subscriber-new-latest'     : { text:'laatste nieuwe sub',  kind:'sub'    },
+  'subscriber-gifted-latest'  : { text:'laatste gift-sub',    kind:'sub'    },
+  'subscriber-alltime-gifter' : { text:'grootste gifter',     kind:'sub'    },
+  'subscriber-session'        : { text:'subs deze stream',    kind:'sub'    },
+  'cheer-latest'              : { text:'laatste bits',        kind:'cheer'  },
+  'cheer-session'             : { text:'bits deze stream',    kind:'cheer'  },
+  'cheer-alltime-top-donator' : { text:'topcheer',            kind:'cheer'  },
+  'tip-latest'                : { text:'laatste tip',         kind:'tip'    },
+  'tip-session'               : { text:'tips deze stream',    kind:'tip'    },
+  'tip-alltime-top-donator'   : { text:'topdonatie',          kind:'tip'    },
+  'raid-latest'               : { text:'laatste raid',        kind:'raid'   }
 };
 
 var WANT = TB.labels || ['follower-latest','subscriber-latest','cheer-latest','tip-top'];

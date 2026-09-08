@@ -22,7 +22,7 @@ var store = {}, subs = [];
 function set(key, val){
   if(val == null) return;
   val = String(val).trim();
-  if(!val || store[key] === val) return;
+  if(!val || val === '0' || store[key] === val) return;
   store[key] = val;
   subs.forEach(function(fn){ try{ fn(key, val); }catch(e){ console.warn('[labels]', e.message); } });
 }
@@ -39,14 +39,13 @@ function on(fn){
 var RULES = [
   { key:'follower-latest',    need:['follower','recent'],      avoid:['session'] },
   { key:'follower-session',   need:['follower','session','recent'] },
-  { key:'follower-count',     need:['follower','count'],       avoid:['session'] },
-  { key:'follower-count-ses', need:['follower','count','session'] },
+  { key:'follower-total',     need:['follower','count'],       avoid:['session'] },
   { key:'subscriber-latest',  need:['sub','recent'],           avoid:['session'] },
-  { key:'subscriber-count',   need:['sub','count'],            avoid:['session'] },
+  { key:'subscriber-session', need:['sub','count','session'] },
   { key:'tip-latest',         need:['don','recent'],           avoid:['session'] },
-  { key:'tip-top',            need:['don','top'],              avoid:['session','month','week'] },
+  { key:'tip-alltime-top-donator', need:['don','top'],         avoid:['session','month','week'] },
   { key:'cheer-latest',       need:['cheer','recent'],         avoid:['session'] },
-  { key:'cheer-top',          need:['cheer','top'],            avoid:['session'] }
+  { key:'cheer-alltime-top-donator', need:['cheer','top'],     avoid:['session'] }
 ];
 
 function classify(name){
