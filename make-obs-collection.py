@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Genereert een OBS scene collection met alle overlay-sources op hun plek.
 
-    ./make-obs-collection.py                        # http://localhost:8777
-    ./make-obs-collection.py --base-url http://192.168.0.10:8777
+    ./make-obs-collection.py --install
+    ./make-obs-collection.py --root 'C:\\Users\\benne\\wow_streaming_overlay'
 
-Importeren: OBS > Scene Collection > Import > kies obs-scene-collection.json.
-Dat maakt een NIEUWE collectie aan; je bestaande blijft ongemoeid.
+--install zet het bestand in de scenes-map van OBS; herstart OBS en kies de
+collectie onder Scene Collection. Gebruik NIET de Import-knop -- die is voor
+het overnemen van Streamlabs en dergelijke, en doet niets met een OBS-eigen
+collectie.
+
+Je bestaande collecties blijven ongemoeid; dit is er een naast.
 """
-import argparse, json, os, subprocess, uuid
+import argparse, json, os, platform, re, shutil, subprocess, sys, uuid
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--base-url', default=None,
@@ -18,6 +22,10 @@ ap.add_argument('--name', default='bmiest overlay')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
+ap.add_argument('--os', choices=['windows','linux','mac'], default=None,
+                help='doelsysteem; bepaalt de audio-apparaten. Standaard afgeleid van --root')
+ap.add_argument('--install', action='store_true',
+                help='zet het bestand meteen in de scenes-map van OBS op deze machine')
 a = ap.parse_args()
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +60,20 @@ TP = stinger_point_ms()
 # --- vaste geometrie, gelijk aan css/banner.css en css/chatting.css -------
 TOP_H, GAME_H, BOT_H = 120, 1072, 248
 CANVAS_W, CANVAS_H   = 2560, 1440
+
+# ---- doelsysteem ---------------------------------------------------------
+def guess_os():
+    if a.os: return a.os
+    if a.root and ('\\' in a.root or (len(a.root) > 1 and a.root[1] == ':')):
+        return 'windows'
+    return {'Windows':'windows', 'Darwin':'mac'}.get(platform.system(), 'linux')
+
+TARGET = guess_os()
+AUDIO = {
+    'windows': ('wasapi_output_capture', 'wasapi_input_capture'),
+    'linux'  : ('pulse_output_capture',  'pulse_input_capture'),
+    'mac'    : ('coreaudio_output_capture', 'coreaudio_input_capture'),
+}[TARGET]
 
 def src(name, sid, settings, **extra):
     s = {
@@ -131,8 +153,19 @@ s_start = scene('Straks live', [item(sc_start, 0, 0, 1), item(alerts, 0, TOP_H, 
 s_brb   = scene('Even weg',    [item(sc_brb,   0, 0, 1), item(alerts, 0, TOP_H, 2)])
 s_end   = scene('Einde',       [item(sc_end,   0, 0, 1)])
 
+# Zonder deze twee heeft de collectie geen geluid -- OBS zet ze normaal zelf
+# neer bij een nieuwe collectie, maar niet bij een die van schijf komt.
+def audio(name, sid):
+    return src(name, sid, {'device_id': 'default'},
+               muted=False, mixers=255, monitoring_type=0)
+
+desktop = audio('Desktop Audio', AUDIO[0])
+mic     = audio('Mic/Aux',       AUDIO[1])
+
 col = {
     'name': a.name,
+    'DesktopAudioDevice1': desktop,
+    'AuxAudioDevice1': mic,
     'current_scene': 'Gameplay',
     'current_program_scene': 'Gameplay',
     'current_transition': 'bmiest stinger',
@@ -157,14 +190,50 @@ col = {
 with open(os.path.join(HERE, a.out), 'w', encoding='utf-8') as fh:
     json.dump(col, fh, indent=2, ensure_ascii=False)
 
+OUT = os.path.join(HERE, a.out)
+
+# ---- installeren ---------------------------------------------------------
+def scenes_dir():
+    sysname = platform.system()
+    if sysname == 'Windows':
+        base = os.environ.get('APPDATA', '')
+        cands = [os.path.join(base, 'obs-studio', 'basic', 'scenes')]
+    elif sysname == 'Darwin':
+        cands = [os.path.expanduser('~/Library/Application Support/obs-studio/basic/scenes')]
+    else:
+        cands = [os.path.expanduser('~/.config/obs-studio/basic/scenes'),
+                 os.path.expanduser('~/.var/app/com.obsproject.Studio/config/obs-studio/basic/scenes'),
+                 os.path.expanduser('~/snap/obs-studio/current/.config/obs-studio/basic/scenes')]
+    return [c for c in cands if os.path.isdir(c)]
+
+if a.install:
+    dirs = scenes_dir()
+    if not dirs:
+        print('geen scenes-map van OBS gevonden; start OBS een keer en probeer opnieuw')
+        sys.exit(1)
+    slug = re.sub(r'[^A-Za-z0-9_-]+', '_', a.name).strip('_') or 'overlay'
+    for d in dirs:
+        dst = os.path.join(d, slug + '.json')
+        shutil.copyfile(OUT, dst)
+        print('geinstalleerd: %s' % dst)
+    print()
+    print('Herstart OBS en kies de collectie onder Scene Collection.')
+    print('Niet via Import -- die knop is voor het overnemen van andere software.')
+
 print('geschreven: %s' % a.out)
 print('  basis     : %s' % BASE)
 print('  stinger   : %s' % STING)
 print()
 print('  transitiepunt: %d ms (halve duur van de stinger)' % TP)
 print()
-print('OBS > Scene Collection > Import > kies dit bestand.')
+if not a.install:
+    print('Installeren:  ./make-obs-collection.py --install')
+    print('Dat zet het bestand in de scenes-map van OBS. Gebruik NIET de')
+    print('Import-knop: die is bedoeld voor het overnemen van andere software')
+    print('en doet niets met een OBS-collectie.')
 if not a.base_url:
+    print()
     print('De pagina\'s laden rechtstreeks van schijf; er hoeft geen server te draaien.')
+print()
 print('Daarna nog twee dingen zelf: vervang de sources die met [VERVANG]')
 print('beginnen door je echte Game Capture en Video Capture Device.')
