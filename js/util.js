@@ -3,7 +3,33 @@
 (function(){
 'use strict';
 
-var CFG = window.OVERLAY_CONFIG || {};
+/* Instellingen komen uit drie lagen, in deze volgorde:
+     1. config.default.js  -- gedeeld, geen geheimen, mag publiek
+     2. config.js          -- lokaal en optioneel (window.OVERLAY_OVERRIDE)
+     3. de URL             -- ?jwt=... en ?channel=...
+
+   Het token hoort in laag 3. Een gehoste pagina heeft geen config.js, en
+   de URL staat alleen in jouw OBS-configuratie -- net als bij de
+   overlay-URL van StreamElements zelf. */
+function merge(base, over){
+  Object.keys(over || {}).forEach(function(k){
+    var v = over[k], b = base[k];
+    if(v && typeof v === 'object' && !Array.isArray(v) &&
+       b && typeof b === 'object' && !Array.isArray(b)) merge(b, v);
+    else base[k] = v;
+  });
+  return base;
+}
+
+var CFG = merge(window.OVERLAY_CONFIG || {}, window.OVERLAY_OVERRIDE);
+
+(function(){
+  var q = new URLSearchParams(location.search);
+  var jwt = q.get('jwt');
+  if(jwt){ CFG.streamelements = CFG.streamelements || {}; CFG.streamelements.jwt = jwt; }
+  var ch = q.get('channel');
+  if(ch){ CFG.twitch = CFG.twitch || {}; CFG.twitch.channel = ch; }
+})();
 
 // Officiele WoW klassekleuren. Ze worden alleen op kleine vlakken
 // gebruikt (ring, bolletje, naam) zodat ze het grijs niet verstoren.

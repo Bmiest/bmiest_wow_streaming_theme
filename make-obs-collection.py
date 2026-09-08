@@ -22,6 +22,10 @@ ap.add_argument('--local-files', action='store_true',
 ap.add_argument('--root', default=None,
                 help='pad naar de overlaymap zoals OBS het ziet, bv. C:\\overlay')
 ap.add_argument('--name', default='bmiest overlay')
+ap.add_argument('--jwt', default=None,
+                help='StreamElements JWT; wordt aan elke browser-URL gehangen. '
+                     'Alleen zinvol bij een gehoste site. Het resultaat bevat dan '
+                     'je token -- deel dat bestand niet.')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
@@ -111,7 +115,9 @@ def browser(name, path, w, h):
         })
     return src(name, 'browser_source', {
         'is_local_file': False,
-        'url': BASE + '/' + path, 'width': w, 'height': h,
+        'url': BASE + '/' + path + (
+            ('&' if '?' in path else '?') + 'jwt=' + a.jwt if a.jwt else ''),
+        'width': w, 'height': h,
         'fps_custom': True, 'fps': 30,
         'shutdown': False, 'restart_when_active': False,
         'reroute_audio': False,
@@ -244,6 +250,8 @@ if a.install:
 
 print('geschreven: %s' % a.out)
 print('  basis     : %s' % BASE)
+if a.jwt:
+    print('  jwt       : meegegeven in de URLs -- deel dit bestand niet')
 print('  stinger   : %s' % STING)
 print()
 print('  transitiepunt: %d ms (halve duur van de stinger)' % TP)

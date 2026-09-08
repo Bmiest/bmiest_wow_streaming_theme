@@ -1,6 +1,12 @@
-// Kopieer naar config.js en vul in.  config.js staat in .gitignore
-// omdat je StreamElements JWT er in staat -- dat token geeft toegang
-// tot je SE-account, deel het met niemand.
+// Gedeelde instellingen. Dit bestand bevat GEEN geheimen en mag publiek.
+//
+// Je StreamElements JWT hoort hier niet in. Geef die mee in de URL van de
+// browser source:   topbar.html?jwt=eyJ...
+// Die URL staat alleen in jouw OBS-configuratie. Zo werkt de overlay-URL
+// van StreamElements zelf ook.
+//
+// Wil je lokaal iets anders? Maak config.js aan (staat in .gitignore) met
+// window.OVERLAY_OVERRIDE = { ... } -- dat wordt hier overheen gelegd.
 window.OVERLAY_CONFIG = {
 
   // ---- canvas -------------------------------------------------------

@@ -15,14 +15,30 @@ het gegevens zijn -- de raid progress van je guild -- niet als merknaam.
 
 ## 1. Eenmalig instellen
 
-```bash
-cp config.example.js config.js   # en vul config.js in
-./serve.sh                       # http://localhost:8777
+Instellingen komen uit drie lagen, in deze volgorde:
+
+| Laag | Bestand | Geheimen? |
+|---|---|---|
+| 1 | `config.default.js` | nee -- gedeeld, mag publiek |
+| 2 | `config.js` (optioneel) | ja -- staat in `.gitignore` |
+| 3 | de URL van de browser source | ja |
+
+**Je JWT hoort in laag 3.** Geef 'm mee als parameter:
+
+```
+topbar.html?jwt=eyJ...
 ```
 
-`config.js` staat in `.gitignore` omdat je StreamElements JWT erin staat.
-Dat token geeft toegang tot je SE-account -- deel het met niemand en zet het
-nooit in een screenshot of een repo.
+Die URL staat alleen in jouw OBS-configuratie, precies zoals de overlay-URL
+van StreamElements zelf werkt. Zo hoeft het token nergens op schijf te staan,
+en kan de overlay ook gehost worden.
+
+Wil je het toch lokaal: maak `config.js` met
+`window.OVERLAY_OVERRIDE = { streamelements: { jwt: '...' } };`
+
+```bash
+./serve.sh                       # http://localhost:8777
+```
 
 Kijken zonder OBS:
 
