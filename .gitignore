@@ -2,8 +2,6 @@
 config.js
 *.local.js
 
-# Streamlabs schrijft hier namen van kijkers in
-labels/*.txt
 
 # Gegenereerd door make-obs-collection.py; bevat een absoluut pad naar
 # stinger.webm en is dus machinegebonden

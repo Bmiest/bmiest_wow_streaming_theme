@@ -235,9 +235,10 @@ transform.
 | Character, keys, raid progress | Raider.IO public API | geen |
 | Followers, kijkers, uptime | DecAPI | geen |
 | Follows, subs, cheers, tips, raids | StreamElements realtime socket | JWT |
+| Labels (laatste volger, laatste sub, ...) | StreamElements sessie-API | JWT |
 
-Bewust gesplitst: SE levert de live events, DecAPI de totalen. Zo valt je
-followercount niet weg als je SE-sessie hapert.
+Bewust gesplitst: SE levert de events en de labels, DecAPI de totalen. Zo valt
+je followercount niet weg als je SE-sessie hapert.
 
 **Ingevuld en geverifieerd:**
 
@@ -340,7 +341,7 @@ Twee dingen om te weten als je gaat sleutelen:
   element staan. `clip-path` klipt ook absoluut gepositioneerde kinderen.
   Vandaar `.rcard-wrap` om `.rcard` heen.
 
-### StreamElements (standaard, en wat je wil met OBS)
+### Waar het vandaan komt
 
 Vul je JWT in bij `streamelements.jwt` -- die heb je toch al nodig voor de
 alerts. Verder niets. Geen extra programma, geen aparte app naast OBS.
@@ -359,29 +360,6 @@ browser source.
 > Ongetest tot je het token invult -- ik kon deze aanroepen hier niet
 > uitproberen zonder jouw JWT. De 401 die ik terugkreeg met een neptoken
 > bewees wel dat het endpoint bestaat en dat de browser erbij mag.
-
-### Streamlabs Stream Labels (alternatief)
-
-Alleen relevant als je Streamlabs' **losse Stream Labels-app** draait; die
-werkt prima naast OBS, maar je hebt hem niet nodig. Hij schrijft platte
-.txt-bestanden; richt hem op `./labels` en zet `labels.source` op `'files'`
-of `'both'`.
-
-De bestandsnamen worden niet gegokt: de overlay leest de maplijst uit en
-herkent de bestanden op patroon (`recent` + `follower`, `top` + `donator`,
-enzovoort), dus afwijkende namen werken ook:
-
-| Sleutel | Herkent bijvoorbeeld |
-|---|---|
-| `follower-latest` | `most_recent_follower.txt` |
-| `follower-session` | `session_most_recent_follower.txt` |
-| `follower-count` | `total_follower_count.txt` |
-| `subscriber-latest` | `most_recent_subscriber.txt` |
-| `tip-latest` | `most_recent_donator.txt` |
-| `tip-top` | `top_donator.txt` |
-| `cheer-latest` | `most_recent_cheer.txt` |
-
-Wat er ook schrijft, de balken lezen alleen uit `js/labels.js`.
 
 ## 6. Live boss progress
 
@@ -560,7 +538,7 @@ css/chatting.css Just Chatting
 js/scene.js      scenes
 js/chatting.js   Just Chatting
 js/chat.js       Twitch IRC
-js/labels.js     labels (Streamlabs / StreamElements)
+js/labels.js     labelopslag
 js/stats.js      DecAPI
 js/streamelements.js  SE socket
 js/ribbon.js     ribbon- en kaartbouwer

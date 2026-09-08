@@ -124,29 +124,11 @@ window.OVERLAY_CONFIG = {
     ],
   },
 
-  // ---- labels --------------------------------------------------------
-  // Losse feitjes die live bijwerken: laatste volger, laatste sub, hoogste
-  // donatie. Twitch heeft z'n publieke follower-endpoint dichtgezet, dus dit
-  // moet uit je eigen bot komen.
-  //
-  //   'streamelements' Haalt de sessiestand op via SE's API en houdt 'm live
-  //                    bij via de socket. Vereist alleen je JWT hierboven --
-  //                    die heb je toch al nodig voor de alerts. Werkt met OBS,
-  //                    geen extra programma nodig. Dit wil je.
-  //   'files'          Voor wie Streamlabs' losse Stream Labels-app draait:
-  //                    die schrijft .txt-bestanden, richt hem op ./labels.
-  //   'both'           Allebei; wie het laatst schrijft wint.
-  labels: {
-    source     : 'streamelements',
-    dir        : 'labels',
-    pollSeconds: 15,
-  },
-
   // ---- chat ---------------------------------------------------------
   chat: {
     maxMessages : 7,
     hideCommands: true,
-    ignore      : ['nightbot','streamelements','moobot','sery_bot','streamlabs'],
+    ignore      : ['nightbot','streamelements','moobot','sery_bot'],
   },
 
   // ---- handmatige progress-regel -----------------------------------

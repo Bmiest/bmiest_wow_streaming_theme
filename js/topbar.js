@@ -62,8 +62,6 @@ window.Labels.on(function(key, val){
   el.style.display = '';
   el.setValue(val);
 });
-window.Labels.start();
-
 /* SE levert de labels: loadSession haalt de huidige stand op, de socket
    houdt 'm bij. De events zelf gaan naar de onderbalk; ze schrijven
    onderweg al in de labelopslag, dus hier hoeft niets mee te gebeuren. */
