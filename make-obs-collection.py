@@ -7,7 +7,7 @@
 Importeren: OBS > Scene Collection > Import > kies obs-scene-collection.json.
 Dat maakt een NIEUWE collectie aan; je bestaande blijft ongemoeid.
 """
-import argparse, json, os, uuid
+import argparse, json, os, subprocess, uuid
 
 ap = argparse.ArgumentParser()
 ap.add_argument('--base-url', default='http://localhost:8777',
@@ -19,6 +19,19 @@ a = ap.parse_args()
 HERE   = os.path.dirname(os.path.abspath(__file__))
 BASE   = a.base_url.rstrip('/')
 STING  = os.path.join(HERE, 'stinger.webm')
+
+def stinger_point_ms(default=500):
+    """Transitiepunt = halve duur van stinger.webm. Uitlezen in plaats van
+    hardcoderen, zodat het klopt als je hem met een ander aantal frames bouwt."""
+    try:
+        out = subprocess.run(['ffprobe','-v','error','-show_entries','format=duration',
+                              '-of','default=nw=1:nk=1', STING],
+                             capture_output=True, text=True, timeout=10)
+        return int(round(float(out.stdout.strip()) * 1000 / 2))
+    except Exception:
+        return default
+
+TP = stinger_point_ms()
 
 # --- vaste geometrie, gelijk aan css/banner.css en css/chatting.css -------
 TOP_H, GAME_H, BOT_H = 120, 1072, 248
@@ -113,7 +126,7 @@ col = {
                     ['Straks live', 'Gameplay', 'Just Chatting', 'Even weg', 'Einde']],
     'transitions': [{
         'name': 'bmiest stinger', 'id': 'obs_stinger_transition',
-        'settings': {'path': STING, 'transition_point': 400, 'tp_type': 0,
+        'settings': {'path': STING, 'transition_point': TP, 'tp_type': 0,
                      'audio_monitoring': 0, 'audio_fade_style': 0,
                      'track_matte_enabled': False},
     }],
@@ -128,6 +141,8 @@ with open(os.path.join(HERE, a.out), 'w', encoding='utf-8') as fh:
 print('geschreven: %s' % a.out)
 print('  basis-URL : %s' % BASE)
 print('  stinger   : %s' % STING)
+print()
+print('  transitiepunt: %d ms (halve duur van de stinger)' % TP)
 print()
 print('OBS > Scene Collection > Import > kies dit bestand.')
 print('Daarna nog twee dingen zelf: vervang de sources die met [VERVANG]')

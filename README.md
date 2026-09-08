@@ -444,33 +444,34 @@ Een stinger is een videobestand, geen webpagina. `stinger.html` tekent één
 frame (framenummer via de URL) en `build-stinger.sh` rendert ze los af en
 plakt er een webm met alphakanaal van.
 
-De vorm volgt dezelfde ribbon-taal: **zeven banden** die om beurten van links
-en rechts inschuiven, elk met jade en witte slierten net buiten de randen, en
-op het dekpunt een groot ribbon-merk in het midden.
+De vorm is nagemaakt naar de stingers uit Amused, die uit drie acts bestaan:
 
-Ze lopen bewust op elkaar achter. Een enkel vlak paneel gaf een halve seconde
-dood zwart in het midden, en dat leest als een blackout in plaats van een
-overgang; nu is er altijd een schuine rand in beweging. Alle zeven staan
-precies op de helft van de duur op hun plek, dus het transitiepunt is een
-gegeven en geen schatting. Gemeten dekking over de 24 frames: 0 -- 0 -- 223 --
-**255** -- 146 -- 0 -- 0.
+1. Een paneel schuift in met een **golvende voorrand** -- geen rechte diagonaal
+   maar twee sinussen over elkaar -- met een jade band die er net voor uit loopt
+   als schaduw.
+2. Op het dekpunt staat het merk in beeld.
+3. Een **iris opent** vanuit het midden: een jade ring op de rand van het gat,
+   een dunne witte halo eromheen, en twee sikkels die meedraaien terwijl hij
+   opengaat.
 
-```bash
-./serve.sh &            # moet draaien
-./build-stinger.sh      # -> stinger.webm, 800 ms
-```
+Het gat is een `radial-gradient` met een **harde stop**, geen zachte overgang,
+dus er valt niets te banden.
+
+Duur 1000 ms bij 30 frames; het beeld is dicht op 440 ms en de iris begint op
+500 ms, dus het transitiepunt ligt op de helft.
 
 Dan in OBS onder **Scene Transitions > Stinger**:
 
 | | |
 |---|---|
 | Video File | `stinger.webm` |
-| Transition Point | `400` ms |
+| Transition Point | `500` ms |
 
-Het paneel dekt het beeld exact op de helft van de duur volledig af, dus dat
-transitiepunt is geen schatting. Wil je 'm sneller of trager: `./build-stinger.sh 18`
-voor 600 ms, `./build-stinger.sh 36` voor 1,2 s -- transitiepunt is altijd de
-helft. De tekst staat in `config.js` onder `stinger.text`.
+Het beeld is exact op de helft van de duur volledig dicht, dus dat transitiepunt
+is geen schatting. Wil je 'm sneller of trager: `./build-stinger.sh 24` voor
+800 ms, `./build-stinger.sh 36` voor 1,2 s -- het transitiepunt is altijd de
+helft, en `make-obs-collection.py` leest de duur uit met ffprobe zodat het
+vanzelf meeloopt. De tekst staat in `config.js` onder `stinger.text`.
 
 Technisch: VP9 met `yuva420p` en `-auto-alt-ref 0`; zonder die laatste vlag
 gooit libvpx het alphakanaal weg. `ffprobe` meldt `pix_fmt=yuv420p` -- dat
