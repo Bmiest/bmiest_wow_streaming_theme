@@ -10,8 +10,10 @@ Dat maakt een NIEUWE collectie aan; je bestaande blijft ongemoeid.
 import argparse, json, os, subprocess, uuid
 
 ap = argparse.ArgumentParser()
-ap.add_argument('--base-url', default='http://localhost:8777',
-                help='waar serve.sh draait; gebruik het LAN-adres als OBS op een andere machine staat')
+ap.add_argument('--base-url', default=None,
+                help='alleen nodig als je toch via een webserver wil; standaard file:// URLs')
+ap.add_argument('--root', default=None,
+                help='pad naar de overlaymap zoals OBS het ziet, bv. C:\\overlay')
 ap.add_argument('--name', default='bmiest overlay')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
@@ -19,8 +21,20 @@ ap.add_argument('--out',  default='obs-scene-collection.json')
 a = ap.parse_args()
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
-BASE   = a.base_url.rstrip('/')
-STING  = a.stinger or os.path.join(HERE, 'stinger.webm')
+def file_url(root):
+    """file:///C:/overlay  of  file:///home/benne/overlay"""
+    r = root.replace('\\', '/').rstrip('/')
+    return 'file:///' + r.lstrip('/')
+
+ROOT   = a.root or HERE
+BASE   = a.base_url.rstrip('/') if a.base_url else file_url(ROOT)
+def join_as_target(root, name):
+    """os.path.join kiest de scheiding van dit systeem, niet die van het
+    doelsysteem. Een Windows-pad moet backslashes houden."""
+    sep = '\\' if ('\\' in root or (len(root) > 1 and root[1] == ':')) else '/'
+    return root.rstrip('/\\') + sep + name
+
+STING  = a.stinger or join_as_target(ROOT, 'stinger.webm')
 
 def stinger_point_ms(default=500):
     """Transitiepunt = halve duur van stinger.webm. Uitlezen in plaats van
@@ -55,6 +69,9 @@ def src(name, sid, settings, **extra):
 
 def browser(name, path, w, h):
     return src(name, 'browser_source', {
+        # Geen 'is_local_file': dat veld dwingt een bestandskiezer af en die
+        # slikt geen ?mode=starting. Een file:// URL in het gewone url-veld
+        # doet hetzelfde en houdt de querystring.
         'url': BASE + '/' + path, 'width': w, 'height': h,
         'fps_custom': True, 'fps': 30,
         'shutdown': False, 'restart_when_active': False,
@@ -141,11 +158,13 @@ with open(os.path.join(HERE, a.out), 'w', encoding='utf-8') as fh:
     json.dump(col, fh, indent=2, ensure_ascii=False)
 
 print('geschreven: %s' % a.out)
-print('  basis-URL : %s' % BASE)
+print('  basis     : %s' % BASE)
 print('  stinger   : %s' % STING)
 print()
 print('  transitiepunt: %d ms (halve duur van de stinger)' % TP)
 print()
 print('OBS > Scene Collection > Import > kies dit bestand.')
+if not a.base_url:
+    print('De pagina\'s laden rechtstreeks van schijf; er hoeft geen server te draaien.')
 print('Daarna nog twee dingen zelf: vervang de sources die met [VERVANG]')
 print('beginnen door je echte Game Capture en Video Capture Device.')

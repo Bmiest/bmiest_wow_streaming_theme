@@ -37,36 +37,44 @@ transparant gat. In OBS zie je daar je webcam.
 
 ---
 
-## 1b. Draait OBS op een andere machine?
+## 1b. Er hoeft geen server te draaien
 
-Dan zet je het project daar neer in plaats van het over je netwerk te
-serveren. **Serveer dit niet over je LAN**: `config.js` bevat je
-StreamElements-token, en een statische server biedt dat bestand gewoon aan.
-Iedereen op je netwerk kan het dan opvragen.
+De pagina's laden rechtstreeks van schijf. Getest: een `file://`-pagina stuurt
+`Origin: null`, en Raider.IO, DecAPI en StreamElements sturen allemaal open
+CORS-headers, dus de fetches gaan gewoon door. Chat en de SE-socket zijn
+websockets en kennen sowieso geen CORS.
 
-Op de machine waar OBS draait:
+`make-obs-collection.py` zet daarom `file://` URLs in de scene collection.
+Geen `serve.sh`, geen poort, geen tweede venster dat open moet blijven.
+
+> In OBS moet je die URL in het **gewone url-veld** zetten, niet via het vinkje
+> "Local file". Dat vinkje geeft een bestandskiezer en die slikt geen
+> `?mode=starting`. De import doet dat al goed.
+
+Het enige dat hierdoor niet werkt is de Streamlabs-labelbron: `file://` mag
+geen andere `file://`-bestanden lezen. Gebruik je StreamElements (de standaard),
+dan raakt je dat niet.
+
+**Draait OBS op een andere machine?** Zet het project daar neer, niet over je
+netwerk serveren -- `config.js` bevat je StreamElements-token en een statische
+server biedt dat bestand gewoon aan.
 
 ```bat
 git clone https://github.com/Bmiest/wow_streaming_overlay.git
 cd wow_streaming_overlay
 copy config.example.js config.js
 :: config.js openen en je JWT invullen
-serve.bat
 python make-obs-collection.py
 ```
 
-`serve.bat` bindt bewust op `127.0.0.1`, dus alleen die machine zelf komt
-erbij. Hij zoekt Python, dan `py`, dan `npx http-server`.
-
-`stinger.webm` zit in de repo, dus je hoeft daar geen Chrome en ffmpeg te
-hebben; die heb je alleen nodig als je de transitie wil herbouwen.
-
-Wil je het bestand toch elders genereren, geef dan het pad mee zoals OBS het
-ziet:
+Wil je het bestand vanaf hier genereren voor die machine:
 
 ```bash
-./make-obs-collection.py --stinger 'C:\overlay\stinger.webm'
+./make-obs-collection.py --root 'C:\Users\benne\wow_streaming_overlay'
 ```
+
+`serve.sh` en `serve.bat` blijven bestaan voor als je toch liever via een
+webserver werkt (`--base-url http://localhost:8777`), maar nodig is het niet.
 
 ## 2. OBS -- video-instellingen
 
