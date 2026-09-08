@@ -53,37 +53,48 @@ transparant gat. In OBS zie je daar je webcam.
 
 ---
 
-## 1b. Installeren op Windows
+## 1b. Gehost op GitHub Pages
 
-Pak het zip-bestand uit waar je wil, bijvoorbeeld `C:\overlay`, en klik
-**`install.bat`** aan. Dat:
+De overlay staat live op
+**https://bmiest.github.io/bmiest_wow_streaming_theme/**
 
-- maakt `config.js` aan als die er nog niet is;
-- vult de paden van jouw map in;
-- zet de collectie in `%APPDATA%\obs-studio\basic\scenes`.
+Daardoor is er niets te installeren: geen zip, geen paden, geen server, geen
+Python. OBS haalt de pagina's rechtstreeks op, en bijwerken gaat met
+`git push`.
 
-Geen Python nodig, geen server. Daarna je JWT in `config.js` zetten, OBS
-starten, **bmiest overlay** kiezen onder Scene Collection, en de twee
-`[VERVANG]`-vlakken vervangen door je Game Capture en camera.
+Je JWT geef je mee in de URL:
 
-Het script weigert te draaien als OBS nog openstaat -- OBS schrijft bij het
-afsluiten zijn eigen versie over de collectie heen.
+```
+https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...
+```
 
-**Blijven de balken leeg?** Dan slikt jouw OBS de lokale-bestandsmodus niet.
-Sluit OBS en klik `install-met-server.bat` aan; daarna moet `serve.bat` draaien
-terwijl je streamt.
+Die URL staat alleen in jouw OBS-configuratie. `config.js` staat in
+`.gitignore` en geeft op de site een 404, dus je token staat nergens publiek.
 
-> Welke van de twee werkt kon ik hier niet vaststellen: de OBS op deze machine
-> is Ubuntu's `+dfsg`-build en die wordt **zonder browser source** gebouwd
-> (`Source ID 'browser_source' not found` in het log). Op Windows zit die
-> plugin er gewoon in.
-
-## 1c. Installeren op Linux of macOS
+### De collectie
 
 ```bash
-./make-obs-collection.py --install            # via serve.sh
-./make-obs-collection.py --local-files --install
+./make-obs-collection.py \
+  --base-url https://bmiest.github.io/bmiest_wow_streaming_theme \
+  --os windows --jwt '__JWT__' --stinger '__STINGER__'
 ```
+
+Open het resultaat in een teksteditor en vervang:
+
+| Plaatshouder | Waarmee |
+|---|---|
+| `__JWT__` | je StreamElements JWT |
+| `__STINGER__` | het pad waar je `stinger.webm` hebt opgeslagen |
+
+Zet het bestand daarna in `%APPDATA%\obs-studio\basic\scenes\`, start OBS
+en kies **bmiest overlay** onder Scene Collection.
+
+> **De stinger moet lokaal staan.** OBS' stinger-transitie speelt geen video
+> van een URL af. Download `stinger.webm` van de site en wijs `__STINGER__`
+> daarnaartoe. Al de rest komt van het web.
+
+Daarna alleen nog de twee `[VERVANG]`-vlakken vervangen door je Game Capture
+en camera.
 
 ## 2. OBS -- video-instellingen
 
