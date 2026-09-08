@@ -37,50 +37,36 @@ transparant gat. In OBS zie je daar je webcam.
 
 ---
 
-## 1b. Collectie installeren
+## 1b. Installeren op Windows
 
-**Sluit eerst OBS af.** OBS houdt de actieve collectie in het geheugen en
-schrijft die bij het afsluiten over het bestand op schijf heen. Installeer je
-terwijl OBS open staat, dan ben je je nieuwe versie kwijt.
+Pak het zip-bestand uit waar je wil, bijvoorbeeld `C:\overlay`, en klik
+**`install.bat`** aan. Dat:
+
+- maakt `config.js` aan als die er nog niet is;
+- vult de paden van jouw map in;
+- zet de collectie in `%APPDATA%\obs-studio\basic\scenes`.
+
+Geen Python nodig, geen server. Daarna je JWT in `config.js` zetten, OBS
+starten, **bmiest overlay** kiezen onder Scene Collection, en de twee
+`[VERVANG]`-vlakken vervangen door je Game Capture en camera.
+
+Het script weigert te draaien als OBS nog openstaat -- OBS schrijft bij het
+afsluiten zijn eigen versie over de collectie heen.
+
+**Blijven de balken leeg?** Dan slikt jouw OBS de lokale-bestandsmodus niet.
+Sluit OBS en klik `install-met-server.bat` aan; daarna moet `serve.bat` draaien
+terwijl je streamt.
+
+> Welke van de twee werkt kon ik hier niet vaststellen: de OBS op deze machine
+> is Ubuntu's `+dfsg`-build en die wordt **zonder browser source** gebouwd
+> (`Source ID 'browser_source' not found` in het log). Op Windows zit die
+> plugin er gewoon in.
+
+## 1c. Installeren op Linux of macOS
 
 ```bash
-./serve.sh &                      # laat dit draaien
-./make-obs-collection.py --install
-```
-
-Start OBS en kies **bmiest overlay** onder **Scene Collection**.
-
-> **Niet de Import-knop.** Die is voor het overnemen van Streamlabs en
-> dergelijke en doet niets met een OBS-eigen collectie. `--install` zet het
-> bestand rechtstreeks in de scenes-map (`~/.config/obs-studio/basic/scenes`,
-> op Windows `%APPDATA%\obs-studio\basic\scenes`).
-
-### Waarom een server, en niet gewoon van schijf
-
-OBS' CEF weigert een `file://` URL in het gewone url-veld -- de source blijft
-dan leeg. Voor lokale bestanden moet je `is_local_file` gebruiken, en dat veld
-is een bestandskiezer die geen `?mode=starting` slikt. Vandaar de wrappers
-`scene-starting.html`, `scene-brb.html` en `scene-ending.html`.
-
-Wil je het zonder server proberen:
-
-```bash
+./make-obs-collection.py --install            # via serve.sh
 ./make-obs-collection.py --local-files --install
-```
-
-Dat zet `is_local_file` aan en verwijst naar die wrappers. Minder beproefd dan
-de serverroute; werkt het niet, dan is `./serve.sh` de zekere weg.
-
-**Draait OBS op een andere machine?** Zet het project daar neer in plaats van
-het over je netwerk te serveren -- `config.js` bevat je StreamElements-token en
-een statische server biedt dat bestand gewoon aan.
-
-```bat
-git clone https://github.com/Bmiest/wow_streaming_overlay.git
-cd wow_streaming_overlay
-copy config.example.js config.js
-serve.bat
-python make-obs-collection.py --install
 ```
 
 ## 2. OBS -- video-instellingen

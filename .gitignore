@@ -8,3 +8,7 @@ labels/*.txt
 # Gegenereerd door make-obs-collection.py; bevat een absoluut pad naar
 # stinger.webm en is dus machinegebonden
 obs-scene-collection.json
+
+# Gegenereerd door make-obs-collection.py
+obs-collection.local.json
+obs-collection.server.json
