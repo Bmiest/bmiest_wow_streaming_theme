@@ -43,10 +43,11 @@ window.OVERLAY_CONFIG = {
   // ---- raider.io (geen key nodig) ----------------------------------
   raiderio: {
     region: 'eu',
-    // Meerdere characters mag; de kaart rouleert er dan doorheen.
+    // Twee characters staan naast elkaar in de kaart. Zet je er meer in,
+    // dan rouleert de kaart per paar.
     characters: [
-      { realm: 'ragnaros', name: 'Shiftheal' },   // cross-realm lid van Kelderklasse
-      // { realm: 'ragnaros', name: 'Jouwmonk' },
+      { realm: 'ragnaros',        name: 'Shiftheal' },  // cross-realm lid van Kelderklasse
+      { realm: 'twisting-nether', name: 'Bhikhu'    },  // cross-realm lid van Kelderklasse
     ],
     guild: { realm: 'draenor', name: 'Kelderklasse' },
     raidSlug      : '',    // '' = automatisch de nieuwste raid

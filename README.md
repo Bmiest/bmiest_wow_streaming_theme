@@ -282,9 +282,12 @@ je followercount niet weg als je SE-sessie hapert.
 
 - `twitch.channel` = `bmiest` -- 154 volgers via DecAPI.
 - `raiderio.characters` = Shiftheal op **EU-Ragnaros** (cross-realm lid van
-  Kelderklasse). ilvl 318.75, M+ 2932. Raider.IO geeft bij cross-realm
-  lidmaatschap geen guild terug op het character zelf, dus onder je naam staat
-  je realm; de guild staat al bij de raid progress.
+  Kelderklasse, ilvl 318.75, M+ 2932) en Bhikhu op **EU-Twisting Nether**
+  (Mistweaver monk, Kelderklasse, ilvl 295.5). Ze staan naast elkaar in de
+  characterkaart; zet je er meer in, dan rouleert de kaart per paar.
+  Raider.IO geeft bij cross-realm lidmaatschap geen guild terug op het
+  character zelf, dus staat onder zo'n naam de realm; de guild staat al bij
+  de raid progress.
 - `raiderio.guild` = Kelderklasse op EU-Draenor.
 - `goals.followers` = 200.
 

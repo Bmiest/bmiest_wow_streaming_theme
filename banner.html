@@ -16,37 +16,14 @@
       <div class="cam__plate"><span class="live"></span><span id="camName">live</span></div>
     </section>
 
-    <!-- 2 ─ character -------------------------------------------------->
+    <!-- 2 ─ characters (één kolom per character, gevuld uit charTpl) ---->
     <section class="cap cap--char">
       <svg class="wm--feather" viewBox="0 0 100 100" aria-hidden="true">
         <path fill="currentColor" d="M66 10c-16 5-30 17-38 33-6 13-8 28-6 42l8-13c10-3 20-10 28-19 11-12 14-29 8-43z"></path>
         <path stroke="currentColor" stroke-width="2.4" fill="none" d="M62 16 27 80"></path>
       </svg>
 
-      <div class="char__portrait">
-        <img id="charImg" alt="">
-        <svg class="char__halo" viewBox="0 0 100 100" aria-hidden="true">
-          <circle id="charHalo" cx="50" cy="50" r="48"></circle>
-          <circle class="inner"  cx="50" cy="50" r="41"></circle>
-        </svg>
-      </div>
-
-      <div class="char__meta" id="charBlock"
-           style="transition:opacity 220ms cubic-bezier(.22,.61,.36,1),transform 220ms cubic-bezier(.22,.61,.36,1)">
-        <div class="char__name" id="charName">—</div>
-        <div class="char__sub">
-          <span class="swatch" id="charSwatch"></span>
-          <span id="charSpec"></span>
-          <span class="sep">·</span>
-          <span id="charGuild"></span>
-        </div>
-        <div class="char__stats">
-          <div class="stat"><div class="stat__v" id="charIlvl">—</div><div class="stat__l">item level</div></div>
-          <div class="stat"><div class="stat__v" id="charMplus">—</div><div class="stat__l">m+ score</div></div>
-        </div>
-        <div class="keys" id="keyList"></div>
-      </div>
-
+      <div class="chars" id="charRow"></div>
       <div class="rotdots" id="charDots"></div>
     </section>
 
@@ -88,6 +65,34 @@
 
   </div>
 </div>
+
+<!-- Eén character; js/banner.js kloont dit per kolom. -->
+<template id="charTpl">
+  <div class="char">
+    <div class="char__portrait">
+      <img alt="">
+      <svg class="char__halo" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring"  cx="50" cy="50" r="48"></circle>
+        <circle class="inner" cx="50" cy="50" r="41"></circle>
+      </svg>
+    </div>
+
+    <div class="char__meta">
+      <div class="char__name">—</div>
+      <div class="char__sub">
+        <span class="swatch"></span>
+        <span class="char__spec"></span>
+        <span class="sep">·</span>
+        <span class="char__guild"></span>
+      </div>
+      <div class="char__stats">
+        <div class="stat"><div class="stat__v char__ilvl">—</div><div class="stat__l">item level</div></div>
+        <div class="stat"><div class="stat__v char__score">—</div><div class="stat__l">m+ score</div></div>
+      </div>
+      <div class="keys"></div>
+    </div>
+  </div>
+</template>
 
 <script src="config.default.js"></script>
 <script src="config.js"></script>

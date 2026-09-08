@@ -1,6 +1,6 @@
 /* =====================================================================
    ONDERBALK  --  2560 x 248, onder de gameplay (y = 1192)
-   Raster: cam 340 | character 620 | boss 330 | chat 800 | events 342
+   Raster: cam 340 | characters 900 | boss 330 | chat 520 | events 342
    Boven zit een aparte strook (topbar.html) met de sessiestatus.
    ===================================================================== */
 
@@ -29,7 +29,7 @@ html,body{
 
 .banner{
   position:relative;z-index:1;height:100%;
-  display:grid;grid-template-columns:340px 620px 330px 1fr 342px;
+  display:grid;grid-template-columns:340px 900px 330px 1fr 342px;
   gap:20px;padding:24px;
 }
 
@@ -72,11 +72,20 @@ body.demo .cam__hint{display:grid}
 .camev .rib__val{font-size:17px}
 
 /* =====================================================================
-   2. CHARACTER
+   2. CHARACTERS
    ===================================================================== */
-.cap--char{display:flex;gap:20px;align-items:center}
 .wm--feather{position:absolute;right:-40px;top:-46px;width:180px;height:180px;
   color:var(--holy);opacity:.04;transform:rotate(18deg);pointer-events:none}
+
+/* Eén kaart, één kolom per character, met een scheidslijn ertussen. Twee
+   kolommen is het maximum dat op 900px leesbaar blijft; staan er meer
+   characters in de config, dan rouleert de kaart per paar (js/banner.js). */
+.chars{
+  position:relative;z-index:1;display:flex;align-items:stretch;height:100%;
+  transition:opacity 220ms var(--ease), transform 220ms var(--ease);
+}
+.char{display:flex;gap:20px;align-items:center;flex:1 1 0;min-width:0}
+.char + .char{margin-left:22px;padding-left:22px;border-left:1px solid var(--ink-700)}
 
 .char__portrait{position:relative;width:104px;height:104px;flex:0 0 104px}
 .char__portrait img{position:absolute;inset:8px;width:88px;height:88px;
@@ -108,6 +117,17 @@ body.demo .cam__hint{display:grid}
 .key__lvl{font-family:var(--f-mono);font-weight:700;color:var(--jade)}
 .key__n{color:var(--paper-dim);overflow:hidden;text-overflow:ellipsis}
 .keys__empty{font-size:13px;color:var(--ink-500)}
+
+/* twee kolommen: alles een maatje kleiner zodat naam en keys heel blijven */
+.cap--char2 .char{gap:16px}
+.cap--char2 .char__portrait{width:88px;height:88px;flex:0 0 88px}
+.cap--char2 .char__portrait img{inset:7px;width:74px;height:74px}
+.cap--char2 .char__halo{width:88px;height:88px}
+.cap--char2 .char__name{font-size:24px}
+.cap--char2 .char__sub{font-size:13px}
+.cap--char2 .char__stats{gap:20px;margin-top:10px}
+.cap--char2 .stat__v{font-size:21px}
+.cap--char2 .keys{margin-top:10px}
 
 .rotdots{position:absolute;right:18px;top:16px;display:flex;gap:5px}
 .rotdots i{width:15px;height:3px;border-radius:var(--r-pill);background:var(--ink-600);
@@ -166,12 +186,12 @@ body.demo .cam__hint{display:grid}
 .cap--chat{padding:18px 0 14px}
 .cap--chat .cap__label{padding:0 22px}
 #chatList{
-  display:flex;flex-direction:column;justify-content:flex-end;gap:8px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:7px;
   height:calc(100% - 26px);padding:0 22px;overflow:hidden;
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
           mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
 }
-.msg{font-size:19px;line-height:1.32;display:flex;gap:9px;align-items:baseline;
+.msg{font-size:17px;line-height:1.3;display:flex;gap:8px;align-items:baseline;
   animation:msgIn var(--t-fast) var(--ease) both}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .msg__badges{display:flex;gap:4px;flex:0 0 auto;align-self:center}
@@ -184,7 +204,7 @@ body.demo .cam__hint{display:grid}
 .bdg--subscriber {background:var(--ink-500);color:var(--paper)}
 .msg__name{font-weight:600;flex:0 0 auto}
 .msg__body{color:var(--paper-dim);word-break:break-word;min-width:0}
-.msg__body img.emote{height:24px;vertical-align:-6px;margin:0 1px}
+.msg__body img.emote{height:22px;vertical-align:-5px;margin:0 1px}
 .msg--action .msg__body{font-style:italic;color:var(--jade)}
 
 /* =====================================================================

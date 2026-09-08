@@ -25,22 +25,44 @@ if(DEMO){
 U.$('#camName').textContent = CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live';
 
 /* =====================================================================
-   CHARACTER
+   CHARACTERS  --  één kolom per character, naast elkaar in dezelfde kaart
    ===================================================================== */
-var chars = [], idx = 0, rotTimer = null;
-var elName = U.$('#charName'), elSpec = U.$('#charSpec'), elGuild = U.$('#charGuild'),
-    elImg  = U.$('#charImg'),  elIlvl = U.$('#charIlvl'), elScore = U.$('#charMplus'),
-    elSwatch = U.$('#charSwatch'), elHalo = U.$('#charHalo'),
-    elDots = U.$('#charDots'), elBlock = U.$('#charBlock');
+var MAX_SLOTS = 2;                 // meer kolommen wordt te smal om te lezen
+var chars = [], page = 0, rotTimer = null, slots = [];
+var elCard = U.$('.cap--char'), elRow = U.$('#charRow'), elDots = U.$('#charDots');
 
-function paintKeys(runs){
-  var box = U.$('#keyList');
+/* Eén kolom: het gekloonde template plus verwijzingen naar de velden erin. */
+function makeSlot(){
+  var node = U.$('#charTpl').content.firstElementChild.cloneNode(true);
+  elRow.appendChild(node);
+  return {
+    root  : node,
+    img   : U.$('.char__portrait img', node),
+    ring  : U.$('.char__halo .ring',  node),
+    name  : U.$('.char__name',        node),
+    swatch: U.$('.swatch',            node),
+    spec  : U.$('.char__spec',        node),
+    guild : U.$('.char__guild',       node),
+    ilvl  : U.$('.char__ilvl',        node),
+    score : U.$('.char__score',       node),
+    keys  : U.$('.keys',              node)
+  };
+}
+
+function buildSlots(n){
+  if(slots.length === n) return;
+  elRow.innerHTML = ''; slots = [];
+  for(var i=0;i<n;i++) slots.push(makeSlot());
+  elCard.classList.toggle('cap--char2', n > 1);
+}
+
+function paintKeys(box, runs, max){
   box.innerHTML = '';
   if(!runs || !runs.length){
     box.appendChild(U.el('div','keys__empty','geen keys deze week'));
     return;
   }
-  runs.slice(0,2).forEach(function(r){
+  runs.slice(0,max).forEach(function(r){
     var row = U.el('div','key');
     row.appendChild(U.el('span','key__lvl','+' + r.level));
     row.appendChild(U.el('span','key__n', r.name));
@@ -48,37 +70,58 @@ function paintKeys(runs){
   });
 }
 
-function paintChar(c){
+function paintSlot(s, c){
+  // Laatste pagina niet vol: kolom leeg laten, niet een character herhalen.
+  s.root.style.visibility = c ? '' : 'hidden';
   if(!c) return;
-  elName.textContent  = c.name;
-  elSpec.textContent  = [c.spec, c.klass].filter(Boolean).join(' ');
-  elGuild.textContent = c.guild ? '‹' + c.guild + '›' : c.realm;
-  elIlvl.textContent  = c.ilvl  != null ? Number(c.ilvl).toFixed(1) : '—';
-  elScore.textContent = c.score != null ? U.num(c.score) : '—';
-  if(c.thumb) elImg.src = c.thumb;
+  s.name.textContent  = c.name;
+  s.spec.textContent  = [c.spec, c.klass].filter(Boolean).join(' ');
+  s.guild.textContent = c.guild ? '‹' + c.guild + '›' : c.realm;
+  s.ilvl.textContent  = c.ilvl  != null ? Number(c.ilvl).toFixed(1) : '—';
+  s.score.textContent = c.score != null ? U.num(c.score) : '—';
+  if(c.thumb) s.img.src = c.thumb;
   // Klassekleur alleen op ring en bolletje: kleine vlakken, grijs blijft grijs.
-  elSwatch.style.background = c.color;
-  elHalo.style.stroke = c.color;
-  paintKeys(c.runs);
+  s.swatch.style.background = c.color;
+  s.ring.style.stroke = c.color;
+  // Twee kolommen naast elkaar: één key past, twee wordt afgekapt.
+  paintKeys(s.keys, c.runs, slots.length > 1 ? 1 : 2);
 }
 
-function showChar(i){
-  if(!chars.length) return;
-  idx = (i + chars.length) % chars.length;
-  elBlock.style.opacity = '0';
-  elBlock.style.transform = 'translateY(5px)';
+function pageCount(){
+  return Math.max(1, Math.ceil(chars.length / Math.max(1, slots.length)));
+}
+
+function showPage(p){
+  if(!slots.length) return;
+  var n = pageCount();
+  page = (p + n) % n;
+  elRow.style.opacity = '0';
+  elRow.style.transform = 'translateY(5px)';
   setTimeout(function(){
-    paintChar(chars[idx]);
-    elBlock.style.opacity = '1';
-    elBlock.style.transform = 'none';
+    slots.forEach(function(s,i){ paintSlot(s, chars[page*slots.length + i]); });
+    elRow.style.opacity = '1';
+    elRow.style.transform = 'none';
   }, 220);
-  Array.prototype.forEach.call(elDots.children, function(d,n){ d.classList.toggle('on', n===idx); });
+  Array.prototype.forEach.call(elDots.children, function(d,i){ d.classList.toggle('on', i===page); });
 }
 
+// Bolletjes staan voor pagina's, niet voor characters; bij twee characters
+// in twee kolommen is er dus niks te rouleren en verdwijnen ze.
 function buildDots(n){
   elDots.innerHTML = '';
   if(n < 2) return;
   for(var i=0;i<n;i++) elDots.appendChild(U.el('i'));
+}
+
+function showChars(list){
+  chars = list;
+  buildSlots(Math.min(chars.length, MAX_SLOTS));
+  buildDots(pageCount());
+  showPage(page < pageCount() ? page : 0);
+  if(!rotTimer && pageCount() > 1){
+    rotTimer = setInterval(function(){ showPage(page+1); },
+                           ((CFG.raiderio && CFG.raiderio.rotateSeconds) || 20) * 1000);
+  }
 }
 
 function loadChars(){
@@ -92,13 +135,7 @@ function loadChars(){
     var ok = res.filter(Boolean);
     U.setHealth('raider.io', ok.length > 0);
     if(!ok.length) return;
-    chars = ok;
-    buildDots(chars.length);
-    showChar(idx >= chars.length ? 0 : idx);
-    if(!rotTimer && chars.length > 1){
-      rotTimer = setInterval(function(){ showChar(idx+1); },
-                             (CFG.raiderio.rotateSeconds || 20) * 1000);
-    }
+    showChars(ok);
   });
 }
 
@@ -252,11 +289,16 @@ function pushEvent(e){
    ===================================================================== */
 function demo(){
   if(!chars.length){
-    chars = [{ name:'Shiftheal', realm:'Ragnaros', klass:'Priest', spec:'Holy',
-               guild:'', color:'#FFFFFF', thumb:'',
-               ilvl:318.75, score:2932,
-               runs:[{level:16,name:'Den of Nalorakk'},{level:14,name:'Voidscar Arena'}] }];
-    buildDots(1); paintChar(chars[0]);
+    showChars([
+      { name:'Shiftheal', realm:'Ragnaros', klass:'Priest', spec:'Holy',
+        guild:'', color:'#FFFFFF', thumb:'',
+        ilvl:318.75, score:2932,
+        runs:[{level:16,name:'Den of Nalorakk'},{level:14,name:'Voidscar Arena'}] },
+      { name:'Bhikhu', realm:'Twisting Nether', klass:'Monk', spec:'Mistweaver',
+        guild:'Kelderklasse', color:'#00FF98', thumb:'',
+        ilvl:295.5, score:1841,
+        runs:[{level:12,name:'Halls of Atonement'}] }
+    ]);
   }
   U.$('#rioWidget').style.display = 'none';
   U.$('#bossNative').style.display = '';
