@@ -73,18 +73,26 @@ Die URL staat alleen in jouw OBS-configuratie. `config.js` staat in
 
 ### De collectie
 
+Klaar om te downloaden:
+**[`obs-scene-collection.pages.json`](obs-scene-collection.pages.json)**
+
+Of zelf genereren:
+
 ```bash
 ./make-obs-collection.py \
   --base-url https://bmiest.github.io/bmiest_wow_streaming_theme \
   --os windows --jwt '__JWT__' --stinger '__STINGER__'
 ```
 
-Open het resultaat in een teksteditor en vervang:
+Open het bestand in een teksteditor en vervang:
 
 | Plaatshouder | Waarmee |
 |---|---|
 | `__JWT__` | je StreamElements JWT |
 | `__STINGER__` | het pad waar je `stinger.webm` hebt opgeslagen |
+
+Let op bij dat pad: het is JSON, dus backslashes moeten dubbel.
+`C:\overlay\stinger.webm` schrijf je als `C:\\overlay\\stinger.webm`.
 
 Zet het bestand daarna in `%APPDATA%\obs-studio\basic\scenes\`, start OBS
 en kies **bmiest overlay** onder Scene Collection.
