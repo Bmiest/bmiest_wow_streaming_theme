@@ -14,7 +14,6 @@ var DEMO = /[?&]demo=1/.test(location.search);
   stage.style.transform = 'scale(' + ((CFG.outputWidth || dw) / dw) + ')';
 })();
 
-var CH   = ((CFG.twitch && CFG.twitch.channel) || '').toLowerCase();
 var GOAL = (CFG.goals && CFG.goals.followers) || 0;
 
 /* ---- labels --------------------------------------------------------
@@ -113,8 +112,8 @@ function refresh(){
   }).catch(function(){});
   window.Stats.uptime().then(function(t){ setLive(!!t, t); }).catch(function(){ setLive(false); });
   if(TB.showTitle !== false){
-    U.getText('https://decapi.me/twitch/title/' + CH).then(function(t){
-      if(t && !/offline|error|unable|not found/i.test(t)) U.$('#title').textContent = t.trim();
+    window.Stats.title().then(function(t){
+      if(t) U.$('#title').textContent = t;
     }).catch(function(){});
   }
 }

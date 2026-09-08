@@ -22,10 +22,9 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 .halo-big .r3{stroke:var(--ink-600);stroke-width:1;opacity:.5}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.wm-feather-big{
-  z-index:1;position:absolute;right:-3%;top:8%;width:620px;height:620px;
-  color:var(--holy);opacity:.028;transform:rotate(16deg);pointer-events:none;
-}
+/* Hier stond een groot verenwatermerk rechtsboven. Op 2,8% dekking en
+   half buiten beeld gedraaid las het niet als een veer maar als een veeg
+   over de achtergrond. De banen doen dat werk nu. */
 
 /* ---- kop ----------------------------------------------------------- */
 .scene__top{display:flex;align-items:flex-start;gap:18px;position:relative;z-index:2}
@@ -99,14 +98,21 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 
 /* chat op het BRB-scherm, zodat mensen blijven hangen */
 #sceneChat{display:flex;flex-direction:column;justify-content:flex-end;gap:9px;
-  flex:1;overflow:hidden}
-#sceneChat .msg{font-size:22px;line-height:1.3;display:flex;gap:10px;align-items:baseline}
-#sceneChat .msg__name{font-weight:600}
-#sceneChat .msg__body{color:var(--paper-dim)}
+  flex:1;min-height:0;overflow:hidden}
+/* Een chatregel is tekst, geen rij vakjes. Als flexrij bleven badge en naam
+   op de eerste regel staan terwijl de tekst in een eigen kolom viel: onder
+   naam en badge een gat, en bij een bericht van drie regels zakte de badge
+   naar het midden van de rij (align-self:center op een rij die meegroeit).
+   Inline laten lopen wrapt zoals chat hoort te wrappen: de tweede regel
+   begint gewoon links. */
+#sceneChat .msg{font-size:22px;line-height:1.3}
+#sceneChat .msg__name{font-weight:600;margin-right:8px}
+#sceneChat .msg__body{color:var(--paper-dim);overflow-wrap:break-word}
 #sceneChat .msg__body img.emote{height:26px;vertical-align:-7px}
-#sceneChat .msg__badges{display:flex;gap:5px;align-self:center}
+#sceneChat .msg__badges{display:inline-flex;gap:5px;margin-right:8px;vertical-align:3px}
 #sceneChat .bdg{font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 7px;
-  border-radius:var(--r-pill);background:var(--ink-600);color:var(--ink-200);
+  clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%);
+  background:var(--ink-600);color:var(--ink-200);
   text-transform:uppercase}
 
 @media (prefers-reduced-motion:reduce){

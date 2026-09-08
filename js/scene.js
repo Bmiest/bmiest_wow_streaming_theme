@@ -60,7 +60,15 @@ if(M.headline){
   elHead.style.display  = '';
   elHead.textContent    = M.headline;
 }
-if(SC.topic && MODE === 'starting') elTopic.textContent = SC.topic;
+/* Onder de klok hoort waar de stream over gaat, en dat weet Twitch beter
+   dan een vaste regel in de config. Die blijft als terugval staan voor als
+   DecAPI niets bruikbaars teruggeeft. */
+if(MODE === 'starting'){
+  elTopic.textContent = SC.topic || '';
+  window.Stats.title().then(function(t){
+    if(t) elTopic.textContent = t;
+  }).catch(function(){});
+}
 
 if(M.tick){ M.tick(); setInterval(M.tick, 1000); }
 
@@ -157,37 +165,37 @@ function buildChatCard(){
   }
 })();
 
-/* ---- kop: kanaal, character, volgers -------------------------------
-   Zelfde ribbon-taal als de bovenbalk, één maat groter. */
+/* ---- kop: kanaal links, kijkers en volgers rechts -------------------
+   Zelfde ribbons als de bovenbalk, één maat groter. Het character stond
+   hier ook; dat is de kaart in de onderbalk al, en op een scherm dat om
+   aandacht voor één ding vraagt was het ruis. */
 var R = window.Ribbon;
-var ribName = R.make('live',   'kanaal',
+var ribName = R.make('live',    'kanaal',
                      CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live');
-var ribChar = R.make('sword',  'character', '\u2014');
-var ribFoll = R.make('follow', 'volgers',   '\u2014');
-ribChar.style.display = 'none';
-ribFoll.classList.add('rib--r');
-[ribName, ribChar, ribFoll].forEach(function(n){ U.$('#sceneTop').appendChild(n); });
+var ribView = R.make('viewers', 'kijkers', '\u2014');
+var ribFoll = R.make('follow',  'volgers', '\u2014');
+[ribView, ribFoll].forEach(function(n){ n.classList.add('rib--num','rib--empty'); });
+ribView.classList.add('rib--r');
+[ribName, ribView, ribFoll].forEach(function(n){ U.$('#sceneTop').appendChild(n); });
 
-function loadFollowers(){
+/* Kijkers staat er ook voor 'straks live': zodra je live gaat loopt hij mee
+   terwijl dit scherm nog staat, en dat is precies wanneer je het wil zien.
+   Offline geeft DecAPI niets, dan blijft de balk gedempt. */
+function refresh(){
   window.Stats.followers().then(function(n){
-    if(n != null) ribFoll.setValue(U.num(n));
+    if(n == null) return;
+    ribFoll.classList.remove('rib--empty');
+    ribFoll.setValue(U.num(n));
   }).catch(function(){});
-}
-
-function loadChar(){
-  var list = (CFG.raiderio && CFG.raiderio.characters) || [];
-  if(!list.length || !window.RaiderIO) return;
-  window.RaiderIO.character(list[0]).then(function(c){
-    ribChar.style.display = '';
-    ribChar.setValue(c.name +
-                     (c.ilvl  != null ? '  \u00b7  ilvl ' + Number(c.ilvl).toFixed(1) : '') +
-                     (c.score != null ? '  \u00b7  m+ '  + U.num(c.score) : ''));
+  window.Stats.viewers().then(function(n){
+    if(n == null) return;
+    ribView.classList.remove('rib--empty');
+    ribView.setValue(U.num(n), true);
   }).catch(function(){});
 }
 
 /* ---- start ---------------------------------------------------------- */
-U.poll(loadFollowers, 120);
-loadChar();
+U.poll(refresh, 60);
 window.SE.start(pushSupporter);
 
 if(MODE === 'brb'){

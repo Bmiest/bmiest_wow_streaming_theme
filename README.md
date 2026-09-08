@@ -232,6 +232,22 @@ viel daar maar een lob van binnen beeld, en die lag precies achter de naam
 van het tweede character: geen watermerk meer, wel een vlek. Op de
 scene-schermen staat hij nog wel -- daar heeft hij de ruimte.
 
+Twee dingen over de chat in deze balk, want ze zaten er beide fout in:
+
+- Een chatregel is **tekst, geen rij vakjes**. Als flexrij bleven badge en
+  naam op de eerste regel staan terwijl de tekst in een eigen kolom viel:
+  onder naam en badge een gat, en bij een bericht van drie regels zakte de
+  badge naar het midden van de rij (`align-self:center` op een rij die
+  meegroeit). Nu lopen badge, naam en tekst inline, dus wrapt het zoals chat
+  hoort te wrappen. Geldt ook voor Just Chatting en het BRB-scherm.
+- `min-height:0` op `.rcard-wrap` is geen detail. Een grid-item krimpt
+  standaard niet onder zijn inhoud (`min-height:auto`), dus zodra er een lang
+  bericht binnenkwam werd de kaart 225px hoog in een rij van 200 en liep hij
+  onder de balk uit -- de onderste regel werd door `#stage` afgesneden. Met
+  die nul kan de keten `.rcard-wrap` -> `.rcard` -> `.rcard__in` ->
+  `#chatList` krimpen, en schuift de oudste regel bovenaan onder het masker
+  weg zoals bedoeld. `banner.html?demo=1` laat expres één lang bericht zien.
+
 De vier vlakken (characters, raid, chat, recent) zijn `rcard`s uit
 `css/ribbon.css`: schuine hoek rechtsonder, 1px omlijning uit twee geklipte
 lagen, en het bijschrift als tag op de bovenrand met hetzelfde icoon dat een
@@ -505,12 +521,24 @@ Eén pagina, drie standen via de URL:
 
 | Scene | URL | Wat |
 |---|---|---|
-| Straks live | `scene.html?mode=starting` | aftellen, onderwerp, schema, socials, recente supporters |
+| Straks live | `scene.html?mode=starting` | aftellen, streamtitel, schema, socials, recente supporters |
 | Even weg | `scene.html?mode=brb` | klok telt op, chat blijft zichtbaar zodat mensen blijven |
 | Einde | `scene.html?mode=ending` | afsluiter, schema, socials |
 
-Allemaal browser source, `2560 x 1440`, positie `0, 0`. Aftelduur, onderwerp,
-schema en socials staan in `config.js` onder `scenes`. De dag van vandaag
+In de kop staat links je kanaal en rechts kijkers en volgers -- dezelfde
+ribbons als de bovenbalk, één maat groter. Kijkers staat er ook op 'straks
+live': ga je live terwijl dat scherm nog staat, dan loopt hij mee, en dat is
+precies wanneer je het wil zien. Offline geeft DecAPI niets en blijft de balk
+gedempt. Het character stond hier ook; dat is de kaart in de onderbalk al, en
+op een scherm dat om aandacht voor één ding vraagt was het ruis.
+
+Onder de klok staat op 'straks live' de **streamtitel**, want die weet Twitch
+beter dan een vaste regel in de config. `scenes.topic` blijft de terugval voor
+als DecAPI niets bruikbaars teruggeeft.
+
+Allemaal browser source, `2560 x 1440`, positie `0, 0`. Aftelduur, terugval-
+onderwerp, schema en socials staan in `config.js` onder `scenes`. De dag van
+vandaag
 kleurt jade in het schema, en een regel met `note` krijgt er een tagje bij --
 zo staat er `20:00 - 23:00` `RAID` achter je raidavonden.
 

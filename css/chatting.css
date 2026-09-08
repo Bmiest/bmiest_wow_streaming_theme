@@ -76,8 +76,14 @@ body.demo .jc__camhint{display:grid}
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 46px,#000 100%);
           mask-image:linear-gradient(to bottom,transparent 0,#000 46px,#000 100%);
 }
-#jcChat .msg{font-size:25px;line-height:1.33;display:flex;gap:11px;align-items:baseline}
-#jcChat .msg__badges{display:flex;gap:5px;align-self:center}
+/* Een chatregel is tekst, geen rij vakjes. Als flexrij bleven badge en naam
+   op de eerste regel staan terwijl de tekst in een eigen kolom viel: onder
+   naam en badge een gat, en bij een bericht van drie regels zakte de badge
+   naar het midden van de rij (align-self:center op een rij die meegroeit).
+   Inline laten lopen wrapt zoals chat hoort te wrappen: de tweede regel
+   begint gewoon links. */
+#jcChat .msg{font-size:25px;line-height:1.33}
+#jcChat .msg__badges{display:inline-flex;gap:5px;margin-right:9px;vertical-align:3px}
 #jcChat .bdg{
   font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;
   clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%);
@@ -87,8 +93,8 @@ body.demo .jc__camhint{display:grid}
 #jcChat .bdg--broadcaster{background:var(--jade);color:var(--ink-900)}
 #jcChat .bdg--moderator  {background:var(--jade-deep);color:var(--paper)}
 #jcChat .bdg--vip        {background:var(--rose);color:var(--ink-900)}
-#jcChat .msg__name{font-weight:600}
-#jcChat .msg__body{color:var(--paper-dim);word-break:break-word;min-width:0}
+#jcChat .msg__name{font-weight:600;margin-right:9px}
+#jcChat .msg__body{color:var(--paper-dim);overflow-wrap:break-word}
 #jcChat .msg__body img.emote{height:30px;vertical-align:-8px}
 
 /* ---- strook onder de camera ----------------------------------------- */

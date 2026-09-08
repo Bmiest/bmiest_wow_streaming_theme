@@ -59,6 +59,14 @@ html,body{
 .banner .rcard__cap{color:var(--ink-300)}
 .banner .rcard__in{position:relative;padding:15px 22px 17px}
 
+/* min-height:0 is hier geen detail. Een grid-item krimpt standaard niet
+   onder zijn inhoud (min-height:auto), dus zodra er een lang chatbericht
+   binnenkwam werd de kaart 225px hoog in een rij van 200 en liep hij onder
+   de balk uit -- de onderste regel werd door #stage afgesneden. Met deze
+   nul kan de keten wrap -> rcard -> rcard__in -> #chatList wel krimpen, en
+   schuift de oudste regel bovenaan onder het masker weg zoals bedoeld. */
+.banner .rcard-wrap{min-height:0}
+
 /* =====================================================================
    1. CAMERA -- leeg vlak boven het gat
    ===================================================================== */
@@ -222,10 +230,16 @@ body.demo .cam__hint{display:grid}
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
           mask-image:linear-gradient(to bottom,transparent 0,#000 30px,#000 100%);
 }
-.msg{font-size:17px;line-height:1.3;display:flex;gap:8px;align-items:baseline;
+/* Een chatregel is tekst, geen rij vakjes. Als flexrij bleven badge en naam
+   op de eerste regel staan terwijl de tekst in een eigen kolom viel: onder
+   naam en badge een gat, en bij een bericht van drie regels zakte de badge
+   naar het midden van de rij (align-self:center op een rij die meegroeit).
+   Inline laten lopen wrapt zoals chat hoort te wrappen: de tweede regel
+   begint gewoon links. */
+.msg{font-size:17px;line-height:1.3;
   animation:msgIn var(--t-fast) var(--ease) both}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.msg__badges{display:flex;gap:4px;flex:0 0 auto;align-self:center}
+.msg__badges{display:inline-flex;gap:4px;margin-right:7px;vertical-align:2px}
 .bdg{font-size:9px;font-weight:700;letter-spacing:.08em;padding:2px 6px;
   background:var(--ink-600);color:var(--ink-200);
   clip-path:polygon(0 0,100% 0,calc(100% - 4px) 100%,0 100%);
@@ -234,8 +248,8 @@ body.demo .cam__hint{display:grid}
 .bdg--moderator  {background:var(--jade-deep);color:var(--paper)}
 .bdg--vip        {background:var(--rose);color:var(--ink-900)}
 .bdg--subscriber {background:var(--ink-500);color:var(--paper)}
-.msg__name{font-weight:600;flex:0 0 auto}
-.msg__body{color:var(--paper-dim);word-break:break-word;min-width:0}
+.msg__name{font-weight:600;margin-right:7px}
+.msg__body{color:var(--paper-dim);overflow-wrap:break-word}
 .msg__body img.emote{height:22px;vertical-align:-5px;margin:0 1px}
 .msg--action .msg__body{font-style:italic;color:var(--jade)}
 

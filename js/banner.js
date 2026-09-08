@@ -341,7 +341,7 @@ function demo(){
    ['Jhaetra','die pull was clean',null,[{key:'subscriber',label:'sub'}]],
    ['Wvoker','o.O',null,[]],
    ['Hamtaro Wombat','find the fish','#d8b263',[{key:'vip',label:'vip'}]],
-   ['Nocteirah','ilvl 318 al zeg',null,[]]
+   ['Nocteirah','ilvl 318 al zeg, en dan nog een bericht dat lang genoeg is om over meerdere regels te lopen zodat je ziet waar de naam en de badges blijven staan',null,[]]
   ].forEach(function(l,i){
     setTimeout(function(){
       addMessage({name:l[0], html:U.esc(l[1]), color:l[2], badges:l[3], action:false});

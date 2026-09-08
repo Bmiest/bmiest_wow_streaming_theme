@@ -102,6 +102,9 @@ window.OVERLAY_CONFIG = {
     background: 'ribbons',
 
     countdownMinutes: 10,
+
+    // Onder de klok op 'straks live' staat de streamtitel van Twitch. Dit
+    // is de terugval voor als DecAPI die niet geeft.
     topic: 'Mythic+ push richting 3000',
     // note is optioneel en komt als tagje achter de tijd te staan.
     schedule: [

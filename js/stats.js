@@ -34,5 +34,15 @@ function uptime(){
   });
 }
 
-window.Stats = { followers:followers, viewers:viewers, uptime:uptime };
+/* De streamtitel. DecAPI antwoordt op een offline kanaal met proza in
+   plaats van een status, dus dezelfde check als hierboven -- die stond
+   eerder los in de bovenbalk. */
+function title(){
+  return U.getText(BASE+'title/'+CH).then(function(t){
+    t = String(t||'').trim();
+    return (!t || offline(t) || /not found/i.test(t)) ? null : t;
+  });
+}
+
+window.Stats = { followers:followers, viewers:viewers, uptime:uptime, title:title };
 })();
