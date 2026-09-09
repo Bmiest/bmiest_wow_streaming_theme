@@ -34,20 +34,20 @@ function mmss(sec){
 
 var MODES = {
   starting: {
-    eyebrow: 'straks live',
+    eyebrow: 'starting soon',
     tick: function(){
       var left = (SC.countdownMinutes || 10) * 60 - (Date.now() - t0) / 1000;
-      if(left <= 0){ elClock.textContent = 'bijna zover'; elClock.classList.add('small'); }
+      if(left <= 0){ elClock.textContent = 'almost there'; elClock.classList.add('small'); }
       else elClock.textContent = mmss(left);
     }
   },
   brb: {
-    eyebrow: 'even weg',
+    eyebrow: 'be right back',
     tick: function(){ elClock.textContent = mmss((Date.now() - t0) / 1000); }
   },
   ending: {
-    eyebrow: 'bedankt voor het kijken',
-    headline: 'Tot de volgende keer',
+    eyebrow: 'thanks for watching',
+    headline: 'See you next time',
     tick: null
   }
 };
@@ -74,8 +74,8 @@ if(M.tick){ M.tick(); setInterval(M.tick, 1000); }
 
 /* De klok begint te lopen zodra de scene in beeld komt, niet zodra OBS de
    pagina laadt. Een browser source blijft namelijk draaien terwijl je in
-   een andere scene zit: zonder dit stond de aftelklok al op 'bijna zover'
-   voordat je 'straks live' opzette, en liep 'even weg' meteen op een half
+   een andere scene zit: zonder dit stond de aftelklok al op 'almost there'
+   voordat je 'starting soon' opzette, en liep 'be right back' op een half
    uur. OBS' eigen source-events geven dat moment door; visibilitychange is
    de terugval in een gewone browser. */
 function restartClock(){
@@ -93,17 +93,17 @@ document.addEventListener('visibilitychange', function(){
 });
 
 /* ---- schema -------------------------------------------------------- */
-var DAYS = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+var DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
 function buildSchedule(root){
   var list = SC.schedule || [];
-  if(!list.length){ root.appendChild(U.el('div','sup__empty','geen vast schema')); return; }
+  if(!list.length){ root.appendChild(U.el('div','sup__empty','no fixed schedule')); return; }
   var today = DAYS[new Date().getDay()];
   list.forEach(function(r){
     var row = U.el('div','sched__row');
     if(String(r.day).toLowerCase() === today) row.className += ' today';
-    if(!r.time || /vrij|geen|off/i.test(r.time)) row.className += ' off';
+    if(!r.time || /off|none|free/i.test(r.time)) row.className += ' off';
     row.appendChild(U.el('span','sched__d', r.day));
-    row.appendChild(U.el('span','sched__t', r.time || 'vrij'));
+    row.appendChild(U.el('span','sched__t', r.time || 'off'));
     if(r.note) row.appendChild(U.el('span','sched__tag', r.note));
     root.appendChild(row);
   });
@@ -145,21 +145,21 @@ function buildChatCard(){
 
   if(MODE === 'brb'){
     elFoot.appendChild(buildChatCard());
-    var cs = card('volg mee', 'info');
+    var cs = card('links', 'info');
     var sc = U.el('div','socials'); buildSocials(sc); cs.body.appendChild(sc);
     elFoot.appendChild(cs);
   } else {
-    var c1 = card('schema', 'info');
+    var c1 = card('schedule', 'info');
     var sd = U.el('div','sched'); buildSchedule(sd); c1.body.appendChild(sd);
     elFoot.appendChild(c1);
 
-    var c2 = card('volg mee', 'info');
+    var c2 = card('links', 'info');
     var so = U.el('div','socials'); buildSocials(so); c2.body.appendChild(so);
     elFoot.appendChild(c2);
 
     var c3 = card('recent', 'follow');
     supRoot = U.el('div','sup');
-    supRoot.appendChild(U.el('div','sup__empty','nog niets deze sessie'));
+    supRoot.appendChild(U.el('div','sup__empty','nothing yet this session'));
     c3.body.appendChild(supRoot);
     elFoot.appendChild(c3);
   }
@@ -170,15 +170,15 @@ function buildChatCard(){
    hier ook; dat is de kaart in de onderbalk al, en op een scherm dat om
    aandacht voor één ding vraagt was het ruis. */
 var R = window.Ribbon;
-var ribName = R.make('live',    'kanaal',
+var ribName = R.make('live',    'channel',
                      CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live');
-var ribView = R.make('viewers', 'kijkers', '\u2014');
-var ribFoll = R.make('follow',  'volgers', '\u2014');
+var ribView = R.make('viewers', 'viewers',   '\u2014');
+var ribFoll = R.make('follow',  'followers', '\u2014');
 [ribView, ribFoll].forEach(function(n){ n.classList.add('rib--num','rib--empty'); });
 ribView.classList.add('rib--r');
 [ribName, ribView, ribFoll].forEach(function(n){ U.$('#sceneTop').appendChild(n); });
 
-/* Kijkers staat er ook voor 'straks live': zodra je live gaat loopt hij mee
+/* Kijkers staat er ook voor 'starting soon': zodra je live gaat loopt hij mee
    terwijl dit scherm nog staat, en dat is precies wanneer je het wil zien.
    Offline geeft DecAPI niets, dan blijft de balk gedempt. */
 function refresh(){
@@ -220,8 +220,8 @@ if(MODE === 'brb'){
 
 /* scene.html?demo=1 -- vult de supporterskaart zodat je kan uitlijnen */
 if(/[?&]demo=1/.test(location.search)){
-  [['follow','joesswow','volgt nu',''],
-   ['sub','vassham','sub','T2 · 14 mnd'],
+  [['follow','joesswow','follows',''],
+   ['sub','vassham','sub','T2 · 14 mo'],
    ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
     setTimeout(function(){
       pushSupporter({kind:p[0], who:p[1], word:p[2], extra:p[3]});

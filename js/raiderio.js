@@ -30,7 +30,11 @@ function character(c){
       thumb : d.thumbnail_url,
       ilvl  : d.gear ? d.gear.item_level_equipped : null,
       score : season && season.scores ? Math.round(season.scores.all) : null,
-      raids : d.raid_progression || {}
+      raids : d.raid_progression || {},
+      /* Wanneer Raider.IO dit character voor het laatst ophaalde. Zij leveren
+         geen live data; sneller pollen dan hun crawl geeft hetzelfde antwoord.
+         De onderbalk zet de ouderdom in de diagnoseregel. */
+      crawled: d.last_crawled_at || null
     };
   });
 }

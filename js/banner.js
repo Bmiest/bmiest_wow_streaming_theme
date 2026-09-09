@@ -75,7 +75,7 @@ function paintProgress(s, raids){
   s.tiers.innerHTML = '';
   if(!r || !r.total){
     s.raid.textContent = '';
-    s.tiers.appendChild(U.el('span','prog__empty','nog geen raidprogress'));
+    s.tiers.appendChild(U.el('span','prog__empty','no raid progress yet'));
     return;
   }
   s.raid.textContent = r.title;
@@ -143,16 +143,49 @@ function showChars(list){
   }
 }
 
+/* Welke tier de huidige is, vragen we bij elke poll opnieuw. Eén extra
+   request per vijf minuten, en de characterkaart volgt de guild als die een
+   nieuwe raid binnenstapt -- eerder moest de browser source daarvoor
+   herladen. Faalt de aanroep, dan houden we de vorige slug; is die er nog
+   niet, dan valt pickRaid terug op de laatste sleutel. */
+function loadRaidSlug(){
+  if(!window.RioLive) return Promise.resolve();
+  return window.RioLive.currentRaid().then(function(s){
+    if(s) raidSlug = s;
+  }).catch(function(e){
+    console.warn('[rio-live] huidige raid onbekend:', e.message);
+  });
+}
+
+/* Raider.IO crawlt characters op hun eigen ritme en zet er last_crawled_at
+   bij. Staat daar iets van dagen oud, dan verspringt er tijdens je stream
+   niets en is dat geen fout van de overlay. Onder twee uur melden we niets:
+   die regel moet alleen aangaan als er iets te zien is. */
+function crawlNote(list){
+  var oldest = null;
+  list.forEach(function(c){
+    var t = c.crawled ? Date.parse(c.crawled) : NaN;
+    if(!isNaN(t) && (oldest === null || t < oldest)) oldest = t;
+  });
+  if(oldest === null) return '';
+  var min = Math.round((Date.now() - oldest) / 60000);
+  if(min < 120)  return '';
+  if(min < 2880) return Math.round(min / 60) + 'u oud';
+  return Math.round(min / 1440) + 'd oud';
+}
+
 function loadChars(){
   var list = (CFG.raiderio && CFG.raiderio.characters) || [];
   if(!list.length) return Promise.resolve();
-  return Promise.all(list.map(function(c){
-    return window.RaiderIO.character(c).catch(function(e){
-      console.warn('[raiderio]', c.name, e.message); return null;
-    });
-  })).then(function(res){
+  return loadRaidSlug().then(function(){
+    return Promise.all(list.map(function(c){
+      return window.RaiderIO.character(c).catch(function(e){
+        console.warn('[raiderio]', c.name, e.message); return null;
+      });
+    }));
+  }).then(function(res){
     var ok = res.filter(Boolean);
-    U.setHealth('raider.io', ok.length > 0);
+    U.setHealth('raider.io', ok.length > 0, crawlNote(ok));
     if(!ok.length) return;
     showChars(ok);
   });
@@ -215,10 +248,10 @@ function paintBoss(L){
   var n = L.pullCount || 0;
   if(L.defeated){
     big.textContent = U.num(n); big.className = 'boss__v jade';
-    lbl.textContent = (n === 1 ? 'pull' : 'pulls') + ' tot kill';
+    lbl.textContent = (n === 1 ? 'pull' : 'pulls') + ' to kill';
   } else if(L.bestPct != null){
     big.textContent = L.bestPct.toFixed(2) + '%'; big.className = 'boss__v gold';
-    lbl.textContent = 'beste van ' + n + ' pulls' +
+    lbl.textContent = 'best of ' + n + ' pulls' +
                       (L.bestPhase ? '  \u00b7  ' + L.bestPhase : '');
   } else {
     big.textContent = U.num(n); big.className = 'boss__v';
@@ -331,8 +364,8 @@ function demo(){
            {pct:43.89},{pct:44.87},{pct:52.08},{pct:0,kill:true}]
   });
 
-  [['follow','joesswow','volgt nu',''],
-   ['sub','vassham','sub','T2 · 14 mnd'],
+  [['follow','joesswow','follows',''],
+   ['sub','vassham','sub','T2 · 14 mo'],
    ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
     setTimeout(function(){ pushEvent({kind:p[0],who:p[1],word:p[2],extra:p[3]}); }, 200 + i*300);
   });
@@ -352,17 +385,7 @@ function demo(){
 /* =====================================================================
    START
    ===================================================================== */
-/* Eerst uitzoeken welke tier de huidige is, dan de characters ophalen.
-   Anders staat er in de characterkaart even een andere raid dan in de
-   kaart ernaast. Lukt het niet, dan gaan we door met de terugval. */
-function startChars(){
-  U.poll(loadChars, (CFG.raiderio && CFG.raiderio.pollSeconds) || 300);
-}
-if(window.RioLive){
-  window.RioLive.currentRaid().then(function(s){ raidSlug = s; })
-    .catch(function(e){ console.warn('[rio-live] huidige raid onbekend:', e.message); })
-    .then(startChars);
-} else startChars();
+U.poll(loadChars, (CFG.raiderio && CFG.raiderio.pollSeconds) || 300);
 
 if(LMODE === 'widget' && !DEMO){
   mountWidget();

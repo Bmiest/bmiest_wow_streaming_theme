@@ -370,12 +370,45 @@ the OBS transform.
 Split on purpose: SE delivers the events and the labels, DecAPI the totals. That
 way your follower count does not disappear when your SE session hiccups.
 
+### How often it updates
+
+Three different clocks, and the slowest one is not in this overlay.
+
+**Characters, every 5 minutes.** `raiderio.pollSeconds` (300) drives that: once
+on load, then every 300 s with up to 2 s of jitter so the pollers in the bar do
+not all fire on the same second. Raider.IO does not serve live character data,
+though. They crawl a character on their own schedule and stamp the response
+with `last_crawled_at`. While that stamp is old, polling faster returns exactly
+the same answer and nothing in the card moves during your stream; a fresh crawl
+is something you trigger on raider.io, not here. `?health=1` reports the age of
+the oldest crawl among the characters in the card (`raider.io: 45u oud`) once it
+is over two hours old, so you can see at a glance whether you are on stage with
+stale numbers.
+
+**The raid card, every 30 seconds.** This is the one that moves on a raid night.
+`liveTracking.pollSeconds` polls the two live-tracking endpoints, and their
+responses carry `cache-control: max-age=10`, so they really are near live: the
+pull count climbs, the best percentage drops, and on a kill the block flips to
+"pulls to the kill" in jade, all within half a minute. In `widget` mode the
+iframe carries `refresh=60` instead and Raider.IO refreshes its own widget every
+60 s.
+
+**Which tier, also every 5 minutes.** The character rows show the tier
+Raider.IO's live tracking calls current, and that lookup runs on every poll
+rather than once at load, so the cards follow the guild into a new raid without
+the browser source having to reload. It costs one extra request per poll.
+
+Everything else that is live stays live regardless: chat over the IRC websocket,
+alerts and the event rows over the StreamElements socket, and viewers,
+followers, uptime and title from DecAPI every 60 s in the top bar.
+
 **Filled in and verified:**
 
 - `twitch.channel` = `bmiest` -- 154 followers via DecAPI.
 - `raiderio.characters` = Shiftheal on **EU-Ragnaros** (cross-realm member of
-  Kelderklasse, ilvl 318.75, M+ 2932) and Bhikhu on **EU-Twisting Nether**
-  (Mistweaver monk, Kelderklasse, ilvl 295.5). They sit side by side in the
+  Kelderklasse) and Bhikhu on **EU-Twisting Nether** (Mistweaver monk,
+  Kelderklasse). Item level and score are not written down here on purpose:
+  they change, and the card shows them. They sit side by side in the
   character card; add more and the card rotates through them in pairs. For a
   cross-realm member Raider.IO returns no guild on the character itself, so the
   realm shows under such a name; the guild already appears with the raid
@@ -592,7 +625,9 @@ fallback for when DecAPI returns nothing usable.
 All of them are browser sources, `2560 x 1440`, position `0, 0`. Countdown
 length, fallback topic, schedule and socials live in `config.js` under `scenes`.
 Today's day is tinted jade in the schedule, and a row with a `note` gets a small
-tag after it, so your raid nights read `20:00 - 23:00` `RAID`.
+tag after it, so your raid nights read `20:00 - 23:00` `RAID`. The day name has
+to match the weekday list in `js/scene.js`, which is in English like the rest of
+what ends up on screen; a name that does not match simply never highlights.
 
 **The clock starts running when the scene comes on screen**, not when OBS loads
 the page. That is the difference between a countdown that starts at 10:00 when
@@ -718,8 +753,11 @@ is correct: VP9 keeps alpha in a separate stream, visible as `alpha_mode=1`.
 ## 7b. When something is not working
 
 Put `?health=1` after a browser source URL. A small line then appears in the top
-right listing the sources that are not responding. It is off by default: a red
-"offline" on screen is worse than the problem it reports.
+right listing the sources that are not responding, plus any source that answers
+but has something to say: Raider.IO returning a crawl that is days old shows up
+as `raider.io: 45u oud`. The line stays empty while there is nothing to report,
+so visible means "look at this". It is off by default: a red "offline" on screen
+is worse than the problem it reports.
 
 The parts fail independently, on purpose:
 
@@ -798,5 +836,7 @@ make-obs-collection.py           builds an OBS scene collection
 obs-scene-collection.pages.json  ready-made, points at the hosted site
 ```
 
-> The README is in English; the code comments and the overlay's own text are in
-> Dutch. The overlay is for a Dutch-language channel, the repo is on GitHub.
+> Everything on screen is in English: the label captions, the card captions,
+> the scene screens and the event wording. The code comments are in Dutch, and
+> so is the fake chat in demo mode, because that stands in for what viewers
+> actually type.

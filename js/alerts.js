@@ -15,7 +15,7 @@ var TEST = /[?&]test=1/.test(location.search);
 })();
 
 var LABEL = {
-  follow:'nieuwe volger', sub:'subscriber', cheer:'bits',
+  follow:'new follower', sub:'subscriber', cheer:'bits',
   tip:'tip', raid:'raid'
 };
 
@@ -64,10 +64,10 @@ window.SE.start(push);
 if(TEST){
   var demo = [
     {kind:'follow', who:'joesswow'},
-    {kind:'sub',    who:'vassham',    extra:'T2 · 14 maanden',
+    {kind:'sub',    who:'vassham',    extra:'T2 · 14 mo',
      message:'blijf lekker pushen die keys, we kijken mee'},
     {kind:'cheer',  who:'TheNoremac', extra:'184 bits'},
-    {kind:'raid',   who:'Amphroxia',  extra:'42 kijkers'},
+    {kind:'raid',   who:'Amphroxia',  extra:'42 viewers'},
     {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'}
   ];
   var i = 0;

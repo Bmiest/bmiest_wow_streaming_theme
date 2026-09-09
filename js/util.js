@@ -119,15 +119,26 @@ function poll(fn,seconds){
 /* Statusregeltje rechtsboven. Dit is een diagnosehulpje, geen onderdeel van
    je stream -- een rode "offline" in beeld is erger dan het probleem dat hij
    meldt. Daarom alleen zichtbaar met ?health=1 in de URL. */
-var health = {};
+var health = {}, notes = {};
 var SHOW_HEALTH = /[?&]health=1/.test(location.search);
-function setHealth(key,ok){
-  health[key]=ok;
+
+/* Naast 'reageert niet' kan een bron ook iets melden terwijl hij wel werkt --
+   Raider.IO levert bijvoorbeeld een antwoord dat dagen oud is. Geef dat mee
+   als derde argument; een lege string wist de melding weer. De regel blijft
+   leeg zolang er niets te melden is, dus zichtbaar betekent nog steeds
+   'hier moet je naar kijken'. */
+function setHealth(key, ok, note){
+  health[key] = ok;
+  if(note != null) notes[key] = note;
   if(!SHOW_HEALTH) return;
-  var node=document.getElementById('health'); if(!node) return;
-  var bad=Object.keys(health).filter(function(k){ return !health[k]; });
-  node.textContent = bad.length ? bad.join(' \u00b7 ')+' offline' : '';
-  node.classList.toggle('show', bad.length>0);
+  var node = document.getElementById('health'); if(!node) return;
+  var parts = [];
+  Object.keys(health).forEach(function(k){
+    if(!health[k])      parts.push(k + ' offline');
+    else if(notes[k])   parts.push(k + ': ' + notes[k]);
+  });
+  node.textContent = parts.join('  \u00b7  ');
+  node.classList.toggle('show', parts.length > 0);
 }
 
 window.U = {

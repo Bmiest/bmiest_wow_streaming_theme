@@ -105,11 +105,14 @@ window.OVERLAY_CONFIG = {
 
     // Onder de klok op 'straks live' staat de streamtitel van Twitch. Dit
     // is de terugval voor als DecAPI die niet geeft.
-    topic: 'Mythic+ push richting 3000',
+    topic: 'Mythic+ push to 3000',
     // note is optioneel en komt als tagje achter de tijd te staan.
+    // De dagnaam moet overeenkomen met de lijst in js/scene.js, anders
+    // kleurt vandaag niet jade. Die staat in het Engels, net als de rest
+    // van wat er op je stream te lezen valt.
     schedule: [
-      { day: 'woensdag', time: '20:00 - 23:00', note: 'raid' },
-      { day: 'zondag',   time: '20:00 - 23:00', note: 'raid' },
+      { day: 'wednesday', time: '20:00 - 23:00', note: 'raid' },
+      { day: 'sunday',    time: '20:00 - 23:00', note: 'raid' },
     ],
     // Vul je eigen handles in -- deze verschijnen op de scene-schermen.
     // De guild-regel is informatie voor kijkers, geen huisstijl; weghalen mag.

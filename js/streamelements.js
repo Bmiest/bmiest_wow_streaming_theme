@@ -18,7 +18,7 @@ var TYPES = {
   raid:'raid', host:'raid'
 };
 var WORD = {
-  follow:'volgt nu', sub:'sub', cheer:'bits', tip:'tip', raid:'raid'
+  follow:'follows', sub:'sub', cheer:'bits', tip:'tip', raid:'raid'
 };
 
 function norm(type, d){
@@ -32,14 +32,14 @@ function norm(type, d){
     var months = d.amount || d.streak || 0;
     var tier = d.tier != null ? String(d.tier) : '';
     extra = (tier && tier !== '1000' && tier !== 'prime' ? 'T'+tier.charAt(0)+' ' : '')
-          + (months > 1 ? months+' mnd' : 'nieuw');
+          + (months > 1 ? months+' mo' : 'new');
     if(d.gifted || d.bulkGifted) extra = 'gift';
   } else if(kind==='cheer'){
     extra = U.num(d.amount)+' bits';
   } else if(kind==='tip'){
     extra = (d.currency||'') + ' ' + (d.amount||'');
   } else if(kind==='raid'){
-    extra = U.num(d.amount||0)+' kijkers';
+    extra = U.num(d.amount||0)+' viewers';
   }
 
   return { kind:kind, who:who, word:WORD[kind], extra:extra.trim(),
@@ -52,14 +52,14 @@ var LKEY = {follow:'follower-latest', sub:'subscriber-latest',
 function emit(type,data){
   var e = norm(type,data);
   if(!e) return;
-  // ook wegschrijven als label, zodat de bovenbalk 'laatste volger' toont
+  // ook wegschrijven als label, zodat de bovenbalk 'latest follower' toont
   if(window.Labels && LKEY[e.kind]) window.Labels.set(LKEY[e.kind], e.who);
   sink(e);
 }
 
 /* ---- sessiedata via de REST-API -------------------------------------
    De socket stuurt alleen wat er tijdens je stream gebeurt. Deze aanroep
-   haalt de huidige stand op, zodat 'laatste volger' meteen gevuld is in
+   haalt de huidige stand op, zodat 'latest follower' meteen gevuld is in
    plaats van pas bij de volgende follow.
 
    CORS staat open (allow-origin *, authorization toegestaan in de

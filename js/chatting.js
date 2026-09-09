@@ -23,7 +23,7 @@ if(DEMO) document.body.classList.add('demo');
 
 /* ---- kop ------------------------------------------------------------ */
 var ribChar = R.make('sword',  'character', '—');
-var ribFoll = R.make('follow', 'volgers',   '—');
+var ribFoll = R.make('follow', 'followers', '—');
 ribChar.style.display = 'none';
 [ribChar, ribFoll].forEach(function(n){ U.$('#jcTopRibs').appendChild(n); });
 
@@ -43,7 +43,7 @@ U.$('#jcChatCard').appendChild(chatCard);
 var box = U.el('div'); box.id = 'jcChat';
 chatCard.body.appendChild(box);
 
-var strip = R.card('kanaal', 'info');
+var strip = R.card('channel', 'info');
 U.$('#jcStrip').appendChild(strip);
 
 var colSoc = U.el('div','jc__cols');
@@ -52,7 +52,7 @@ strip.body.appendChild(colSoc);
 strip.body.appendChild(U.el('div','jc__div'));
 
 var colRec = U.el('div','jc__cols jc__recent');
-colRec.appendChild(U.el('div','jc__empty','nog niets deze sessie'));
+colRec.appendChild(U.el('div','jc__empty','nothing yet this session'));
 strip.body.appendChild(colRec);
 
 /* ---- data ----------------------------------------------------------- */
@@ -107,8 +107,8 @@ window.Chat.start(addMessage);
 window.SE.start(pushEvent);
 
 if(DEMO){
-  [['follow','joesswow','volgt nu',''],
-   ['sub','vassham','sub','T2 · 14 mnd'],
+  [['follow','joesswow','follows',''],
+   ['sub','vassham','sub','T2 · 14 mo'],
    ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
     setTimeout(function(){ pushEvent({kind:p[0],who:p[1],word:p[2],extra:p[3]}); }, 200 + i*300);
   });

@@ -22,22 +22,22 @@ var GOAL = (CFG.goals && CFG.goals.followers) || 0;
 /* Sleutels exact zoals StreamElements ze in de sessiedata zet. Namen als
    'tip-top' bestaan daar niet -- dat is 'tip-alltime-top-donator'. */
 var LABELS = {
-  'follower-latest'           : { text:'laatste volger',      kind:'follow' },
-  'follower-session'          : { text:'volgers deze stream', kind:'follow' },
-  'follower-week'             : { text:'volgers deze week',   kind:'follow' },
-  'follower-total'            : { text:'volgers totaal',      kind:'follow' },
-  'subscriber-latest'         : { text:'laatste sub',         kind:'sub'    },
-  'subscriber-new-latest'     : { text:'laatste nieuwe sub',  kind:'sub'    },
-  'subscriber-gifted-latest'  : { text:'laatste gift-sub',    kind:'sub'    },
-  'subscriber-alltime-gifter' : { text:'grootste gifter',     kind:'sub'    },
-  'subscriber-session'        : { text:'subs deze stream',    kind:'sub'    },
-  'cheer-latest'              : { text:'laatste bits',        kind:'cheer'  },
-  'cheer-session'             : { text:'bits deze stream',    kind:'cheer'  },
-  'cheer-alltime-top-donator' : { text:'topcheer',            kind:'cheer'  },
-  'tip-latest'                : { text:'laatste tip',         kind:'tip'    },
-  'tip-session'               : { text:'tips deze stream',    kind:'tip'    },
-  'tip-alltime-top-donator'   : { text:'topdonatie',          kind:'tip'    },
-  'raid-latest'               : { text:'laatste raid',        kind:'raid'   }
+  'follower-latest'           : { text:'latest follower',      kind:'follow' },
+  'follower-session'          : { text:'followers this stream', kind:'follow' },
+  'follower-week'             : { text:'followers this week',   kind:'follow' },
+  'follower-total'            : { text:'followers total',       kind:'follow' },
+  'subscriber-latest'         : { text:'latest sub',            kind:'sub'    },
+  'subscriber-new-latest'     : { text:'latest new sub',        kind:'sub'    },
+  'subscriber-gifted-latest'  : { text:'latest gift sub',       kind:'sub'    },
+  'subscriber-alltime-gifter' : { text:'top gifter',            kind:'sub'    },
+  'subscriber-session'        : { text:'subs this stream',      kind:'sub'    },
+  'cheer-latest'              : { text:'latest bits',           kind:'cheer'  },
+  'cheer-session'             : { text:'bits this stream',      kind:'cheer'  },
+  'cheer-alltime-top-donator' : { text:'top cheer',             kind:'cheer'  },
+  'tip-latest'                : { text:'latest tip',            kind:'tip'    },
+  'tip-session'               : { text:'tips this stream',      kind:'tip'    },
+  'tip-alltime-top-donator'   : { text:'top tip',               kind:'tip'    },
+  'raid-latest'               : { text:'latest raid',           kind:'raid'   }
 };
 
 var WANT = TB.labels || ['follower-latest','subscriber-latest','cheer-latest','tip-top'];
@@ -76,8 +76,8 @@ if(LSRC === 'streamelements' || LSRC === 'both') window.SE.start(function(){});
    Dezelfde ribbons als de labelrail: kopblok met icoon, bijschrift op de
    rand. Zonder waarde staan ze gedempt, net als een leeg label. */
 var ribLive = window.Ribbon.make('live',   'status',  'offline');
-var ribView = window.Ribbon.make('viewers','kijkers', '\u2014');
-var ribFoll = window.Ribbon.make('follow', 'volgers', '\u2014');
+var ribView = window.Ribbon.make('viewers','viewers',   '\u2014');
+var ribFoll = window.Ribbon.make('follow', 'followers', '\u2014');
 [ribLive, ribView, ribFoll].forEach(function(r){ r.classList.add('rib--num'); });
 ribLive.classList.add('rib--empty');
 
