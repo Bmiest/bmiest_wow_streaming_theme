@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>bmiest overlay</title>
-<meta name="description" content="Eigen Twitch-overlay: bovenbalk, onderbalk, alerts, scene-schermen en stinger. Gehost, niets te installeren.">
+<meta name="description" content="Twitch overlay: top bar, bottom bar, alerts, scene screens and a stinger. Hosted, nothing to install.">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/index.css">
@@ -20,14 +20,13 @@
       </div></div>
     </div>
 
-    <h1>Overlay voor Twitch</h1>
+    <h1>Overlay for Twitch</h1>
     <p class="lead">
-      Bovenbalk, onderbalk, alerts, drie scene-schermen en een stinger. De
-      pagina's draaien vanaf deze site, dus in OBS zet je er een browser
-      source op en verder is er niets te installeren. Bijwerken gaat met een
-      <code>git push</code>.
+      A top bar, a bottom bar, alerts, three scene screens and a stinger. The
+      pages run from this site, so in OBS you point a browser source at them
+      and there is nothing else to install. Updating is a <code>git push</code>.
     </p>
-    <p class="base">basis-URL <b id="base">…</b></p>
+    <p class="base">base URL <b id="base">…</b></p>
   </header>
 
   <!-- Hero: de echte pagina's, op schaal, in de verhouding waarin ze op je
@@ -36,7 +35,7 @@
   <section class="hero">
     <div class="hero__frame" id="heroFrame">
       <div class="zone zone--top">
-        <iframe src="topbar.html?demo=1" title="Bovenbalk" scrolling="no"></iframe>
+        <iframe src="topbar.html?demo=1" title="Top bar" scrolling="no"></iframe>
       </div>
 
       <div class="zone zone--game">
@@ -45,15 +44,15 @@
 
       <div class="zone zone--bottom">
         <span class="cam-ghost">camera</span>
-        <iframe src="banner.html?demo=1" title="Onderbalk" scrolling="no"></iframe>
+        <iframe src="banner.html?demo=1" title="Bottom bar" scrolling="no"></iframe>
       </div>
     </div>
 
     <p class="hero__note">
-      De 1440 pixels hoogte zijn verdeeld als 120 boven, 1072 gameplay en 248
-      onder. Boven staat de sessiestatus, onder de inhoud: camera, characters,
-      raidprogress, chat en recente events. Het cameravlak is een gat in de
-      onderbalk — daar ligt je webcam achter.
+      The 1440 pixels of height are split into 120 on top, 1072 of gameplay and
+      248 below. The top carries session status, the bottom the content:
+      camera, characters, raid progress, chat and recent events. The camera area
+      is a hole in the bottom bar, with your webcam behind it.
     </p>
   </section>
 
@@ -65,46 +64,46 @@
       <div class="scroll">
         <table class="srcs">
           <thead>
-            <tr><th>Bron</th><th>Wat</th><th>Formaat</th><th>Positie</th><th></th></tr>
+            <tr><th>Source</th><th>What</th><th>Size</th><th>Position</th><th></th></tr>
           </thead>
           <tbody>
             <tr data-file="topbar.html">
-              <td>Bovenbalk</td><td class="t-mono">topbar.html</td>
+              <td>Top bar</td><td class="t-mono">topbar.html</td>
               <td class="t-mono">2560 × 120</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="banner.html">
-              <td>Onderbalk</td><td class="t-mono">banner.html</td>
+              <td>Bottom bar</td><td class="t-mono">banner.html</td>
               <td class="t-mono">2560 × 248</td><td class="t-mono">0, 1192</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="alerts.html">
               <td>Alerts</td><td class="t-mono">alerts.html</td>
               <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="scene-starting.html">
-              <td>Straks live</td><td class="t-mono">scene-starting.html</td>
+              <td>Starting soon</td><td class="t-mono">scene-starting.html</td>
               <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="scene-brb.html">
-              <td>Even weg</td><td class="t-mono">scene-brb.html</td>
+              <td>Be right back</td><td class="t-mono">scene-brb.html</td>
               <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="scene-ending.html">
-              <td>Einde</td><td class="t-mono">scene-ending.html</td>
+              <td>Ending</td><td class="t-mono">scene-ending.html</td>
               <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr data-file="chatting.html">
               <td>Just Chatting</td><td class="t-mono">chatting.html</td>
               <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">kopieer</button></td>
+              <td><button class="copy" type="button">copy</button></td>
             </tr>
             <tr class="srcs--other">
-              <td>Game Capture</td><td>jouw spel, <i>scale to inner bounds</i></td>
+              <td>Game Capture</td><td>your game, <i>scale to inner bounds</i></td>
               <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td><td></td>
             </tr>
             <tr class="srcs--other">
@@ -112,28 +111,28 @@
               <td class="t-mono">340 × 200</td><td class="t-mono">24, 1216</td><td></td>
             </tr>
             <tr class="srcs--other">
-              <td>Stinger</td><td><i>Scene Transitions</i> → Stinger, punt op 500 ms</td>
-              <td class="t-mono">stinger.webm</td><td>lokaal bestand</td><td></td>
+              <td>Stinger</td><td><i>Scene Transitions</i> → Stinger, point at 500 ms</td>
+              <td class="t-mono">stinger.webm</td><td>local file</td><td></td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <p class="hint">
-        <b>Je StreamElements-token hoort in de URL</b>, als
-        <code>?jwt=eyJ…</code>. Die URL staat alleen in jouw OBS-configuratie,
-        precies zoals de overlay-URL van StreamElements zelf werkt — zo staat
-        het token nergens op deze site. Zonder token draait alles door, maar
-        blijven alerts, events en de labels leeg. De kopieerknop geeft je de
-        URL zonder token; plak die er in OBS achter.
+        <b>Your StreamElements token belongs in the URL</b>, as
+        <code>?jwt=eyJ…</code>. That URL only lives in your OBS configuration,
+        exactly the way StreamElements' own overlay URL works, so the token is
+        never on this site. Without one everything still runs, but alerts,
+        events and the labels stay empty. The copy button hands you the URL
+        without a token; paste yours on the end in OBS.
       </p>
 
       <p class="hint">
-        Zet bij de balken <i>Custom frame rate</i> op 30 FPS, en laat
-        <i>Shutdown source when not visible</i> en <i>Refresh browser when
-        scene becomes active</i> uit. Dan overleeft je chatgeschiedenis een
-        scenewissel, en beginnen de klokken op de scene-schermen alsnog
-        opnieuw zodra die in beeld komen.
+        Set <i>Custom frame rate</i> to 30 FPS on the two bars, and leave
+        <i>Shutdown source when not visible</i> and <i>Refresh browser when
+        scene becomes active</i> off. That way your chat history survives a
+        scene switch, and the clocks on the scene screens still restart when
+        those come on screen.
       </p>
 
     </div></div>
@@ -141,52 +140,56 @@
 
   <!-- De schermen zelf, ook live -->
   <section class="screens">
-    <h2>De schermen</h2>
+    <h2>The screens</h2>
     <div class="grid">
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-starting.html" title="Straks live" scrolling="no" loading="lazy"></iframe>
+          <iframe src="scene-starting.html" title="Starting soon" scrolling="no" loading="lazy"></iframe>
         </div>
-        <figcaption>Straks live — aftelklok, streamtitel, schema en socials</figcaption>
+        <figcaption>Starting soon — countdown, stream title, schedule and socials</figcaption>
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-brb.html" title="Even weg" scrolling="no" loading="lazy"></iframe>
+          <iframe src="scene-brb.html" title="Be right back" scrolling="no" loading="lazy"></iframe>
         </div>
-        <figcaption>Even weg — klok loopt op, chat blijft in beeld</figcaption>
+        <figcaption>Be right back — the clock counts up, chat stays on screen</figcaption>
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-ending.html" title="Einde" scrolling="no" loading="lazy"></iframe>
+          <iframe src="scene-ending.html" title="Ending" scrolling="no" loading="lazy"></iframe>
         </div>
-        <figcaption>Einde — afsluiter met schema en socials</figcaption>
+        <figcaption>Ending — sign-off with schedule and socials</figcaption>
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
           <iframe src="chatting.html?demo=1" title="Just Chatting" scrolling="no" loading="lazy"></iframe>
         </div>
-        <figcaption>Just Chatting — camera links, chat rechts</figcaption>
+        <figcaption>Just Chatting — camera left, chat right</figcaption>
       </figure>
     </div>
+    <p class="hero__note">
+      The overlay speaks Dutch, because the channel does. These previews are the
+      real pages in an iframe, scaled down, so they show whatever the overlay
+      shows right now.
+    </p>
   </section>
 
   <section class="cols">
     <div class="rcard-wrap card" style="--acc:var(--paper)">
-      <span class="rcard__cap">waar het vandaan komt</span>
+      <span class="rcard__cap">where the data comes from</span>
       <div class="rcard"><div class="rcard__in">
         <dl class="facts">
-          <dt>Chat</dt><dd>Twitch IRC over websocket, anoniem</dd>
-          <dt>Characters, raidprogress</dt><dd>Raider.IO, publieke API</dd>
-          <dt>Kijkers, volgers, uptime, titel</dt><dd>DecAPI</dd>
+          <dt>Chat</dt><dd>Twitch IRC over websocket, anonymous</dd>
+          <dt>Characters, raid progress</dt><dd>Raider.IO, public API</dd>
+          <dt>Viewers, followers, uptime, title</dt><dd>DecAPI</dd>
           <dt>Follows, subs, bits, tips, raids</dt><dd>StreamElements, socket + REST</dd>
         </dl>
         <p class="hint">
-          De onderdelen falen los van elkaar, met opzet. Valt Raider.IO weg,
-          dan blijft alleen die kaart leeg; valt de StreamElements-socket weg,
-          dan blijven de labels het doen via de REST-aanroep. Wat er niet
-          reageert zie je met <code>?health=1</code> achter een URL — dat
-          staat standaard uit, want een rode melding in beeld is erger dan het
-          probleem dat hij meldt.
+          The parts fail independently, on purpose. If Raider.IO drops out only
+          that card goes empty; if the StreamElements socket drops out the
+          labels keep working over the REST call. Add <code>?health=1</code> to
+          a URL to see what is not responding. That is off by default, because a
+          red warning on screen is worse than the problem it reports.
         </p>
       </div></div>
     </div>
@@ -195,45 +198,46 @@
       <span class="rcard__cap">parameters</span>
       <div class="rcard"><div class="rcard__in">
         <dl class="facts">
-          <dt><code>?jwt=eyJ…</code></dt><dd>je StreamElements-token</dd>
-          <dt><code>?demo=1</code></dt><dd>nepdata, om uit te lijnen zonder te streamen</dd>
-          <dt><code>?test=1</code></dt><dd>op alerts.html: loopt door alle types</dd>
-          <dt><code>?health=1</code></dt><dd>meldt rechtsboven wat er niet reageert</dd>
-          <dt><code>?rio=native</code></dt><dd>raidkaart in de huisstijl, <code>widget</code> of <code>off</code> kan ook</dd>
-          <dt><code>?channel=…</code></dt><dd>ander kanaal dan dat in de config</dd>
+          <dt><code>?jwt=eyJ…</code></dt><dd>your StreamElements token</dd>
+          <dt><code>?demo=1</code></dt><dd>fake data, to line things up without streaming</dd>
+          <dt><code>?test=1</code></dt><dd>on alerts.html: cycles through every type</dd>
+          <dt><code>?health=1</code></dt><dd>reports what is not responding, top right</dd>
+          <dt><code>?rio=native</code></dt><dd>raid card in the house style; <code>widget</code> or <code>off</code> also work</dd>
+          <dt><code>?channel=…</code></dt><dd>a different channel than the one in the config</dd>
         </dl>
       </div></div>
     </div>
   </section>
 
   <section class="rcard-wrap card card--wide" style="--acc:var(--paper-dim)">
-    <span class="rcard__cap">de vormtaal</span>
+    <span class="rcard__cap">the shape language</span>
     <div class="rcard"><div class="rcard__in">
       <p>
-        Alles deelt één vorm: balken die naar rechts taps toelopen, een
-        bijschrift als tag op de rand, en een gekleurd kopblok met icoon. De
-        kaarten zijn dezelfde taal als vlak, met de hoek rechtsonder
-        afgesneden. Die 1px omlijning komt overal uit twee lagen
-        <code>clip-path</code> over elkaar, want een gewone <code>border</code>
-        volgt een schuine rand niet mee.
+        Everything shares one shape: bars that taper to the right, a caption as
+        a tag on the edge, and a coloured head block with an icon. The cards are
+        that same language as a surface, with the bottom-right corner cut off.
+        The 1px outline is everywhere made of two <code>clip-path</code> layers
+        on top of each other, because a normal <code>border</code> will not
+        follow an angled edge.
       </p>
       <p>
-        Wat er bewust <i>niet</i> in zit zijn verlopen. Een zachte was over
-        2560 pixels is maar een handvol 8-bit stappen en gaat banden op 8000
-        kbps — bitrate die je gameplay nodig heeft. De kleur zit daarom in
-        kleine vlakken: het kopblok, de ring om een portret, een bolletje. De
-        achtergrond van de scene-schermen haalt zijn diepte uit gebogen banen
-        die elkaar kruisen; waar twee over elkaar liggen is het vlak iets
-        lichter, en dat is de enige schaduw in het hele ontwerp.
+        What is deliberately <i>not</i> in it: gradients. Twitch sends four
+        encodes out at once, and on the lower rungs of that ladder (3.5 Mbps at
+        720p, 505 Kbps at 360p) a soft wash across 2560 pixels is the first
+        thing to band. So the colour sits in small areas instead: the head
+        block, the ring around a portrait, a single dot. The background of the
+        scene screens gets its depth from curved bands that cross each other;
+        where two overlap the surface is slightly lighter, and that is the only
+        shading in the whole design.
       </p>
     </div></div>
   </section>
 
   <footer class="foot">
-    <a href="README.md">README — installatie, OBS-instellingen, achtergrond</a>
-    <a href="obs-scene-collection.pages.json">OBS scene collection (kant-en-klaar)</a>
+    <a href="README.md">README — setup, OBS settings, background</a>
+    <a href="obs-scene-collection.pages.json">OBS scene collection (ready-made)</a>
     <a href="stinger.webm">stinger.webm</a>
-    <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme">Repo op GitHub</a>
+    <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme">Repo on GitHub</a>
   </footer>
 
 </div>
@@ -263,7 +267,7 @@
   function copy(text, btn){
     var done = function(){
       var was = btn.textContent;
-      btn.textContent = 'gekopieerd';
+      btn.textContent = 'copied';
       btn.classList.add('ok');
       setTimeout(function(){ btn.textContent = was; btn.classList.remove('ok'); }, 1400);
     };

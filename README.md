@@ -1,88 +1,88 @@
 # bmiest overlay
 
-Twitch-overlay voor een 3440x1440 ultrawide die als 2560x1440 naar Twitch gaat.
-De 368px die onderaan overblijft wordt de banner: camera, character, raid
-progress, chat en stats.
+Twitch overlay for a 3440x1440 ultrawide that goes out to Twitch as 2560x1440.
+The 368px left over at the bottom becomes the banner: camera, characters, raid
+progress, chat and stats.
 
-Vormtaal geleend van Nerd or Die's *Amused* (capsules, ribbon-balken, veel
-witruimte, korte micro-animaties), maar ontkleurd: houtskool/wit/grijs met
-Priest-wit en gedempt Mistweaver-jade (`#3fd9a4`) als enige accenten.
+The shape language is borrowed from Nerd or Die's *Amused* (capsules, ribbon
+bars, plenty of white space, short micro-animations), but drained of colour:
+charcoal, white and grey, with Priest white and a muted Mistweaver jade
+(`#3fd9a4`) as the only accents.
 
-De huisstijl is van het kanaal **bmiest**. Kelderklasse komt alleen voor waar
-het gegevens zijn -- de raid progress van je guild -- niet als merknaam.
+The house style belongs to the channel **bmiest**. Kelderklasse only appears
+where it is data -- your guild's raid progress -- never as a brand.
 
 ---
 
-## 1. Eenmalig instellen
+## 1. One-time setup
 
-Instellingen komen uit drie lagen, in deze volgorde:
+Settings come from three layers, in this order:
 
-| Laag | Bestand | Geheimen? |
+| Layer | File | Secrets? |
 |---|---|---|
-| 1 | `config.default.js` | nee -- gedeeld, mag publiek |
-| 2 | `config.js` (optioneel) | ja -- staat in `.gitignore` |
-| 3 | de URL van de browser source | ja |
+| 1 | `config.default.js` | no -- shared, may be public |
+| 2 | `config.js` (optional) | yes -- listed in `.gitignore` |
+| 3 | the browser source URL | yes |
 
-**Je JWT hoort in laag 3.** Geef 'm mee als parameter:
+**Your JWT belongs in layer 3.** Pass it as a parameter:
 
 ```
 topbar.html?jwt=eyJ...
 ```
 
-Die URL staat alleen in jouw OBS-configuratie, precies zoals de overlay-URL
-van StreamElements zelf werkt. Zo hoeft het token nergens op schijf te staan,
-en kan de overlay ook gehost worden.
+That URL only lives in your OBS configuration, exactly the way StreamElements'
+own overlay URL works. The token never has to sit on disk, and the overlay can
+be hosted.
 
-Wil je het toch lokaal: maak `config.js` met
+Prefer to keep it local? Create `config.js` with
 `window.OVERLAY_OVERRIDE = { streamelements: { jwt: '...' } };`
 
 ```bash
 ./serve.sh                       # http://localhost:8777
 ```
 
-Kijken zonder OBS:
+Looking at it without OBS:
 
-| URL | wat |
+| URL | what |
 |---|---|
-| `http://localhost:8777/banner.html?demo=1` | banner met nepdata |
-| `http://localhost:8777/banner.html` | banner met je echte data |
-| `http://localhost:8777/alerts.html?test=1` | alerts, loopt door alle types |
+| `http://localhost:8777/banner.html?demo=1` | banner with fake data |
+| `http://localhost:8777/banner.html` | banner with your real data |
+| `http://localhost:8777/alerts.html?test=1` | alerts, cycles through every type |
 
-In een gewone browser is het cameravlak **wit**. Dat hoort zo: daar zit een
-transparant gat. In OBS zie je daar je webcam.
+In a normal browser the camera area is **white**. That is correct: there is a
+transparent hole there. In OBS you see your webcam through it.
 
 ---
 
-## 1b. Gehost op GitHub Pages
+## 1b. Hosted on GitHub Pages
 
-De overlay staat live op
+The overlay is live at
 **https://bmiest.github.io/bmiest_wow_streaming_theme/**
 
-Daardoor is er niets te installeren: geen zip, geen paden, geen server, geen
-Python. OBS haalt de pagina's rechtstreeks op, en bijwerken gaat met
-`git push`.
+That leaves nothing to install: no zip, no paths, no server, no Python. OBS
+fetches the pages directly, and updating is a `git push`.
 
-Je JWT geef je mee in de URL:
+Your JWT goes in the URL:
 
 ```
 https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...
 ```
 
-Die URL staat alleen in jouw OBS-configuratie. `config.js` staat in
-`.gitignore` en geeft op de site een 404, dus je token staat nergens publiek.
+That URL only lives in your OBS configuration. `config.js` is in `.gitignore`
+and returns a 404 on the site, so your token is never public.
 
-De **voorpagina van de site** (`index.html`) is een overzicht: een live
-preview van de overlay in de verhoudingen waarin hij op je stream ligt, alle
-bron-URL's met een kopieerknop, en de formaten en posities die OBS wil weten.
-Die previews zijn de echte pagina's in een `iframe`, op schaal -- geen
-screenshots, dus er is niets dat verouderd raakt als de overlay verandert.
+The **front page of the site** (`index.html`) is an overview: a live preview of
+the overlay in the proportions it has on your stream, every source URL with a
+copy button, and the sizes and positions OBS asks for. Those previews are the
+real pages in an `iframe`, scaled down -- not screenshots, so nothing goes
+stale when the overlay changes.
 
-### De collectie
+### The collection
 
-Klaar om te downloaden:
+Ready to download:
 **[`obs-scene-collection.pages.json`](obs-scene-collection.pages.json)**
 
-Of zelf genereren:
+Or generate it yourself:
 
 ```bash
 ./make-obs-collection.py \
@@ -90,30 +90,30 @@ Of zelf genereren:
   --os windows --jwt '__JWT__' --stinger '__STINGER__'
 ```
 
-Open het bestand in een teksteditor en vervang:
+Open the file in a text editor and replace:
 
-| Plaatshouder | Waarmee |
+| Placeholder | With |
 |---|---|
-| `__JWT__` | je StreamElements JWT |
+| `__JWT__` | your StreamElements JWT |
 
-Meer niet. De stinger zit er bewust **niet** in: dat zou een pad met
-backslashes in de JSON zetten, en dat is de enige plek waar handmatig
-bewerken stuk kan gaan. Voeg hem in OBS zelf toe:
+That is all. The stinger is deliberately **not** in there: it would put a path
+full of backslashes into the JSON, and that is the one place where editing by
+hand can break. Add it in OBS itself:
 
-**Scene Transitions → + → Stinger** → wijs `stinger.webm` aan →
-Transition Point op `500` ms.
+**Scene Transitions -> + -> Stinger** -> point it at `stinger.webm` ->
+Transition Point at `500` ms.
 
-Zet het bestand daarna in `%APPDATA%\obs-studio\basic\scenes\`, start OBS
-en kies **bmiest overlay** onder Scene Collection.
+Then drop the file in `%APPDATA%\obs-studio\basic\scenes\`, start OBS and pick
+**bmiest overlay** under Scene Collection.
 
-> **De stinger moet lokaal staan.** OBS' stinger-transitie speelt geen video
-> van een URL af. Download `stinger.webm` van de site en wijs `__STINGER__`
-> daarnaartoe. Al de rest komt van het web.
+> **The stinger has to be local.** OBS' stinger transition will not play video
+> from a URL. Download `stinger.webm` from the site and point `__STINGER__` at
+> it. Everything else comes from the web.
 
-Daarna alleen nog de twee `[VERVANG]`-vlakken vervangen door je Game Capture
-en camera.
+After that, only the two `[VERVANG]` placeholders are left: replace them with
+your Game Capture and your camera.
 
-## 2. OBS -- video-instellingen
+## 2. OBS -- video settings
 
 **Settings > Video**
 
@@ -134,60 +134,103 @@ en camera.
 | Keyframe Interval | 2 s |
 | Preset / Quality | Quality |
 | Profile | high |
-| Pre-Analysis | aan |
-| VBAQ | aan |
+| Pre-Analysis | on |
+| VBAQ | on |
 
-Pre-Analysis en VBAQ staan standaard uit en zijn op AMF precies wat je nodig
-hebt bij donkere, drukke beelden -- ze verdelen de bitrate slimmer over het
-frame. Zet ze aan.
+Pre-Analysis and VBAQ are off by default and are exactly what AMF needs for
+dark, busy footage: they spread the bitrate across the frame more sensibly.
+Turn them on.
 
-> **Eerlijk over de bitrate:** 8000 Kbps op 1440p60 is krap, zeker met AMF en
-> zeker met WoW-raidbeelden vol particles. De overlay is daarop ontworpen
-> (vlakke vlakken, geen gradients, geen doorlopende beweging), maar je
-> gameplay blijft het zware deel. Ziet een raidpull er te blokkerig uit, dan
-> is 1440p48 of een 1920x1080-canvas de knop die het meeste oplevert -- niet
-> een hogere bitrate, want 8000 is het affiliate-plafond.
+### What actually goes out
+
+Those Output settings are not what leaves the machine. With **Enable Enhanced
+Broadcasting** on (Settings > Stream), Twitch supplies its own encoder
+configuration, and OBS shows a banner saying Twitch is controlling some of your
+stream settings. The encoder dropdown still reads H.264, because OBS' plain
+Twitch profile only offers H.264 -- you cannot pick HEVC there by hand.
+Enhanced Broadcasting does it for you.
+
+Twitch Inspector for the broadcast of 8 September 2026, 23:54:52 - 00:01:57,
+shows four simultaneous video encodes:
+
+| Track | Codec | Resolution | FPS | Bitrate |
+|---|---|---|---|---|
+| landscape #1 | H.265/HEVC | 2560x1440 | 60.03 | 9,033 Kbps |
+| landscape #2 | H.264/AVC | 1920x1080 | 60.03 | 7,523 Kbps |
+| landscape #3 | H.264/AVC | 1280x720 | 60.03 | 3,519 Kbps |
+| landscape #4 | H.264/AVC | 640x360 | 30.02 | 505 Kbps |
+
+Audio is AAC at 48 kHz, once for the live stream and once for the Twitch VOD.
+The two top tracks line up with the targets Twitch publishes for Enhanced
+Broadcasting: 9 Mbps for 1440p HEVC and 7.5 Mbps for 1080p AVC.
+
+Three things follow from that table.
+
+**The top track is 1440p60 HEVC, not H.264 at 8000.** HEVC fits more detail
+into the same bitrate than AVC does, which is why busy raid footage holds up
+better than it used to. The change was AVC to HEVC, both on the GPU: the AMD HW
+H.264 encoder was already hardware encoding, so this was never CPU work. The
+RX 6950 XT has been able to encode HEVC since it launched in 2022; what was
+missing was Twitch accepting it, and Enhanced Broadcasting is that path. No
+hardware upgrade unlocked this.
+
+**All four encodes happen on your PC.** Added up that is roughly 20.6 Mbps of
+video going upstream, plus audio and overhead, rather than the 8 Mbps under
+Output. If that is too much for your connection, cap it under **Stream >
+Maximum Streaming Bandwidth** and limit the number of simultaneous encodes with
+**Maximum Video Tracks**. Both are on automatic by default.
+
+**The bottom rungs are why this overlay looks the way it does.** The 720p track
+gets 3.5 Mbps and the 360p one gets 505 Kbps, and the overlay is scaled into
+both of them. Flat fills, no gradients and no full-width motion cost the encoder
+almost nothing at any rung; a gradient across 2560px costs it every frame, and
+banding shows up on the low rungs first. The design rules in section 5 and
+section 7 exist for that reason, and Enhanced Broadcasting does not retire them.
+
+> If a raid pull still looks blocky, 1440p48 or a 1920x1080 canvas is the knob
+> that pays the most. Raising the manual bitrate does nothing while Enhanced
+> Broadcasting is in charge of the ladder.
 
 ---
 
-## 3. OBS -- de sources
+## 3. OBS -- the sources
 
-De URL's hieronder zijn die van de gehoste site; de kant-en-klare collectie
-uit 1b vult ze al in. Wil je lokaal werken, dan zet je `./serve.sh` ervoor
-en wordt het `http://localhost:8777/...` -- dan hoeft `?jwt=` er niet achter,
-want lokaal leest de overlay je token uit `config.js`.
+The URLs below are the hosted ones; the ready-made collection in 1b fills them
+in already. Working locally instead? Put `./serve.sh` in front and it becomes
+`http://localhost:8777/...` -- and then you can leave `?jwt=` off, because
+locally the overlay reads your token from `config.js`.
 
-De 368px die overblijft is opgesplitst: een dunne statusstrook **boven** de
-gameplay en een bredere databalk **eronder**.
+The 368px left over is split in two: a thin status strip **above** the gameplay
+and a wider data bar **below** it.
 
 ```
-  y=0      +--------------------------------------+  120  bovenbalk
+  y=0      +--------------------------------------+  120  top bar
   y=120    |                                      |
            |          gameplay 2560 x 1072        |
-  y=1192   +--------------------------------------+  248  onderbalk
+  y=1192   +--------------------------------------+  248  bottom bar
   y=1440   +--------------------------------------+
 ```
 
-Boven staat de sessiestatus (live, uptime, titel, kijkers, volgers), onder de
-inhoud (camera, character, boss progress, chat, events). Symmetrisch splitsen
-(184/184) kan ook, maar dan is boven te ruim voor wat er staat en onder te
-krap voor camera plus character. Aanpassen doe je in `config.js` onder
-`layout` -- de drie getallen moeten samen 1440 zijn.
+The top holds session status (live, uptime, title, viewers, followers), the
+bottom holds content (camera, characters, boss progress, chat, events).
+Splitting it evenly (184/184) also works, but then the top is roomier than what
+sits in it and the bottom too tight for camera plus characters. Change it in
+`config.js` under `layout` -- the three numbers have to add up to 1440.
 
-Volgorde in de scene, **van boven naar beneden**:
+Order in the scene, **top to bottom**:
 
 ```
 1. Alerts        (browser)
-2. Bovenbalk     (browser)
-3. Onderbalk     (browser)
+2. Top bar       (browser)
+3. Bottom bar    (browser)
 4. Webcam        (video capture device)
 5. Gameplay      (game/display capture)
 ```
 
-De onderbalk moet boven de webcam liggen: hij stanst het gat en tekent de rand
-en het naamplaatje eroverheen.
+The bottom bar has to sit above the webcam: it punches the hole and draws the
+frame and the name plate over it.
 
-### Bovenbalk
+### Top bar
 
 Source > **Browser**:
 
@@ -196,20 +239,21 @@ Source > **Browser**:
 | URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `120` |
-| Custom frame rate | aan, `30` FPS |
-| Shutdown source when not visible | **uit** |
+| Custom frame rate | on, `30` FPS |
+| Shutdown source when not visible | **off** |
 
 Transform > Position `0`, `0`.
 
-Alles in deze balk behalve de streamtitel is een ribbon: links de status
-(kopblok met broadcast-icoon, waarde is je uptime of `offline`), dan de
-labelrail, rechts kijkers en volgers. Zolang er geen waarde is staat een
-ribbon gedempt, precies zoals een leeg label. Het volgersdoel zit als staafje
-in de volgersbalk zelf.
+Everything in this bar except the stream title is a ribbon: status on the left
+(head block with a broadcast icon, value is your uptime or `offline`), then the
+label rail, then viewers and followers on the right. As long as a ribbon has no
+value it sits muted, exactly like an empty label. The follower goal is a small
+bar inside the follower ribbon itself.
 
 ### Gameplay
 
-Game Capture of Display Capture, dan rechtsklik > **Transform > Edit Transform**:
+Game Capture or Display Capture, then right-click > **Transform > Edit
+Transform**:
 
 | | |
 |---|---|
@@ -217,9 +261,9 @@ Game Capture of Display Capture, dan rechtsklik > **Transform > Edit Transform**
 | Bounding Box Type | Scale to inner bounds |
 | Bounding Box Size | `2560` x `1072` |
 
-3440x1440 past daar exact in: 3440/1440 en 2560/1072 schelen 0,03%.
+3440x1440 fits exactly: 3440/1440 and 2560/1072 differ by 0.03%.
 
-### Onderbalk
+### Bottom bar
 
 Source > **Browser**:
 
@@ -228,43 +272,43 @@ Source > **Browser**:
 | URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `248` |
-| Custom frame rate | aan, `30` FPS |
-| Shutdown source when not visible | **uit** |
-| Refresh browser when scene becomes active | **uit** |
+| Custom frame rate | on, `30` FPS |
+| Shutdown source when not visible | **off** |
+| Refresh browser when scene becomes active | **off** |
 
 Transform > Position `0`, `1192`.
 
-30 FPS is genoeg -- geen enkele animatie in de balken heeft 60 nodig, en het
-scheelt rendertijd die je encoder beter kan gebruiken. Die twee vinkjes uit
-zorgen dat je chatgeschiedenis een scenewissel overleeft.
+30 FPS is enough -- no animation in the bars needs 60, and it saves render time
+your encoder can put to better use. Those two checkboxes being off is what lets
+your chat history survive a scene switch.
 
-In de characterkaart stond een verenwatermerk. In een kaart van 189px hoog
-viel daar maar een lob van binnen beeld, en die lag precies achter de naam
-van het tweede character: geen watermerk meer, wel een vlek. Op de
-scene-schermen staat hij nog wel -- daar heeft hij de ruimte.
+The character card used to carry a feather watermark. In a card 189px tall only
+one lobe of it landed inside the frame, right behind the second character's
+name: not a watermark any more, just a smudge. It is still on the scene screens,
+where it has the room.
 
-Twee dingen over de chat in deze balk, want ze zaten er beide fout in:
+Two things about the chat in this bar, because both were wrong:
 
-- Een chatregel is **tekst, geen rij vakjes**. Als flexrij bleven badge en
-  naam op de eerste regel staan terwijl de tekst in een eigen kolom viel:
-  onder naam en badge een gat, en bij een bericht van drie regels zakte de
-  badge naar het midden van de rij (`align-self:center` op een rij die
-  meegroeit). Nu lopen badge, naam en tekst inline, dus wrapt het zoals chat
-  hoort te wrappen. Geldt ook voor Just Chatting en het BRB-scherm.
-- `min-height:0` op `.rcard-wrap` is geen detail. Een grid-item krimpt
-  standaard niet onder zijn inhoud (`min-height:auto`), dus zodra er een lang
-  bericht binnenkwam werd de kaart 225px hoog in een rij van 200 en liep hij
-  onder de balk uit -- de onderste regel werd door `#stage` afgesneden. Met
-  die nul kan de keten `.rcard-wrap` -> `.rcard` -> `.rcard__in` ->
-  `#chatList` krimpen, en schuift de oudste regel bovenaan onder het masker
-  weg zoals bedoeld. `banner.html?demo=1` laat expres één lang bericht zien.
+- A chat line is **text, not a row of boxes**. As a flex row, badge and name
+  stayed on the first line while the message dropped into its own column: a gap
+  under the name and badge, and on a three-line message the badge sank to the
+  middle of the row (`align-self:center` on a row that grows). Badge, name and
+  text now run inline, so it wraps the way chat should wrap. Same fix in Just
+  Chatting and on the BRB screen.
+- `min-height:0` on `.rcard-wrap` is not a detail. A grid item does not shrink
+  below its content by default (`min-height:auto`), so the moment a long message
+  arrived the card became 225px tall in a 200px row and ran out below the bar:
+  `#stage` cut the last line off. With that zero the chain `.rcard-wrap` ->
+  `.rcard` -> `.rcard__in` -> `#chatList` can shrink, and the oldest line slides
+  away under the mask at the top the way it was meant to. `banner.html?demo=1`
+  deliberately includes one long message.
 
-De vier vlakken (characters, raid, chat, recent) zijn `rcard`s uit
-`css/ribbon.css`: schuine hoek rechtsonder, 1px omlijning uit twee geklipte
-lagen, en het bijschrift als tag op de bovenrand met hetzelfde icoon dat een
-ribbon in zijn kopblok draagt. Het camera-gat heeft diezelfde schuine hoek en
-het naamplaatje eronder is een echte ribbon -- dezelfde die de gebeurtenisbalk
-gebruikt die er overheen schuift.
+The four panels (characters, raid, chat, recent) are `rcard`s from
+`css/ribbon.css`: bottom-right corner cut off, a 1px outline made of two clipped
+layers, and the caption as a tag on the top edge carrying the same icon a ribbon
+wears in its head block. The camera hole has that same cut corner, and the name
+plate under it is a real ribbon, the same one used by the event bar that slides
+over it.
 
 ### Alerts
 
@@ -275,22 +319,22 @@ Source > **Browser**:
 | URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html?jwt=eyJ...` |
 | Width | `2560` |
 | Height | `1072` |
-| Shutdown source when not visible | uit |
+| Shutdown source when not visible | off |
 
-Transform > Position `0`, `120` -- de alerts horen over de gameplay, en die
-begint nu 120px lager.
+Transform > Position `0`, `120` -- alerts belong over the gameplay, and that
+now starts 120px lower.
 
-> Zet StreamElements' eigen alert-overlay uit als je deze gebruikt, anders
-> krijg je elke follow dubbel.
+> Turn StreamElements' own alert overlay off if you use this one, or every
+> follow shows up twice.
 
-De alert is een ribbon: bijschrift met het type, gekleurd kopblok met icoon,
-en de naam groot. Hij schuift 34px omlaag terwijl hij invaagt, het kopblok
-licht kort op, en na 5,2 seconden schuift hij weer weg. Subs en tips krijgen
-er een pilletje met tier of bedrag bij en het bericht eronder.
+The alert is a ribbon: caption with the event type, coloured head block with an
+icon, and the name large. It slides down 34px while it fades in, the head block
+flashes briefly, and after 5.2 seconds it slides away again. Subs and tips get a
+small pill with the tier or amount, and the message below it.
 
 ### Webcam
 
-Video Capture Device, dan **Transform > Edit Transform**:
+Video Capture Device, then **Transform > Edit Transform**:
 
 | | |
 |---|---|
@@ -299,334 +343,330 @@ Video Capture Device, dan **Transform > Edit Transform**:
 | Bounding Box Size | `340` x `200` |
 | Alignment in Bounding Box | Center |
 
-*Outer bounds* vult het vlak en snijdt de zijkanten van je 16:9-beeld weg --
-dat is wat je wil, anders krijg je balken. De vorm hoef je niet te regelen:
-die komt uit het gat dat de banner erover stanst -- rechte hoeken met dezelfde
-schuine hoek rechtsonder als de kaarten. Geen Image Mask/Blend-filter nodig.
+*Outer bounds* fills the area and crops the sides off your 16:9 image, which is
+what you want, otherwise you get bars. You do not have to arrange the shape: it
+comes from the hole the banner punches over it, square corners with the same cut
+bottom-right corner as the cards. No Image Mask/Blend filter needed.
 
-Wil je de camera elders of groter? Dan zitten de maten op drie plekken in
-`css/banner.css` en `banner.html`, en die moeten gelijk blijven:
-`.ground__hole` (positie en formaat van het gat), `.ground__frame` (dezelfde
-positie; de omlijning is een polygon, want een `border` volgt geen diagonaal)
-en de `340px`-kolom in `.banner`. Neem daarna dezelfde getallen over in de
-OBS-transform.
+Want the camera somewhere else, or bigger? The measurements live in three places
+across `css/banner.css` and `banner.html`, and they have to stay in step:
+`.ground__hole` (position and size of the hole), `.ground__frame` (same
+position; the outline is a polygon, because a `border` will not follow a
+diagonal) and the `340px` column in `.banner`. Then carry the same numbers into
+the OBS transform.
 
 ---
 
-## 4. Wat waar vandaan komt
+## 4. Where each piece of data comes from
 
-| Gegeven | Bron | Auth |
+| Data | Source | Auth |
 |---|---|---|
-| Chat | Twitch IRC websocket (anoniem) | geen |
-| Character, keys, raid progress | Raider.IO public API | geen |
-| Followers, kijkers, uptime | DecAPI | geen |
+| Chat | Twitch IRC websocket (anonymous) | none |
+| Characters, raid progress | Raider.IO public API | none |
+| Followers, viewers, uptime, title | DecAPI | none |
 | Follows, subs, cheers, tips, raids | StreamElements realtime socket | JWT |
-| Labels (laatste volger, laatste sub, ...) | StreamElements sessie-API | JWT |
+| Labels (last follower, last sub, ...) | StreamElements session API | JWT |
 
-Bewust gesplitst: SE levert de events en de labels, DecAPI de totalen. Zo valt
-je followercount niet weg als je SE-sessie hapert.
+Split on purpose: SE delivers the events and the labels, DecAPI the totals. That
+way your follower count does not disappear when your SE session hiccups.
 
-**Ingevuld en geverifieerd:**
+**Filled in and verified:**
 
-- `twitch.channel` = `bmiest` -- 154 volgers via DecAPI.
-- `raiderio.characters` = Shiftheal op **EU-Ragnaros** (cross-realm lid van
-  Kelderklasse, ilvl 318.75, M+ 2932) en Bhikhu op **EU-Twisting Nether**
-  (Mistweaver monk, Kelderklasse, ilvl 295.5). Ze staan naast elkaar in de
-  characterkaart; zet je er meer in, dan rouleert de kaart per paar.
-  Raider.IO geeft bij cross-realm lidmaatschap geen guild terug op het
-  character zelf, dus staat onder zo'n naam de realm; de guild staat al bij
-  de raid progress.
-- Onder elk character staat zijn **eigen raidprogress** per moeilijkheid
-  (`2/8 M · 8/8 H · 8/8 N`), niet meer de hoogste key van de week. De hoogste
-  graad waar kills staan kleurt jade. Welke tier dat is komt uit Raider.IO's
-  live-tracking, dezelfde bron als de raidkaart ernaast -- `raid_progression`
-  zelf zegt niet welke van zijn sleutels de huidige is, en de laatste is het
-  niet altijd.
-- `raiderio.guild` = Kelderklasse op EU-Draenor.
+- `twitch.channel` = `bmiest` -- 154 followers via DecAPI.
+- `raiderio.characters` = Shiftheal on **EU-Ragnaros** (cross-realm member of
+  Kelderklasse, ilvl 318.75, M+ 2932) and Bhikhu on **EU-Twisting Nether**
+  (Mistweaver monk, Kelderklasse, ilvl 295.5). They sit side by side in the
+  character card; add more and the card rotates through them in pairs. For a
+  cross-realm member Raider.IO returns no guild on the character itself, so the
+  realm shows under such a name; the guild already appears with the raid
+  progress.
+- Under each character is that character's **own raid progress** per difficulty
+  (`2/8 M`, `8/8 H`, `8/8 N`), instead of the highest key of the week. The
+  highest difficulty with kills is tinted jade. Which tier that is comes from
+  Raider.IO's live tracking, the same source as the raid card beside it:
+  `raid_progression` itself does not say which of its keys is the current one,
+  and the last one is not always it.
+- `raiderio.guild` = Kelderklasse on EU-Draenor.
 - `goals.followers` = 200.
 
-**Nog te doen aan jouw kant:**
+**Left for you:**
 
-1. `streamelements.jwt` -- leeg. Zonder token blijven follows, subs, cheers en
-   tips leeg. Te vinden op streamelements.com onder Account Settings >
-   Show secrets > JWT Token.
+1. `streamelements.jwt` is empty in the shared config, and it should stay that
+   way. Pass your token in the browser source URL instead (`?jwt=eyJ...`).
+   Without a token, follows, subs, cheers and tips stay empty. Find it on
+   streamelements.com under Account Settings > Show secrets > JWT Token.
 
 ## 5. Labels
 
-"Labels" zijn losse feitjes over je kanaal die live bijwerken: laatste volger,
-laatste sub, hoogste donatie, aantallen deze sessie. Anders dan de eventlijst
-(die chronologisch is) staat elk label op een vaste plek en toont het precies
-één ding.
+"Labels" are single facts about your channel that update live: last follower,
+last sub, biggest donation, counts for this session. Unlike the event list
+(which is chronological) every label has a fixed spot and shows exactly one
+thing.
 
-**Waarom dit niet vanzelf gaat:** Twitch heeft z'n publieke follower-endpoint
-dichtgezet. DecAPI geeft er `410 Gone - this API has been deprecated` op terug.
-Je followerc*ount* werkt nog, maar wie je laatste volger is moet ergens anders
-vandaan komen.
+**Why this is not automatic:** Twitch closed its public follower endpoint.
+DecAPI answers it with `410 Gone - this API has been deprecated`. Your follower
+*count* still works, but who your last follower is has to come from somewhere
+else.
 
-### Welke labels in de balk staan
+### Which labels the bar shows
 
-In `config.js` onder `topbar.labels`, als geordende lijst:
+In `config.js` under `topbar.labels`, as an ordered list:
 
 ```js
 topbar: {
   showTitle: false,
   labels: [
-    'follower-latest',      // laatste volger
-    'subscriber-latest',    // laatste sub
-    'cheer-latest',         // laatste bits
-    'tip-top',              // topdonatie
+    'follower-latest',      // last follower
+    'subscriber-latest',    // last sub
+    'cheer-latest',         // last bits
+    'tip-top',              // top donation
   ],
 },
 ```
 
-Beschikbaar, met de sleutelnamen **exact zoals StreamElements ze levert**:
+Available, with the key names **exactly as StreamElements delivers them**:
 
-| Sleutel | Toont |
+| Key | Shows |
 |---|---|
-| `follower-latest` | laatste volger |
-| `follower-session` / `-week` / `-total` | volgers deze stream / week / totaal |
-| `subscriber-latest` | laatste sub |
-| `subscriber-new-latest` | laatste nieuwe sub |
-| `subscriber-gifted-latest` | laatste gift-sub |
-| `subscriber-alltime-gifter` | grootste gifter |
-| `subscriber-session` | subs deze stream |
-| `cheer-latest` / `cheer-session` | laatste bits / bits deze stream |
-| `cheer-alltime-top-donator` | topcheer |
-| `tip-latest` / `tip-session` | laatste tip / tips deze stream |
-| `tip-alltime-top-donator` | topdonatie |
-| `raid-latest` | laatste raid |
+| `follower-latest` | last follower |
+| `follower-session` / `-week` / `-total` | followers this stream / week / total |
+| `subscriber-latest` | last sub |
+| `subscriber-new-latest` | last new sub |
+| `subscriber-gifted-latest` | last gifted sub |
+| `subscriber-alltime-gifter` | biggest gifter |
+| `subscriber-session` | subs this stream |
+| `cheer-latest` / `cheer-session` | last bits / bits this stream |
+| `cheer-alltime-top-donator` | top cheer |
+| `tip-latest` / `tip-session` | last tip / tips this stream |
+| `tip-alltime-top-donator` | top donation |
+| `raid-latest` | last raid |
 
-Let op: er bestaat bij SE geen `tip-top` of `cheer-top` -- dat zijn
-`tip-alltime-top-donator` en `cheer-alltime-top-donator`. Een sleutel die niet
-bestaat geeft geen foutmelding, de pil verschijnt gewoon nooit.
+Watch out: SE has no `tip-top` or `cheer-top`. Those are
+`tip-alltime-top-donator` and `cheer-alltime-top-donator`. A key that does not
+exist raises no error, the pill simply never appears.
 
-SE geeft "nog niets gebeurd" terug als het **getal 0**, niet als leeg. Zowel
-`display()` in `js/streamelements.js` als `Labels.set()` vangen dat af, anders
-staat er letterlijk `0` in je balk.
+SE reports "nothing has happened yet" as the **number 0**, not as empty. Both
+`display()` in `js/streamelements.js` and `Labels.set()` catch that, otherwise
+your bar literally reads `0`.
 
-**Labels zonder waarde** staan standaard wél in beeld, maar gedempt: grijs
-kopblok, streepje als waarde. Dat houdt de indeling vast en laat kijkers zien
-dat bits en tips kunnen. Zodra er een waarde binnenkomt springt de pil in zijn
-eigen kleur aan.
+**Labels without a value** do stay on screen by default, but muted: grey head
+block, a dash for the value. That keeps the layout fixed and shows viewers that
+bits and tips are possible. As soon as a value arrives the pill lights up in its
+own colour.
 
-Liever een stillere balk waarin alleen staat wat er echt is? Zet
-`topbar.showEmptyLabels` op `false`; dan verschijnen ze pas als er iets
-gebeurd is.
+Prefer a quieter bar that only shows what is really there? Set
+`topbar.showEmptyLabels` to `false`; then they appear once something has
+happened.
 
-### De vorm: ribbons
+### The shape: ribbons
 
-De hele overlay deelt één vormtaal, geleend van Amused ("flowing ribbons",
-"angled ribbon aesthetic"): balken die naar rechts taps toelopen, bijschriften
-als tag op de rand, en een gekleurd kopblok met icoon.
+The whole overlay shares one shape language, borrowed from Amused ("flowing
+ribbons", "angled ribbon aesthetic"): bars that taper to the right, captions as
+a tag on the edge, and a coloured head block with an icon.
 
-Die taal staat in `css/ribbon.css` en `js/ribbon.js` -- één bron voor alle
-pagina's, zodat de balken, de scenes, Just Chatting en de transitie niet uit
-elkaar gaan lopen. `Ribbon.make(soort, bijschrift, waarde, maat)` maakt een
-ribbon, `Ribbon.card(bijschrift, soort)` een kaart met schuine hoek.
+That language lives in `css/ribbon.css` and `js/ribbon.js`, one source for every
+page, so the bars, the scenes, Just Chatting and the transition cannot drift
+apart. `Ribbon.make(kind, caption, value, size)` builds a ribbon,
+`Ribbon.card(caption, kind)` a card with a cut corner.
 
-Soorten en hun tint: `follow`, `raid`, `live` en `cam` jade, `sub` wit,
-`cheer` en `tip` goud, `sword` wit, `link`/`info`/`neutral`/`viewers` grijs.
-Elk heeft een eigen icoon.
-Maten: `rib--sm` 34px, standaard 44px, `rib--lg` 58px, `rib--xl` 72px.
-`rib--num` zet de waarde in mono met tabelcijfers -- voor getallen die
-bijwerken, zodat ze niet staan te dansen.
+Kinds and their tint: `follow`, `raid`, `live` and `cam` jade, `sub` white,
+`cheer` and `tip` gold, `sword` white, `link`/`info`/`neutral`/`viewers` grey.
+Each has its own icon.
+Sizes: `rib--sm` 34px, default 44px, `rib--lg` 58px, `rib--xl` 72px. `rib--num`
+sets the value in mono with tabular figures, for numbers that update, so they do
+not dance.
 
-Alle vlakken spreken die taal, ook de onderbalk: de vier kaarten daar zijn
-`rcard`s en hun bijschrift draagt hetzelfde icoon als het kopblok van een
-ribbon. Wat de taal *niet* kan bijstylen is het Raider.IO-widget-iframe;
-dat komt van een ander domein. Vandaar dat de raidkaart standaard op
-`liveTracking.mode: 'native'` staat -- dezelfde gegevens, zelf getekend.
+Every panel speaks that language, the bottom bar included: the four cards there
+are `rcard`s and their caption carries the same icon as a ribbon's head block.
+What the language *cannot* restyle is the Raider.IO widget iframe; that comes
+from another domain. Which is why the raid card defaults to
+`liveTracking.mode: 'native'`, the same data drawn here.
 
-**Wat er niet in zit** is het volvlakse kleurverloop uit het origineel. Grote
-verzadigde vlakken en gradients kosten bitrate die de gameplay nodig heeft, en
-banden op 8000 kbps. De kleur zit in het kopblok en het bijschrift -- kleine
-vlakken.
+**What is not in it** is the full-surface colour gradient from the original.
+Large saturated areas and gradients cost bitrate the gameplay needs, and they
+band on the lower rungs of the ladder in section 2. The colour sits in the head
+block and the caption instead: small areas.
 
-Twee dingen om te weten als je gaat sleutelen:
+Two things worth knowing before you start changing it:
 
-- De 1px omlijning komt overal uit **twee lagen `clip-path`** over elkaar. Een
-  gewone `border` volgt een schuine clip-path niet mee; die wordt weggeknipt.
-- Een bijschrift dat op de rand van een kaart rijdt moet **buiten** het geklipte
-  element staan. `clip-path` klipt ook absoluut gepositioneerde kinderen.
-  Vandaar `.rcard-wrap` om `.rcard` heen.
+- The 1px outline is everywhere made of **two `clip-path` layers** on top of
+  each other. A normal `border` does not follow an angled clip-path; it gets
+  clipped away.
+- A caption riding the edge of a card has to sit **outside** the clipped
+  element. `clip-path` clips absolutely positioned children too. Hence
+  `.rcard-wrap` around `.rcard`.
 
-### Waar het vandaan komt
+### Where it comes from
 
-Vul je JWT in bij `streamelements.jwt` -- die heb je toch al nodig voor de
-alerts. Verder niets. Geen extra programma, geen aparte app naast OBS.
+Fill in your JWT and that is it. No extra program, no separate app next to OBS.
+Two things then happen:
 
-Twee dingen gebeuren dan:
+1. `channels/me` + `sessions/{id}` fetch the **current state**, so "last
+   follower" is filled in immediately instead of only at the next follow.
+   Refreshes every 90 s.
+2. The socket keeps it **live** after that.
 
-1. `channels/me` + `sessions/{id}` halen de **huidige stand** op, zodat
-   'laatste volger' meteen gevuld is in plaats van pas bij de volgende follow.
-   Ververst elke 90 s.
-2. De socket houdt het daarna **live** bij.
-
-CORS staat open bij SE (`access-control-allow-origin: *`, en de preflight staat
-de `authorization`-header expliciet toe), dus dit mag rechtstreeks vanuit een
-browser source.
-
-> Ongetest tot je het token invult -- ik kon deze aanroepen hier niet
-> uitproberen zonder jouw JWT. De 401 die ik terugkreeg met een neptoken
-> bewees wel dat het endpoint bestaat en dat de browser erbij mag.
+CORS is open at SE (`access-control-allow-origin: *`, and the preflight
+explicitly allows the `authorization` header), so this is allowed straight from
+a browser source. Confirmed working with a real token: the top bar fills its
+labels from the session API within a second of loading.
 
 ## 6. Live boss progress
 
-De boss-progress uit je oude Raider.IO-widget zit er nu in, maar getekend in
-je eigen stijl: bossportret, naam, een tag (`down` / `progress`) en de
-**pull-historie als staafjes** -- hoger betekent meer boss-HP eraf, de kill
-kleurt jade, je beste poging lichtgrijs.
+The boss progress from your old Raider.IO widget is in here, but drawn in your
+own style: boss portrait, name, a tag (`down` / `progress`) and the **pull
+history as bars**. Taller means more boss HP gone, the kill is jade, your best
+attempt light grey.
 
-Als je nog mídden in een boss zit toont hij het **beste percentage** groot in
-goud, met daaronder het aantal pulls en de fase waarin die beste poging
-strandde -- bijvoorbeeld `12.22%` / `beste van 184 pulls · P3`. Is de boss
-down, dan wordt het het aantal pulls tot de kill, in jade.
+While you are still mid-boss it shows the **best percentage** large in gold,
+with the pull count and the phase that best attempt died in underneath, for
+example `12.22%` / `best of 184 pulls, P3`. Once the boss is down it becomes the
+number of pulls to the kill, in jade.
 
-Twee dingen die ik hier fout had en die de moeite waard zijn om te weten als
-je zelf aan `js/rio-live.js` sleutelt:
+Two things I had wrong here that are worth knowing if you go into
+`js/rio-live.js` yourself:
 
-- `bestPercent` uit de API is **al een percentage** (`12.22` = 12,22%), geen
-  fractie. Vermenigvuldigen met 100 geeft 1222%.
-- De pulls hebben `boss_percent` én `overall_percent`. Het eerste is
-  **fase-relatief**: een pull die P3 haalde staat op `boss_percent 0.489`
-  terwijl `overall_percent 0.122` is. Sorteer je op `boss_percent`, dan lijkt
-  een pull die in P1 sneuvelde op 60% béter dan een P3-pull op 49%. Voor de
-  sparkline en de beste poging moet je `overall_percent` hebben.
+- `bestPercent` from the API is **already a percentage** (`12.22` = 12.22%), not
+  a fraction. Multiplying by 100 gives you 1222%.
+- The pulls carry both `boss_percent` and `overall_percent`. The first is
+  **phase-relative**: a pull that reached P3 sits at `boss_percent 0.489` while
+  `overall_percent` is 0.122. Sort on `boss_percent` and a pull that died in P1
+  at 60% looks *better* than a P3 pull at 49%. The sparkline and the best
+  attempt need `overall_percent`.
 
-Dat draait op twee endpoints:
+It runs on two endpoints:
 
 ```
 https://raider.io/api/v1/live-tracking/bossprogress?...
 https://raider.io/api/v1/live-tracking/bosspulls?...
 ```
 
-**Die staan niet in Raider.IO's publieke API-documentatie.** Het zijn de calls
-die hun eigen boss-progress widget doet; ik heb ze afgeleid uit de
-netwerkverzoeken van `raider.io/widgets`. Praktische gevolgen:
+**Neither is in Raider.IO's public API documentation.** They are the calls their
+own boss-progress widget makes; I derived them from the network requests on
+`raider.io/widgets`. Practical consequences:
 
-- Ze kunnen zonder aankondiging veranderen of verdwijnen. Gebeurt dat, dan
-  verdwijnt alleen dit blok -- `js/rio-live.js` faalt stil en de rest van de
-  banner draait door.
-- CORS staat open (de server spiegelt je Origin) en de responses hebben
-  `cache-control: max-age=10`, dus pollen is goedkoop. Standaard elke 30 s.
-- Uitzetten kan met `liveTracking.enabled: false` in `config.js`.
-- `mode: 'native'` is de standaard, omdat het widget-iframe van een ander
-  domein komt en dus niet in de huisstijl te krijgen is. Wil je toch hun
-  eigen widget: `mode: 'widget'`.
-- `difficulty` staat op `mythic`, niet op `latest`. 'latest' betekent bij
-  Raider.IO "waar het laatst iets gebeurde", en dat sleept eenbaas-raids mee:
-  de kaart stond zo op `1/1 Heroic` in de Tidebound Grotto terwijl de guild
-  op `2/8 Mythic` in de hoofdraid zat. Diezelfde slug bepaalt welke tier de
-  characterkaart toont, zodat de twee kaarten niet uit elkaar lopen.
+- They can change or disappear without notice. If that happens only this panel
+  goes empty: `js/rio-live.js` fails quietly and the rest of the banner keeps
+  running.
+- CORS is open (the server mirrors your Origin) and the responses carry
+  `cache-control: max-age=10`, so polling is cheap. Every 30 s by default.
+- Turn it off with `liveTracking.enabled: false` in `config.js`.
+- `mode: 'native'` is the default, because the widget iframe comes from another
+  domain and therefore cannot be brought into the house style. If you do want
+  their own widget: `mode: 'widget'`.
+- `difficulty` is set to `mythic`, not `latest`. At Raider.IO 'latest' means
+  "where something happened most recently", and that drags single-boss raids in:
+  the card sat on `1/1 Heroic` in the Tidebound Grotto while the guild was on
+  `2/8 Mythic` in the main raid. That same slug decides which tier the character
+  card shows, so the two cards cannot contradict each other.
 
-Het handmatige `progressNote` blijft bestaan als terugvaloptie voor als je
-het zelf wil typen.
+The manual `progressNote` stays as a fallback for when you would rather type it
+yourself.
 
-Wat er wel uit blijft: geluid bij de alerts.
+What stays out: sound on the alerts.
 
-## 7. Scenes, Just Chatting en de transitie
+## 7. Scenes, Just Chatting and the transition
 
 ### Starting / BRB / Ending
 
-Eén pagina, drie standen via de URL:
+One page, three modes via the URL:
 
-| Scene | URL | Wat |
+| Scene | URL | What |
 |---|---|---|
-| Straks live | `scene.html?mode=starting` | aftellen, streamtitel, schema, socials, recente supporters |
-| Even weg | `scene.html?mode=brb` | klok telt op, chat blijft zichtbaar zodat mensen blijven |
-| Einde | `scene.html?mode=ending` | afsluiter, schema, socials |
+| Starting soon | `scene.html?mode=starting` | countdown, stream title, schedule, socials, recent supporters |
+| Be right back | `scene.html?mode=brb` | clock counts up, chat stays visible so people stick around |
+| Ending | `scene.html?mode=ending` | sign-off, schedule, socials |
 
-In de kop staat links je kanaal en rechts kijkers en volgers -- dezelfde
-ribbons als de bovenbalk, één maat groter. Kijkers staat er ook op 'straks
-live': ga je live terwijl dat scherm nog staat, dan loopt hij mee, en dat is
-precies wanneer je het wil zien. Offline geeft DecAPI niets en blijft de balk
-gedempt. Het character stond hier ook; dat is de kaart in de onderbalk al, en
-op een scherm dat om aandacht voor één ding vraagt was het ruis.
+The header has your channel on the left and viewers and followers on the right,
+the same ribbons as the top bar, one size up. Viewers is there on the starting
+screen too: go live while that screen is still up and it runs along, which is
+exactly when you want to see it. Offline, DecAPI returns nothing and the ribbon
+stays muted. The character used to be here as well; that is already the card in
+the bottom bar, and on a screen that asks for attention on one thing it was
+noise.
 
-Onder de klok staat op 'straks live' de **streamtitel**, want die weet Twitch
-beter dan een vaste regel in de config. `scenes.topic` blijft de terugval voor
-als DecAPI niets bruikbaars teruggeeft.
+Under the clock, the starting screen shows the **stream title**, because Twitch
+knows that better than a fixed line in the config. `scenes.topic` remains the
+fallback for when DecAPI returns nothing usable.
 
-Allemaal browser source, `2560 x 1440`, positie `0, 0`. Aftelduur, terugval-
-onderwerp, schema en socials staan in `config.js` onder `scenes`. De dag van
-vandaag
-kleurt jade in het schema, en een regel met `note` krijgt er een tagje bij --
-zo staat er `20:00 - 23:00` `RAID` achter je raidavonden.
+All of them are browser sources, `2560 x 1440`, position `0, 0`. Countdown
+length, fallback topic, schedule and socials live in `config.js` under `scenes`.
+Today's day is tinted jade in the schedule, and a row with a `note` gets a small
+tag after it, so your raid nights read `20:00 - 23:00` `RAID`.
 
-**De klok begint te lopen zodra de scene in beeld komt**, niet zodra OBS de
-pagina laadt. Dat is het verschil tussen een aftelklok die op 10:00 begint als
-je 'straks live' opzet, en een die al op 'bijna zover' staat omdat de browser
-source al een uur meedraaide in een andere scene. Hetzelfde geldt voor 'even
-weg', die anders meteen op een half uur stond. OBS' eigen
-`obsSourceActiveChanged` / `obsSourceVisibleChanged` geven dat moment door;
-in een gewone browser doet `visibilitychange` hetzelfde. Je hoeft *Refresh
-browser when scene becomes active* dus niet aan te zetten.
+**The clock starts running when the scene comes on screen**, not when OBS loads
+the page. That is the difference between a countdown that starts at 10:00 when
+you put the starting screen up, and one that already reads "almost there"
+because the browser source had been running for an hour in another scene. Same
+for the BRB screen, which otherwise sat at half an hour immediately. OBS' own
+`obsSourceActiveChanged` / `obsSourceVisibleChanged` pass that moment along; in
+a normal browser `visibilitychange` does the same. So you do not need to turn
+*Refresh browser when scene becomes active* on.
 
-Hier mag wél animatie staan -- de halo draait langzaam rond, de klok tikt --
-want op deze schermen is er geen gameplay die om bitrate vecht. Dat is precies
-de reden dat de banner het zonder moet doen.
+Animation is allowed here, the halo turns slowly and the clock ticks, because
+these screens have no gameplay competing for bitrate. That is exactly why the
+banner has to do without.
 
-### Achtergrond van de scenes
+### Background of the scenes
 
-Op de scene-schermen staat geen gameplay die om bitrate vecht, dus daar mag
-beweging wél. Maar geen verlopen: een zachte was van `#0a0b0d` naar iets
-lichters is over 1000px maar een handvol 8-bit stappen, en dat geeft
-zichtbare concentrische banden. De diepte komt daarom uit vlakke vormen.
+No gameplay is fighting for bitrate on the scene screens, so movement is fine
+there. Gradients are not: a soft wash from `#0a0b0d` to something lighter is
+only a handful of 8-bit steps across 1000px, and that shows as concentric bands.
+The depth comes from flat shapes instead.
 
-Het motief komt van Amused: *flowing ribbons*. `css/backdrop.css` +
-`js/backdrop.js` leggen achter de scene-schermen:
+The motif comes from Amused: *flowing ribbons*. `css/backdrop.css` +
+`js/backdrop.js` put behind the scene screens:
 
-- **vier banen** als bezier-paden, die aan beide kanten 200px buiten het doek
-  doorlopen en elkaar kruisen. Dat kruisen is het punt: waar twee banen over
-  elkaar liggen is het vlak iets lichter, en dat is de enige schaduw in het
-  hele ontwerp -- gemaakt met geometrie in plaats van met een verloop. Ze
-  schuiven over 62 tot 110 seconden een stukje op;
-- **één scherpe jade haarlijn** op de bovenrand van de dunne baan, door de
-  open strook onder de klok. Zonder zo'n lijn wordt een veld van vlakken op
-  een paar procent dekking pap; met meer dan één gaat het strepen;
-- een handvol traag opstijgende stofjes (de mist van een Mistweaver),
-  deterministisch geplaatst zodat elke scenewissel er hetzelfde uitziet.
+- **four bands** as bezier paths, running 200px past the canvas on both sides
+  and crossing each other. The crossing is the point: where two bands overlap
+  the surface is slightly lighter, and that is the only shading in the whole
+  design, made with geometry instead of a gradient. They drift a little over 62
+  to 110 seconds;
+- **one crisp jade hairline** on the top edge of the thin band, through the open
+  strip below the clock. Without a line like that, a field of shapes at a few
+  percent opacity turns to mush; with more than one it starts to stripe;
+- a handful of slowly rising motes (a Mistweaver's mist), placed
+  deterministically so every scene switch looks the same.
 
-De vorm van elke baan zit in vier y-waarden in `BANDS` (`js/backdrop.js`);
-de x van de controlepunten staat vast. De compositie houdt het midden leeg:
-tussen y 520 en 800 zit daar niets, want daar staat de klok.
+The shape of each band is four y values in `BANDS` (`js/backdrop.js`); the x of
+the control points is fixed. The composition keeps the middle clear: nothing
+sits between y 520 and 800 there, because that is where the clock is.
 
-Uitzetten met `scenes.background: 'plain'`.
+Turn it off with `scenes.background: 'plain'`.
 
-Drie dingen die hier fout zaten en die de moeite waard zijn als je gaat
-sleutelen:
+Three things that were wrong here and are worth knowing if you go changing it:
 
-- De banen stonden op `skewX`. Skew schuift alleen horizontaal: de boven- en
-  onderrand blijven kaarsrecht. Over 2560px las dat niet als een schuine
-  ribbon maar als drie **horizontale strepen** met een harde rand -- precies
-  het bandeneffect dat hierboven de reden is om geen verlopen te gebruiken.
-  Een kromme rand kan alleen uit een pad komen, niet uit een transform.
-- Ze stonden op 2% dekking en waren op stream onzichtbaar. Een plat vlak kost
-  de encoder niets extra, ook niet als het lichter is -- het is het verloop
-  dat betaalt. Nu 2,5 tot 7%.
-- Just Chatting krijgt **geen** achtergrond meer. Dat vlak ligt over de hele
-  stage, en de camera is daar een transparant gat: de banen en de stofjes
-  dreven dwars over de webcam. Buiten het gat is er op die indeling
-  nauwelijks ruimte over, dus er valt niks te missen.
+- The bands were on `skewX`. Skew only shifts horizontally: the top and bottom
+  edges stay dead straight. Across 2560px that did not read as an angled ribbon
+  but as three **horizontal stripes** with a hard edge, exactly the banding that
+  is the reason not to use gradients in the first place. A curved edge can only
+  come from a path, not from a transform.
+- They were at 2% opacity and invisible on stream. A flat shape costs the
+  encoder nothing extra even when it is lighter; it is the gradient that pays.
+  Now 2.5 to 7%.
+- Just Chatting gets **no** background any more. That layer covers the whole
+  stage, and the camera there is a transparent hole: the bands and the motes
+  drifted straight across the webcam. Outside the hole that layout has almost no
+  room left, so there is nothing to miss.
 
-### Gebeurtenisbalk onder de camera
+### Event bar under the camera
 
-Bij een follow, sub, cheer, tip of raid schuift er een ribbon omhoog over het
-naamplaatje van je camera, houdt vier à vijf seconden aan en zakt weer weg.
-Eén tegelijk; bij een giftbom stapelen ze netjes achter elkaar in plaats van
-over elkaar. Zit zowel in de onderbalk (compact, over het plaatje heen) als in
-Just Chatting (breed, over de onderrand van het camerabeeld).
+On a follow, sub, cheer, tip or raid, a ribbon slides up over your camera's name
+plate, holds for four or five seconds and drops away again. One at a time; on a
+gift bomb they queue up neatly instead of stacking on top of each other. It is
+in the bottom bar (compact, over the plate) and in Just Chatting (wide, over the
+bottom edge of the camera image).
 
-Staat in `js/camevent.js`; hij hangt aan dezelfde eventstroom als de alerts,
-dus je hoeft niets extra's in te stellen.
+It lives in `js/camevent.js` and hangs off the same event stream as the alerts,
+so there is nothing extra to configure.
 
 ### Just Chatting
 
-`chatting.html`, browser source `2560 x 1440` op positie `0, 0`. Camera links
-als transparant gat, chat rechts, socials en recente events eronder. De
-streamtitel komt automatisch van Twitch.
+`chatting.html`, browser source `2560 x 1440` at position `0, 0`. Camera on the
+left as a transparent hole, chat on the right, socials and recent events below.
+The stream title comes from Twitch automatically.
 
-Webcam-source hiervoor:
+Webcam source for this one:
 
 | | |
 |---|---|
@@ -634,129 +674,129 @@ Webcam-source hiervoor:
 | Bounding Box Type | Scale to outer bounds |
 | Bounding Box Size | `1650` x `930` |
 
-Zelfde volgorde als in de gameplayscene: de browser source ligt **boven** de
+Same order as in the gameplay scene: the browser source sits **above** the
 camera.
 
-### Stinger-transitie
+### Stinger transition
 
-Een stinger is een videobestand, geen webpagina. `stinger.html` tekent één
-frame (framenummer via de URL) en `build-stinger.sh` rendert ze los af en
-plakt er een webm met alphakanaal van.
+A stinger is a video file, not a web page. `stinger.html` draws a single frame
+(frame number via the URL) and `build-stinger.sh` renders them one by one and
+assembles a webm with an alpha channel.
 
-De vorm is nagemaakt naar de stingers uit Amused, die uit drie acts bestaan:
+The shape is modelled on the stingers in Amused, which come in three acts:
 
-1. Een paneel schuift in met een **golvende voorrand** -- geen rechte diagonaal
-   maar twee sinussen over elkaar -- met een jade band die er net voor uit loopt
-   als schaduw.
-2. Op het dekpunt staat het merk in beeld.
-3. Een **iris opent** vanuit het midden: een jade ring op de rand van het gat,
-   een dunne witte halo eromheen, en twee sikkels die meedraaien terwijl hij
-   opengaat.
+1. A panel slides in with a **wavy leading edge**, not a straight diagonal but
+   two sines layered over each other, with a jade band running just ahead of it
+   as a shadow.
+2. At full cover the brand sits on screen.
+3. An **iris opens** from the middle: a jade ring on the edge of the hole, a
+   thin white halo around it, and two crescents turning along as it opens.
 
-Het gat is een `radial-gradient` met een **harde stop**, geen zachte overgang,
-dus er valt niets te banden.
+The hole is a `radial-gradient` with a **hard stop**, not a soft transition, so
+there is nothing to band.
 
-Duur 1000 ms bij 30 frames; het beeld is dicht op 440 ms en de iris begint op
-500 ms, dus het transitiepunt ligt op de helft.
+Duration is 1000 ms at 30 frames; the image is closed at 440 ms and the iris
+starts at 500 ms, so the transition point is at the halfway mark.
 
-Dan in OBS onder **Scene Transitions > Stinger**:
+Then in OBS under **Scene Transitions > Stinger**:
 
 | | |
 |---|---|
 | Video File | `stinger.webm` |
 | Transition Point | `500` ms |
 
-Het beeld is exact op de helft van de duur volledig dicht, dus dat transitiepunt
-is geen schatting. Wil je 'm sneller of trager: `./build-stinger.sh 24` voor
-800 ms, `./build-stinger.sh 36` voor 1,2 s -- het transitiepunt is altijd de
-helft, en `make-obs-collection.py` leest de duur uit met ffprobe zodat het
-vanzelf meeloopt. De tekst staat in `config.js` onder `stinger.text`.
+The image is fully closed at exactly half the duration, so that transition point
+is not a guess. Want it faster or slower: `./build-stinger.sh 24` for 800 ms,
+`./build-stinger.sh 36` for 1.2 s. The transition point is always half, and
+`make-obs-collection.py` reads the duration with ffprobe so it follows along.
+The text lives in `config.js` under `stinger.text`.
 
-Technisch: VP9 met `yuva420p` en `-auto-alt-ref 0`; zonder die laatste vlag
-gooit libvpx het alphakanaal weg. `ffprobe` meldt `pix_fmt=yuv420p` -- dat
-klopt, VP9 zet alpha in een aparte stream, zichtbaar aan `alpha_mode=1`.
+Technically: VP9 with `yuva420p` and `-auto-alt-ref 0`; without that last flag
+libvpx throws the alpha channel away. `ffprobe` reports `pix_fmt=yuv420p`, which
+is correct: VP9 keeps alpha in a separate stream, visible as `alpha_mode=1`.
 
-## 7b. Als er iets niet werkt
+## 7b. When something is not working
 
-Zet `?health=1` achter de URL van een browser source. Dan verschijnt rechtsboven
-een regeltje met de bronnen die niet reageren. Standaard staat dat uit: een rode
-"offline" in beeld is erger dan het probleem dat hij meldt.
+Put `?health=1` after a browser source URL. A small line then appears in the top
+right listing the sources that are not responding. It is off by default: a red
+"offline" on screen is worse than the problem it reports.
 
-De onderdelen falen onafhankelijk van elkaar, met opzet:
+The parts fail independently, on purpose:
 
-| Valt weg | Gevolg |
+| Drops out | Consequence |
 |---|---|
-| StreamElements-socket | geen live events; labels blijven werken via de REST-aanroep |
-| StreamElements-REST | labels blijven leeg; events komen nog binnen |
-| Raider.IO | character en boss progress leeg; de rest draait door |
-| DecAPI | kijkers en uptime leeg |
-| Twitch IRC | chat leeg; herverbindt vanzelf met oplopende wachttijd |
+| StreamElements socket | no live events; labels keep working via the REST call |
+| StreamElements REST | labels stay empty; events still arrive |
+| Raider.IO | characters and boss progress empty; the rest keeps running |
+| DecAPI | viewers and uptime empty |
+| Twitch IRC | chat empty; reconnects on its own with a growing delay |
 
-`socket.io` wordt **meegeleverd** in `vendor/`, niet van een CDN gehaald. Dat
-was eerder wel zo, en als die aanroep faalde viel niet alleen de socket weg maar
-ook de labels -- die stonden achter dezelfde controle.
+`socket.io` is **bundled** in `vendor/`, not pulled from a CDN. It used to be,
+and when that request failed it took out not just the socket but the labels too,
+because they sat behind the same check.
 
-### Geen alerts, geen events
+### No alerts, no events
 
-Twee dingen om na te lopen, in deze volgorde:
+Two things to check, in this order:
 
-1. **Staat `__JWT__` nog in je bron-URL?** De kant-en-klare collectie levert
-   die plaatshouder mee en je hoort hem te vervangen. Deed je dat niet, dan
-   weigert SE het token en komt er nooit een event binnen -- geen alerts, geen
-   regels in 'recent', geen labels. Sinds kort schrijft de overlay daar een
-   duidelijke fout over in de console (F12 in de bron-eigenschappen) en gooit
-   ze het neptoken weg in plaats van het te proberen. `?health=1` zet
-   `streamelements` dan op offline.
-2. **Werkt de alert zelf?** `alerts.html?test=1` loopt door alle types heen:
-   volger, sub, bits, raid, tip. Zie je die wel en echte events niet, dan zit
-   het in het token of in de socket, niet in de weergave.
+1. **Is `__JWT__` still in your source URL?** The ready-made collection ships
+   that placeholder and you are meant to replace it. If you did not, SE refuses
+   the token and no event ever arrives: no alerts, no rows in 'recent', no
+   labels. The overlay now writes a clear error about that to the console (F12
+   in the source properties) and throws the fake token away instead of trying
+   it. `?health=1` then puts `streamelements` on offline.
+2. **Does the alert itself work?** `alerts.html?test=1` cycles through every
+   type: follower, sub, bits, raid, tip. If you see those and real events never
+   arrive, the problem is in the token or the socket, not in the rendering.
 
-En zet StreamElements' eigen alert-overlay uit als je deze gebruikt, anders
-krijg je elke follow dubbel.
+And turn StreamElements' own alert overlay off if you use this one, or every
+follow shows up twice.
 
-## 8. Bestanden
+## 8. Files
 
 ```
-index.html       voorpagina: previews, URL's, OBS-getallen
-css/index.css    voorpagina
-topbar.html      sessiestatus boven je beeld  (2560 x 120)
-banner.html      databalk onder je beeld      (2560 x 248)
-alerts.html      alerts over je beeld         (2560 x 1072)
-config.js        jouw instellingen            (gitignored)
-css/tokens.css   palet, typografie, motion
-css/ribbon.css   gedeelde vormtaal (ribbons, kaarten)
-css/backdrop.css achtergrond van de scene-schermen
-css/topbar.css   bovenbalk
-css/banner.css   onderbalk
+index.html       front page: previews, URLs, OBS numbers
+css/index.css    front page
+topbar.html      session status above your gameplay  (2560 x 120)
+banner.html      data bar below your gameplay        (2560 x 248)
+alerts.html      alerts over your gameplay           (2560 x 1072)
+config.js        your settings                       (gitignored)
+css/tokens.css   palette, typography, motion
+css/ribbon.css   shared shape language (ribbons, cards)
+css/backdrop.css background of the scene screens
+css/topbar.css   top bar
+css/banner.css   bottom bar
 css/alerts.css   alerts
 js/util.js       helpers
 js/raiderio.js   character + guild
-js/rio-live.js   live boss progress + pull-historie
-scene.html       starting / brb / ending      (2560 x 1440)
-scene-starting.html  wrappers voor OBS' Local file-modus, die geen
-scene-brb.html       querystring slikt; ze zetten window.SCENE_MODE
+js/rio-live.js   live boss progress + pull history
+scene.html       starting / brb / ending             (2560 x 1440)
+scene-starting.html  wrappers for OBS' Local file mode, which takes no
+scene-brb.html       query string; they set window.SCENE_MODE
 scene-ending.html
-chatting.html    Just Chatting                (2560 x 1440)
-stinger.html     één frame van de transitie
-build-stinger.sh rendert stinger.webm
+chatting.html    Just Chatting                       (2560 x 1440)
+stinger.html     one frame of the transition
 css/scene.css    scenes
 css/chatting.css Just Chatting
 js/scene.js      scenes
 js/chatting.js   Just Chatting
 js/chat.js       Twitch IRC
-js/labels.js     labelopslag
-vendor/socket.io.js  meegeleverd, geen CDN
+js/labels.js     label store
+vendor/socket.io.js  bundled, no CDN
 js/stats.js      DecAPI
 js/streamelements.js  SE socket
-js/ribbon.js     ribbon- en kaartbouwer
-js/backdrop.js   achtergrond
-js/camevent.js   gebeurtenisbalk onder de camera
-js/topbar.js     bovenbalk
-js/banner.js     onderbalk
-js/alerts.js     alert-wachtrij
+js/ribbon.js     ribbon and card builder
+js/backdrop.js   background
+js/camevent.js   event bar under the camera
+js/topbar.js     top bar
+js/banner.js     bottom bar
+js/alerts.js     alert queue
 
-serve.sh         lokale preview op http://localhost:8777
-build-stinger.sh rendert stinger.webm
-make-obs-collection.py           bouwt een OBS scene collection
-obs-scene-collection.pages.json  kant-en-klaar, wijst naar de gehoste site
+serve.sh         local preview on http://localhost:8777
+build-stinger.sh renders stinger.webm
+make-obs-collection.py           builds an OBS scene collection
+obs-scene-collection.pages.json  ready-made, points at the hosted site
 ```
+
+> The README is in English; the code comments and the overlay's own text are in
+> Dutch. The overlay is for a Dutch-language channel, the repo is on GitHub.

@@ -162,6 +162,8 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
   transform:scale(var(--s));transform-origin:0 0;
 }
 .shot figcaption{margin-top:12px;font-size:14px;color:var(--ink-400)}
+/* de regel onder de previews plakte tegen het laatste bijschrift aan */
+.screens .hero__note{margin-top:30px}
 
 /* ---- feitenlijstjes ------------------------------------------------- */
 .facts{display:grid;grid-template-columns:auto 1fr;gap:12px 22px;

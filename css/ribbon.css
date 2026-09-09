@@ -6,8 +6,10 @@
 
    Wat er niet in zit is het volvlakse kleurverloop uit het origineel.
    Grote verzadigde vlakken en gradients kosten bitrate die de gameplay
-   nodig heeft, en banden op 8000 kbps. De kleur zit hier in het kopblok
-   en het bijschrift -- kleine vlakken.
+   nodig heeft. Twitch stuurt vier encodes de deur uit (1440p HEVC, 1080p,
+   720p en 360p AVC); op de onderste sporten -- 3,5 Mbps en 505 kbps -- gaat
+   een verloop over 2560px als eerste banden. Zie sectie 2 van de README.
+   De kleur zit hier in het kopblok en het bijschrift: kleine vlakken.
 
    De 1px omlijning komt overal uit twee lagen clip-path over elkaar: een
    gewone border volgt een schuine clip-path niet mee.
