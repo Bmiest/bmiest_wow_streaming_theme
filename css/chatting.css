@@ -99,11 +99,17 @@ body.demo .jc__camhint{display:grid}
 
 /* ---- strook onder de camera ----------------------------------------- */
 .jc__strip{position:absolute;left:60px;top:1139px;width:1650px;height:241px}
+/* De twee groepen verdelen zich over de breedte in plaats van links te
+   klitten met een gat van 900px ernaast. De scheidslijn valt zo tussen de
+   twee groepen in het midden. */
 .jc__strip .rcard__in{
-  padding:28px 34px;flex-direction:row;align-items:center;gap:38px;
+  padding:28px 34px;flex-direction:row;align-items:center;
+  justify-content:space-between;gap:38px;
 }
 .jc__cols{display:flex;flex-direction:column;gap:14px;align-items:flex-start;min-width:0}
 .jc__cols .rib{--rib-h:44px;--rib-cut:14px;max-width:100%}
 .jc__div{width:1px;align-self:stretch;background:var(--ink-700);flex:0 0 1px;margin:4px 0}
-.jc__recent{flex:1;min-width:0}
+/* geen flex:1 hier: dan slokt deze kolom de vrije ruimte op en heeft
+   space-between hierboven niets te verdelen */
+.jc__recent{min-width:0}
 .jc__empty{color:var(--ink-500);font-size:20px}

@@ -698,8 +698,24 @@ so there is nothing extra to configure.
 ### Just Chatting
 
 `chatting.html`, browser source `2560 x 1440` at position `0, 0`. Camera on the
-left as a transparent hole, chat on the right, socials and recent events below.
-The stream title comes from Twitch automatically.
+left as a transparent hole, chat on the right, and a strip below it with your
+socials on one side and recent activity on the other. The stream title comes
+from Twitch automatically.
+
+The character used to sit in the header here too. It is the card in the bottom
+bar already, and on a screen where you are the subject it added nothing, so it
+is gone (and with it the Raider.IO script on this page).
+
+The recent column used to say "nothing yet this session" until something
+happened during your stream, which is the moment the screen has the least to
+say. StreamElements' session API does know who your latest follower and sub
+are, so those fill the open slots, each with its own caption because "latest"
+is not "this session". A real event pushes in on top and the bottom filler
+drops off. Two rows, not three: the strip is 241px tall and three 44px ribbons
+run out of it. That also matches the rhythm of the socials column next to it,
+and both groups now spread to the edges of the strip instead of huddling on
+the left with 900px of nothing beside them. Filling that column is why this
+page loads `js/labels.js`.
 
 Webcam source for this one:
 

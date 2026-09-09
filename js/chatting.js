@@ -21,11 +21,11 @@ if(DEMO) document.body.classList.add('demo');
    nauwelijks ruimte over om te vullen, dus er valt niks te missen. Op de
    scene-schermen (geen camera) blijft hij staan. */
 
-/* ---- kop ------------------------------------------------------------ */
-var ribChar = R.make('sword',  'character', '—');
+/* ---- kop ------------------------------------------------------------
+   Het character stond hier ook. Dat is de kaart in de onderbalk al, en op
+   een scherm waar je zelf het onderwerp bent voegde het niks toe. */
 var ribFoll = R.make('follow', 'followers', '—');
-ribChar.style.display = 'none';
-[ribChar, ribFoll].forEach(function(n){ U.$('#jcTopRibs').appendChild(n); });
+U.$('#jcTopRibs').appendChild(ribFoll);
 
 U.$('#jcPlate').appendChild(
   R.make('cam', 'camera', CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live'));
@@ -52,8 +52,24 @@ strip.body.appendChild(colSoc);
 strip.body.appendChild(U.el('div','jc__div'));
 
 var colRec = U.el('div','jc__cols jc__recent');
-colRec.appendChild(U.el('div','jc__empty','nothing yet this session'));
 strip.body.appendChild(colRec);
+
+/* Deze kolom stond leeg tot er tijdens je stream iets gebeurde -- precies
+   het moment waarop het scherm het minst te vertellen heeft. StreamElements'
+   sessie-API weet wel wie je laatste volger en sub zijn, dus die vullen de
+   open plekken. Met hun eigen bijschrift, want dat is 'laatst' en niet 'deze
+   sessie'. Komt er een echt event binnen, dan schuift dat erbovenop en valt
+   de onderste opvulling weg.
+
+   Twee rijen, geen drie: de strook is 241px hoog en drie ribbons van 44px
+   lopen eruit. Twee houdt ook het ritme van de socialskolom ernaast aan. */
+var ROWS = 2;
+var FILL = [
+  { key:'follower-latest',   kind:'follow', text:'latest follower' },
+  { key:'subscriber-latest', kind:'sub',    text:'latest sub' },
+  { key:'cheer-latest',      kind:'cheer',  text:'latest bits' },
+  { key:'tip-latest',        kind:'tip',    text:'latest tip' }
+];
 
 /* ---- data ----------------------------------------------------------- */
 function loadFollowers(){
@@ -61,17 +77,6 @@ function loadFollowers(){
     if(n != null) ribFoll.setValue(U.num(n));
   }).catch(function(){});
 }
-
-(function loadChar(){
-  var list = (CFG.raiderio && CFG.raiderio.characters) || [];
-  if(!list.length || !window.RaiderIO) return;
-  window.RaiderIO.character(list[0]).then(function(c){
-    ribChar.style.display = '';
-    ribChar.setValue(c.name +
-                     (c.ilvl  != null ? '  \u00b7  ilvl ' + Number(c.ilvl).toFixed(1) : '') +
-                     (c.score != null ? '  \u00b7  m+ '  + U.num(c.score) : ''));
-  }).catch(function(){});
-})();
 
 function addMessage(m){
   var row = U.el('div','msg');
@@ -92,15 +97,35 @@ function addMessage(m){
 var camEv = window.CamEvent.mount(U.$('.jc__cam'), { hold:5000 });
 
 var feed = [];
+function paintRecent(){
+  colRec.innerHTML = '';
+  var rows = 0;
+  feed.forEach(function(x){
+    if(rows >= ROWS) return;
+    colRec.appendChild(R.make(x.kind, x.word, x.who + (x.extra ? '  ·  ' + x.extra : '')));
+    rows++;
+  });
+  FILL.forEach(function(f){
+    if(rows >= ROWS) return;
+    var v = window.Labels && window.Labels.get(f.key);
+    if(!v) return;
+    colRec.appendChild(R.make(f.kind, f.text, v));
+    rows++;
+  });
+  if(!rows) colRec.appendChild(U.el('div','jc__empty','nothing yet this session'));
+}
+
 function pushEvent(e){
   camEv.push(e);
   feed.unshift(e);
-  if(feed.length > 3) feed.pop();
-  colRec.innerHTML = '';
-  feed.forEach(function(x){
-    colRec.appendChild(R.make(x.kind, x.word, x.who + (x.extra ? '  ·  ' + x.extra : '')));
-  });
+  if(feed.length > ROWS) feed.pop();
+  paintRecent();
 }
+
+/* De labels komen via de REST-aanroep binnen, meestal binnen een seconde na
+   het laden. Opnieuw tekenen zodra er een bijkomt. */
+if(window.Labels) window.Labels.on(paintRecent);
+paintRecent();
 
 U.poll(loadFollowers, 120);
 window.Chat.start(addMessage);
