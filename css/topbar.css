@@ -16,7 +16,10 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 #stage::before{content:'';position:absolute;bottom:2px;left:0;right:0;height:1px;
   background:var(--holy);opacity:.05;z-index:20}
 
-.top{height:100%;padding:0 24px;display:flex;align-items:center;gap:14px}
+/* boven de achtergrondstrook: die is absoluut gepositioneerd en zou
+   anders over de inhoud vallen */
+.top{position:relative;z-index:1;
+  height:100%;padding:0 24px;display:flex;align-items:center;gap:14px}
 .rail{flex:0 0 auto;display:flex;align-items:center;gap:12px;min-width:0}
 
 /* De titel vult de ruimte tussen de labels en de cijfers. Zonder hem is de

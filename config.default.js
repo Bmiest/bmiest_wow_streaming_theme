@@ -20,6 +20,11 @@ window.OVERLAY_CONFIG = {
   // de gameplay en een bredere databalk eronder.
   //   top 120 + gameplay 1072 + bodem 248 = 1440
   layout: {
+    // Achtergrond achter de balken: 'bands' toont de strook van hetzelfde
+    // doek dat achter de scene-schermen hangt, 'plain' laat het zwart.
+    // Naast gameplay beweegt hij drie keer zo traag als op de scenes.
+    background  : 'bands',
+
     topHeight   : 120,
     gameHeight  : 1072,   // 3440x1440 geschaald naar 2560 breed
     bottomHeight: 248,
@@ -119,6 +124,26 @@ window.OVERLAY_CONFIG = {
     socials: [
       { label: 'discord', value: 'bmiest' },
       { label: 'guild',   value: 'Kelderklasse - EU Draenor' },
+    ],
+  },
+
+  // ---- kanaalgraphics -----------------------------------------------
+  // build-graphics.sh rendert hier PNG's uit, op de maten die Twitch wil:
+  // offline-scherm 1920x1080, profile banner 1200x480, panels 320 breed.
+  // Zelfde tokens en dezelfde ribbons als de overlay, dus je kanaalpagina
+  // en je stream lopen niet uit elkaar.
+  graphics: {
+    tagline: 'Mythic+ and raiding on EU-Draenor',
+
+    // Eén PNG per knop, vernoemd naar het label. De soort bepaalt icoon en
+    // tint; kies er een die bestaat in js/ribbon.js (follow, sub, cheer,
+    // tip, raid, clock, chat, link, cam, sword, live, viewers).
+    panels: [
+      { label: 'discord',   kind: 'link'   },
+      { label: 'guild',     kind: 'sword'  },
+      { label: 'schedule',  kind: 'clock'  },
+      { label: 'about',     kind: 'follow' },
+      { label: 'raider.io', kind: 'raid'   },
     ],
   },
 

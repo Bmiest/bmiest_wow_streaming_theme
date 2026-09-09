@@ -43,8 +43,13 @@ html,body{
 #stage::after{content:'';position:absolute;top:2px;left:0;right:0;height:1px;
   background:var(--holy);opacity:.05;z-index:20}
 
+/* De strook ligt boven de grond (die vult alles behalve het cameragat) en
+   onder de kaarten. Links afgesneden tot voorbij het cameravlak, anders
+   drijven de banen over je webcam -- dezelfde fout die Just Chatting had. */
+.bg--slice{z-index:1;clip-path:inset(0 0 0 384px)}
+
 .banner{
-  position:relative;z-index:1;height:100%;
+  position:relative;z-index:2;height:100%;
   display:grid;grid-template-columns:340px 900px 330px 1fr 342px;
   gap:20px;padding:24px;
 }

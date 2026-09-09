@@ -1,5 +1,11 @@
-/* Achtergrond voor de scene-schermen.
-   Zet scenes.background op 'plain' in config.js om hem uit te zetten.
+/* Achtergrond: één doek van 2560x1440, en drie stroken die er een stuk van
+   tonen. De scene-schermen tekenen het hele doek; de boven- en onderbalk
+   tekenen via de viewBox alleen het stuk dat op hun eigen hoogte valt. Zo
+   loopt dezelfde compositie door achter je gameplay: je ziet hem in de
+   bovenbalk, en onder komt hij terug in de kieren tussen de kaarten.
+
+   Zet scenes.background op 'plain' voor de scene-schermen, of
+   layout.background op 'plain' voor de balken.
 
    Just Chatting heeft er geen: dat vlak ligt over de hele stage en de
    camera is daar een transparant gat, dus de banen zouden dwars over de
@@ -34,11 +40,40 @@ var BANDS = [
   { y:[ 420, 120,  180,  460], h:150 },   // 1 jade, bovenste flank
   { y:[1120,1300, 1240, 1080], h:320 },   // 2 wit, onderste massa
   { y:[ 760,1150, 1150,  700], h: 80 },   // 3 jade, dun, door de open strook
-  { y:[ 180, 520,  380,  120], h:110 }    // 4 wit, dun, kruist baan 1
+  { y:[ 180, 520,  380,  120], h:110 },   // 4 wit, dun, kruist baan 1
+  /* Twee dunne banen die in de balkstroken zelf liggen. Zonder deze bleef
+     de bovenste 120px van het doek bijna leeg, en dan valt er in de
+     bovenbalk niets te zien. Op de scene-schermen lopen ze achter de kop
+     en achter de voetkaarten langs. */
+  { y:[  90,  20,   60,   10], h: 46 },   // 5 jade, door de bovenbalk
+  { y:[1250,1330, 1290, 1360], h: 60 }    // 6 wit, door de onderbalk
 ];
 /* Haarlijn op de bovenrand van baan 3. Beide krijgen in de CSS dezelfde
    animatie, anders schuift de lijn van zijn baan af. */
 var EDGE = 2;
+
+/* De viewBox bepaalt welk stuk van het doek je ziet; de paden zijn overal
+   dezelfde. preserveAspectRatio staat op none, maar strook en viewBox zijn
+   even hoog, dus er wordt niets uitgerekt. */
+function flowSVG(top, height){
+  var svg = '<svg class="bg__flow" viewBox="0 ' + top + ' 2560 ' + height +
+            '" preserveAspectRatio="none">';
+  BANDS.forEach(function(b, i){
+    svg += '<g class="bg__band bg__band--' + (i+1) + '"><path d="' + band(b.y, b.h) + '"/></g>';
+  });
+  return svg + '<path class="bg__edge" d="' + edge(BANDS[EDGE].y) + '"/></svg>';
+}
+
+/* Een strook van het doek, voor de balken. */
+function slice(root, opts){
+  opts = opts || {};
+  if(((U.CFG.layout || {}).background || 'bands') === 'plain') return null;
+  var bg = U.el('div','bg bg--slice');
+  bg.setAttribute('aria-hidden','true');
+  bg.innerHTML = flowSVG(opts.top || 0, opts.height || 1440);
+  root.insertBefore(bg, root.firstChild);
+  return bg;
+}
 
 function mount(root, opts){
   opts = opts || {};
@@ -48,11 +83,7 @@ function mount(root, opts){
   var bg = U.el('div','bg');
   bg.setAttribute('aria-hidden','true');
 
-  var svg = '<svg class="bg__flow" viewBox="0 0 2560 1440" preserveAspectRatio="none">';
-  BANDS.forEach(function(b, i){
-    svg += '<g class="bg__band bg__band--' + (i+1) + '"><path d="' + band(b.y, b.h) + '"/></g>';
-  });
-  svg += '<path class="bg__edge" d="' + edge(BANDS[EDGE].y) + '"/></svg>';
+  var svg = flowSVG(0, 1440);
 
   bg.innerHTML = svg;
 
@@ -79,5 +110,5 @@ function mount(root, opts){
   return bg;
 }
 
-window.Backdrop = { mount:mount };
+window.Backdrop = { mount:mount, slice:slice };
 })();

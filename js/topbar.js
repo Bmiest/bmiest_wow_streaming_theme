@@ -12,6 +12,10 @@ var DEMO = /[?&]demo=1/.test(location.search);
   stage.style.width  = dw + 'px';
   stage.style.height = (L.topHeight || 120) + 'px';
   stage.style.transform = 'scale(' + ((CFG.outputWidth || dw) / dw) + ')';
+
+  /* De bovenste strook van hetzelfde doek dat achter de scene-schermen
+     hangt, dus de compositie loopt door achter je gameplay. */
+  window.Backdrop.slice(stage, { top:0, height:(L.topHeight || 120) });
 })();
 
 var GOAL = (CFG.goals && CFG.goals.followers) || 0;

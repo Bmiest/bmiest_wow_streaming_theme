@@ -37,6 +37,8 @@
 .bg__band--2{color:var(--holy);opacity:.03}
 .bg__band--3{color:var(--jade);opacity:.055}
 .bg__band--4{color:var(--holy);opacity:.025}
+.bg__band--5{color:var(--jade);opacity:.055}
+.bg__band--6{color:var(--holy);opacity:.022}
 
 /* De haarlijn hoort bij baan 3 en staat daarom in dezelfde regel: geven
    ze een eigen animatie, dan schuift de lijn van zijn baan af. */
@@ -45,6 +47,8 @@
 .bg__band--3,
 .bg__edge   {animation:bgFlow3 62s ease-in-out infinite alternate}
 .bg__band--4{animation:bgFlow4 110s ease-in-out infinite alternate}
+.bg__band--5{animation:bgFlow3 84s  ease-in-out infinite alternate}
+.bg__band--6{animation:bgFlow2 132s ease-in-out infinite alternate}
 
 @keyframes bgFlow1{from{transform:translateX(-70px)}to{transform:translateX(70px)}}
 @keyframes bgFlow2{from{transform:translateX(80px)} to{transform:translateX(-80px)}}
@@ -55,6 +59,29 @@
    bovenrand van baan 3 en leest als een horizon. Zonder zo'n lijn wordt een
    veld van vlakken op 2% dekking pap; met meer dan één gaat het strepen. */
 .bg__edge{fill:none;stroke:var(--jade);stroke-opacity:.26;stroke-width:2}
+
+/* ---- strook in een balk ---------------------------------------------
+   Hetzelfde doek, maar naast gameplay. Daar gaat de beweging drie keer zo
+   traag: dezelfde verschuiving over een veelvoud van de tijd, dus per frame
+   verandert er nog minder. Een plat vlak kost de encoder niets; het is de
+   verandering tussen frames die betaalt, en die houden we hier zo klein
+   mogelijk. De haarlijn hangt aan baan 3 en die valt buiten beide stroken,
+   dus die kan weg. */
+.bg--slice{position:absolute;inset:0;z-index:0;overflow:hidden}
+.bg--slice .bg__band--1{animation-duration:222s}
+.bg--slice .bg__band--2{animation-duration:288s}
+.bg--slice .bg__band--3{animation-duration:186s}
+.bg--slice .bg__band--4{animation-duration:330s}
+.bg--slice .bg__band--5{animation-duration:252s}
+.bg--slice .bg__band--6{animation-duration:396s}
+.bg--slice .bg__edge{display:none}
+
+/* In een strook van 120 of 248px hoog valt een baan op 2 procent weg, en
+   dan bewéégt er iets dat je niet ziet: de dure helft zonder de opbrengst.
+   Alleen de banen die daadwerkelijk door een strook lopen gaan omhoog. */
+.bg--slice .bg__band--2{opacity:.05}
+.bg--slice .bg__band--5{opacity:.10}
+.bg--slice .bg__band--6{opacity:.05}
 
 /* ---- stofjes --------------------------------------------------------
    De mist van een Mistweaver. Een handvol, traag, klein. */

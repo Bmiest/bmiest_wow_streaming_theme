@@ -20,6 +20,13 @@ if(DEMO){
   stage.style.width  = dw + 'px';
   stage.style.height = (L.bottomHeight || 248) + 'px';
   stage.style.transform = 'scale(' + ((CFG.outputWidth || dw) / dw) + ')';
+
+  /* De onderste strook van hetzelfde doek. Je ziet hem alleen in de kieren
+     tussen de kaarten en in de marges -- meer ruimte is er hier niet. */
+  window.Backdrop.slice(stage, {
+    top   : (L.topHeight || 120) + (L.gameHeight || 1072),
+    height: (L.bottomHeight || 248)
+  });
 })();
 
 /* De bijschriften van de kaarten dragen hetzelfde icoon als het kopblok

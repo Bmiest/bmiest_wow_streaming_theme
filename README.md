@@ -642,7 +642,26 @@ Animation is allowed here, the halo turns slowly and the clock ticks, because
 these screens have no gameplay competing for bitrate. That is exactly why the
 banner has to do without.
 
-### Background of the scenes
+### Background of the scenes, and of the bars
+
+One canvas of 2560x1440, three slices. The scene screens draw the whole thing;
+the top bar and the bottom bar draw the same bands but show only the part that
+falls at their own height, by offsetting the SVG `viewBox`. So the composition
+runs on behind your gameplay: you see it in the top bar, and it comes back in
+the gutters between the cards below. `Backdrop.slice(root, {top, height})` is
+that slice; `Backdrop.mount(root)` is the whole canvas.
+
+Two things had to give for the bars. Bands 5 and 6 exist because the top 120px
+of the canvas was almost empty, so slicing it gave the top bar nothing to show.
+And next to gameplay the drift runs three times slower, with only the bands
+that actually cross a strip raised in opacity: a band at 2% in a 120px strip is
+motion you cannot see, which is the expensive half without the payoff. Turn the
+bars' backdrop off with `layout.background: 'plain'`; the scene screens have
+their own switch below.
+
+In the bottom bar the slice is clipped to everything right of x=384, so the
+bands never drift across the camera hole. That is the same mistake Just
+Chatting had, and there it was solved by leaving the backdrop off entirely.
 
 No gameplay is fighting for bitrate on the scene screens, so movement is fine
 there. Gradients are not: a soft wash from `#0a0b0d` to something lighter is
@@ -806,11 +825,55 @@ Two things to check, in this order:
 And turn StreamElements' own alert overlay off if you use this one, or every
 follow shows up twice.
 
-## 8. Files
+## 8. Channel graphics
+
+Your channel page is not the stream, but it should not look like someone
+else's. `graphics.html` draws the channel assets with the same `tokens.css` and
+`ribbon.css` as the overlay, and `build-graphics.sh` shoots them to PNG with
+headless Chrome. Same machinery as the stinger, which is also rendered from a
+web page rather than drawn by hand.
+
+```bash
+./serve.sh              # in one terminal
+./build-graphics.sh     # in another
+```
+
+That writes `graphics/`:
+
+| File | Size | Where it goes |
+|---|---|---|
+| `offline.png` | 1920 x 1080 | Creator Dashboard > Settings > Channel > Video Player Banner |
+| `profile-banner.png` | 1200 x 480 | Settings > Channel > Brand > Profile Banner |
+| `panel-*.png` | 320 x 100 | your channel page > About > Edit Panels |
+
+The offline screen is the scene layout at 2560x1440 scaled down to 1920, so it
+is literally the same design as the starting and ending screens, with the
+schedule and socials from `config.js`. It fetches nothing: a PNG with a viewer
+count in it is a lie the moment it is a minute old.
+
+The panel buttons come from `graphics.panels` in the config, as label plus
+kind. The kind picks the icon from `js/ribbon.js`, and the slugged label
+becomes the filename, so adding a button is one line and one rerun. All five
+get the same jade head on purpose: normally the kind picks the tint too, and
+then you have five buttons in five colours that mean nothing. Here the icon
+differentiates and the colour holds them together. Their canvas stays
+transparent, so a button sits on Twitch's own background in either theme.
+
+All motion is frozen in these renders. Without that, where the bands and the
+halo happen to be depends on how much virtual time Chrome had, and no two
+builds would come out the same.
+
+`graphics.tagline` is the line under your name on both banners.
+
+## 9. Files
 
 ```
 index.html       front page: previews, URLs, OBS numbers
 css/index.css    front page
+graphics.html    channel assets: offline screen, banner, panel buttons
+css/graphics.css channel assets
+js/graphics.js   channel assets
+graphics/*.png   the rendered result
 topbar.html      session status above your gameplay  (2560 x 120)
 banner.html      data bar below your gameplay        (2560 x 248)
 alerts.html      alerts over your gameplay           (2560 x 1072)
@@ -848,6 +911,7 @@ js/alerts.js     alert queue
 
 serve.sh         local preview on http://localhost:8777
 build-stinger.sh renders stinger.webm
+build-graphics.sh renders graphics/*.png
 make-obs-collection.py           builds an OBS scene collection
 obs-scene-collection.pages.json  ready-made, points at the hosted site
 ```

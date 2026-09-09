@@ -1,0 +1,43 @@
+/* =====================================================================
+   KANAALGRAPHICS  --  offline-scherm, profile banner, panelknoppen
+
+   Deze pagina wordt naar PNG geschoten, niet bekeken. Twee gevolgen: alle
+   beweging staat stil (een gefroze frame maakt de build reproduceerbaar --
+   anders hangt de stand van de banen en de halo af van hoeveel virtuele
+   tijd Chrome had), en de achtergrond is expliciet, want de panels komen
+   op een transparant doek te staan.
+   ===================================================================== */
+
+html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin:0}
+#stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden}
+
+.g .bg__band,.g .bg__edge,.g .bg__mote,.g .halo-big circle{animation:none}
+
+/* ---- offline-scherm -------------------------------------------------
+   Zelfde indeling als de scene-schermen, dus css/scene.css doet het werk. */
+.g--offline #stage{background:var(--ink-900)}
+.g__note{font-size:21px;line-height:1.5;color:var(--ink-300);max-width:34ch}
+
+/* ---- profile banner ------------------------------------------------- */
+.g--profile #stage{background:var(--ink-900)}
+.g__profile{
+  position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;padding:0 120px;text-align:center;
+}
+.g__profile .rib{--rib-h:40px;--rib-cut:13px;margin-bottom:26px}
+.g__name{
+  font-size:104px;font-weight:600;line-height:1;letter-spacing:-.04em;
+  color:var(--paper);
+}
+.g__tag{
+  margin-top:18px;font-size:27px;font-weight:300;color:var(--paper-dim);
+  letter-spacing:.01em;
+}
+
+/* ---- panelknop ------------------------------------------------------
+   Doek blijft transparant: op de kanaalpagina staat de knop dan los op
+   Twitch' eigen achtergrond, en dat werkt in beide thema's. */
+.g--panel #stage{display:grid;place-items:center;padding:0 10px}
+.g--panel .rib{max-width:300px}
+.g--panel .rib__val{font-weight:600;letter-spacing:-.01em}
