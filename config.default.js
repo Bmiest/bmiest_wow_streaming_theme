@@ -150,6 +150,9 @@ window.OVERLAY_CONFIG = {
       { label: 'schedule',  kind: 'clock'  },
       { label: 'about',     kind: 'follow' },
       { label: 'raider.io', kind: 'raid'   },
+      { label: 'subscribe', kind: 'sub'    },
+      { label: 'tip jar',   kind: 'tip'    },
+      { label: 'setup',     kind: 'cam'    },
     ],
   },
 

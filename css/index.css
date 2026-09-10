@@ -165,6 +165,25 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
 /* de regel onder de previews plakte tegen het laatste bijschrift aan */
 .screens .hero__note{margin-top:30px}
 
+/* ---- kanaalgraphics ------------------------------------------------- */
+/* De twee banners hebben verschillende verhoudingen (16:9 en 2,5:1), dus
+   onderaan uitlijnen: dan vormen de bijschriften één regel. */
+.assets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
+.assets .asset{display:flex;flex-direction:column;justify-content:flex-end}
+.asset{min-width:0;margin:0}
+.asset + .asset{margin-top:26px}
+.asset a{display:block;line-height:0;border:1px solid var(--ink-700);
+  background:var(--ink-900)}
+.asset img{width:100%;height:auto;display:block}
+.asset figcaption{margin-top:12px;font-size:14px;line-height:1.5;
+  color:var(--ink-400);max-width:70ch}
+
+/* De knoppen op hun eigen maat, met een rand eromheen zodat je ziet waar het
+   transparante doek van 320x100 begint. */
+.panels{display:flex;flex-wrap:wrap;gap:14px 18px;margin-bottom:2px}
+.panels a{border:1px solid var(--ink-750);line-height:0}
+.panels img{width:320px;height:100px}
+
 /* ---- feitenlijstjes ------------------------------------------------- */
 .facts{display:grid;grid-template-columns:auto 1fr;gap:12px 22px;
   font-size:15px;align-items:baseline}

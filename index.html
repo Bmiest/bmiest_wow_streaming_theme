@@ -174,6 +174,35 @@
     </p>
   </section>
 
+  <!-- Kanaalgraphics: de PNG's uit graphics/, gerenderd uit graphics.html -->
+  <section class="screens">
+    <h2>Channel graphics</h2>
+    <div class="assets">
+      <figure class="asset">
+        <a href="graphics/offline.png">
+          <img src="graphics/offline.png" alt="Offline screen" loading="lazy">
+        </a>
+        <figcaption>Offline screen — 1920 × 1080, goes in Video Player Banner</figcaption>
+      </figure>
+      <figure class="asset">
+        <a href="graphics/profile-banner.png">
+          <img src="graphics/profile-banner.png" alt="Profile banner" loading="lazy">
+        </a>
+        <figcaption>Profile banner — 1200 × 480</figcaption>
+      </figure>
+    </div>
+
+    <figure class="asset">
+      <div class="panels" id="panelStrip"></div>
+      <figcaption>
+        Panel buttons — 320 px wide, for the About tab. They come from
+        <code>graphics.panels</code> in the config, and
+        <code>./build-graphics.sh</code> writes them all. Same jade head on
+        every one: the icon differentiates, the colour holds them together.
+      </figcaption>
+    </figure>
+  </section>
+
   <section class="cols">
     <div class="rcard-wrap card" style="--acc:var(--paper)">
       <span class="rcard__cap">where the data comes from</span>
@@ -244,6 +273,7 @@
 
 </div>
 
+<script src="config.default.js"></script>
 <script>
 (function(){
   'use strict';
@@ -264,6 +294,21 @@
   }
   fit();
   addEventListener('resize', fit);
+
+  /* De panelknoppen uit de config, zodat deze pagina niet uit de pas kan
+     lopen met wat build-graphics.sh schrijft. Dezelfde slugregel als daar. */
+  (function(){
+    var strip = document.getElementById('panelStrip');
+    var list  = ((window.OVERLAY_CONFIG || {}).graphics || {}).panels || [];
+    if(!strip) return;
+    strip.innerHTML = list.map(function(p){
+      var slug = String(p.label).toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                                .replace(/^-|-$/g, '');
+      var src = 'graphics/panel-' + slug + '.png';
+      return '<a href="' + src + '"><img src="' + src + '" alt="' + p.label +
+             '" width="320" height="100" loading="lazy"></a>';
+    }).join('');
+  })();
 
   /* Kopieren: de volledige URL van de bron, zonder token. */
   function copy(text, btn){
