@@ -732,7 +732,7 @@ covers the whole gameplay zone:
 
 - a **kill** always fires one: `boss down`, the boss name large, the raid and
   difficulty under it, and the numbers of that pull -- pulls to kill, the
-  phase, how long the fight ran and how many people died. Jade, held for 7.6
+  phase, how long the fight ran and how many people died. Jade, held for 8.4
   seconds.
 - a **new best** fires the same shape in gold with the percentage that was
   still standing, held for 5.6 seconds.
@@ -741,12 +741,19 @@ A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
 gameplay.
 
-A kill also gets **fireworks**: three bursts in the upper half, staggered over
-the first one and a half seconds, each a rising streak and then a ring of sparks
-that flies out and falls. Jade, white and gold, sixty dots in total, and all of
-it is over after about three seconds so the rest of the hold is quiet enough to
-read the numbers. A new best gets none, because if a wipe gets fireworks they
-mean nothing on a kill.
+A kill also gets **fireworks**: ten bursts across the upper half, each a rising
+streak and then a ring of sparks that flies out and falls. Jade, white and gold,
+182 sparks in total, the last of them fading at 6.4 seconds. That is why a kill
+holds for 8.4 seconds and a new best for 5.6: fireworks first, then two seconds
+of quiet to read the numbers. A new best gets none, because if a wipe gets
+fireworks they mean nothing on a kill.
+
+The bursts are 420 to 520ms apart and a cloud lives 1.25 to 1.7 seconds, so
+three or four of them hang in the air at once. That is the whole trick. Spaced
+further apart than they live, you see one cloud at a time and it reads as less
+fireworks rather than more, which is exactly what the first six-burst version
+looked like. The gaps are not all equal either, because a metronome reads
+mechanical.
 
 Two nested elements per spark: the outer one flies out radially on an ease-out,
 the inner one falls on an ease-in. One element cannot carry two `transform`
@@ -755,9 +762,17 @@ a straight line, which is the difference between fireworks and an asterisk.
 
 The sizes are in canvas pixels, and that canvas is 2560 wide. The first version
 had 3px dots and a 210px radius, which is invisible next to a 132px boss name;
-they are 9 to 15px across rings of 300 to 420 now. The burst heights are picked
-so the top of each ring stays inside the frame, because a spark clipped on the
-edge reads as a bug and not as framing.
+they are 9 to 15px across rings of 230 to 430 now. The heavy rings sit on the
+flanks and the small ones high in the middle, because the boss name is in the
+middle and ten full rings over that text is a mess. The flanks were the empty
+part of the frame anyway.
+
+Every ring stays inside the frame. Horizontally, x in canvas pixels minus the
+radius has to clear zero; vertically, y minus 0.82 times the radius, because the
+y component of each spark is squashed so the cloud is wider than it is tall.
+Checked on all ten: the tightest margin is 12 pixels. Earlier versions clipped
+the top sparks, and a spark cut off on the edge reads as a bug and not as
+framing.
 
 The wash behind it is flat and 72% opaque, so your gameplay stays faintly
 visible and there is nothing to band. Duration and deaths come from the

@@ -62,16 +62,37 @@ var queue = [], busy = false;
    bossnaam van 132px zag je er niets van. Alles staat nu op de schaal van
    dit vlak. */
 var SHOTS = [
-  { x:17, y:34, d: 260, n:20, r:420, c:'var(--jade)'  },
-  { x:83, y:27, d: 880, n:18, r:340, c:'var(--paper)' },
-  { x:33, y:25, d:1480, n:22, r:300, c:'var(--gold)'  }
+  { x:17.5, y:34, d: 260, n:22, r:430, c:'var(--jade)'  },
+  { x:84,   y:30, d: 690, n:20, r:370, c:'var(--paper)' },
+  { x:30,   y:23, d:1150, n:18, r:280, c:'var(--gold)'  },
+  { x:71,   y:37, d:1560, n:20, r:340, c:'var(--jade)'  },
+  { x:21,   y:20, d:2080, n:16, r:230, c:'var(--paper)' },
+  { x:79,   y:20, d:2500, n:16, r:240, c:'var(--gold)'  },
+  { x:38,   y:31, d:2960, n:18, r:330, c:'var(--jade)'  },
+  { x:62,   y:24, d:3380, n:16, r:270, c:'var(--paper)' },
+  { x:14,   y:27, d:3900, n:18, r:300, c:'var(--gold)'  },
+  { x:87,   y:33, d:4380, n:18, r:310, c:'var(--jade)'  }
 ];
-/* De hoogtes zijn zo gekozen dat de bovenkant van elke ring binnen het doek
-   blijft: y in doekpixels min 0,82 maal de radius moet boven 0 uitkomen. Op
-   34/27/25 procent van 1072 met radius 420/340/300 is dat 20, 10 en 22 pixels
-   over. Eerder stonden ze hoger en werden de bovenste vonken afgesneden, en
-   een afgeknipt stipje op de rand leest als een fout en niet als kadrering.
-   Drie verschillende radii, want drie identieke ringen leest mechanisch. */
+/* Tien inslagen, 182 vonken, de laatste dooft op 6,4 s. Daarom houdt de kill
+   8,4 s aan in plaats van 7,6: eerst vuurwerk, dan nog twee seconden rust om
+   de cijfers te lezen.
+
+   De tussenruimte is 420 tot 520 ms en een wolk leeft 1,25 tot 1,7 s, dus er
+   hangen er drie tot vier tegelijk in de lucht. Dat is de hele truc: met een
+   tussenruimte groter dan de levensduur zie je één wolk per keer en dat leest
+   als minder vuurwerk, niet als meer. De afstanden zijn niet allemaal gelijk,
+   want metronoom leest mechanisch.
+
+   De zwaartepunten liggen op de flanken en de kleine ringen hoog in het
+   midden. Daar staat de bossnaam, en tien volle ringen over die tekst wordt
+   een rommeltje -- de flanken waren toch het lege deel van het vlak.
+
+   Elke ring blijft binnen het doek. Horizontaal moet x in doekpixels min de
+   radius boven nul komen, verticaal y min 0,82 maal de radius (de y-component
+   is ingedrukt). Nagerekend op alle tien: de krapste marge is 12 pixels.
+   Eerder werden de bovenste vonken afgesneden, en een afgeknipt stipje op de
+   rand leest als een fout en niet als kadrering. Tien verschillende radii,
+   want identieke ringen lezen mechanisch. */
 function fireworks(){
   var fw = U.el('div','fw');
   SHOTS.forEach(function(s){
@@ -95,7 +116,7 @@ function fireworks(){
         '--ty:'   + Math.round(Math.sin(a) * rr * 0.82) + 'px;' +
         '--drop:' + (170 + (i % 3) * 62)                + 'px;' +
         '--sz:'   + (i % 4 === 0 ? 15 : 9)              + 'px;' +
-        '--life:' + (1050 + (i % 5) * 90)               + 'ms;' +
+        '--life:' + (1250 + (i % 5) * 110)              + 'ms;' +
         '--sd:'   + (s.d + 330)                         + 'ms';
       sp.appendChild(document.createElement('b'));
       burst.appendChild(sp);
@@ -217,7 +238,8 @@ window.SE.start(push);
       where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
               L.summary].filter(Boolean).join('  \u00b7  '),
       stats: stats,
-      hold : kill ? 7600 : 5600
+      /* Langer dan een nieuwe beste, want hier loopt vuurwerk tot 5,6 s. */
+      hold : kill ? 8400 : 5600
     });
   }
 
@@ -249,7 +271,7 @@ if(TEST){
     {kind:'progress', kill:true, boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
      stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
-     hold:7600}
+     hold:8400}
   ];
   var pick = {
     kill: function(e){ return e.kind === 'progress' &&  e.kill; },
