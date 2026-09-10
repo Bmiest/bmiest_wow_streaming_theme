@@ -68,10 +68,13 @@
 .rib--num .rib__val{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
   font-weight:500}
 
-/* maatvarianten */
+/* Twee maatvarianten, elk met één aanroeper: rib--sm op de voorpagina en
+   rib--lg op de panelknoppen. Verder wordt een ribbon op maat gezet door de
+   ouder, met --rib-h en --rib-cut op een eigen selector -- dat gebeurt op
+   twaalf plekken en is het echte idioom hier. Er stond ook een rib--xl, maar
+   die had nergens een aanroeper. */
 .rib--sm{--rib-h:34px;--rib-cut:11px}
 .rib--lg{--rib-h:58px;--rib-cut:18px}
-.rib--xl{--rib-h:72px;--rib-cut:22px}
 
 /* ---- kaart met schuine hoek ----------------------------------------
    Zelfde taal, maar dan als vlak: rechtsonder afgesneden.

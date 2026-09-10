@@ -807,9 +807,6 @@ or failed one puts that page a tick behind until the next boundary.
 `banner.html?demo=1` plays a short evening: the standing score, then an
 ordinary wipe, then a new best, then the kill, so all three ribbons come past.
 
-The manual `progressNote` stays as a fallback for when you would rather type it
-yourself.
-
 ### Sound
 
 The raid alert makes a noise: two short notes a fifth apart for a new best,

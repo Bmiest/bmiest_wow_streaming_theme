@@ -29,8 +29,8 @@ var GLYPH = {
 };
 
 /* maakt <div class="rib"><span cap><div bar><div in><acc><val> */
-function make(kind, caption, value, size){
-  var el = U.el('div', 'rib' + (size ? ' rib--' + size : ''));
+function make(kind, caption, value){
+  var el = U.el('div', 'rib');
   el.style.setProperty('--acc', TINT[kind] || TINT.neutral);
   el.innerHTML =
     (caption ? '<span class="rib__cap">' + U.esc(caption) + '</span>' : '') +

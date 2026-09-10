@@ -9,7 +9,6 @@ var U = window.U;
 function mount(host, opts){
   opts = opts || {};
   var HOLD  = opts.hold || 4600;
-  var size  = opts.size || null;
 
   var box = U.el('div','camev');
   host.appendChild(box);
@@ -19,7 +18,7 @@ function mount(host, opts){
   function render(e){
     box.innerHTML = '';
     box.appendChild(window.Ribbon.make(e.kind, e.word, e.who +
-      (e.extra ? '  ·  ' + e.extra : ''), size));
+      (e.extra ? '  ·  ' + e.extra : '')));
     void box.offsetWidth;
     box.classList.add('on');
     host.classList.add('busy');

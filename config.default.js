@@ -193,10 +193,4 @@ window.OVERLAY_CONFIG = {
     hideCommands: true,
     ignore      : ['nightbot','streamelements','moobot','sery_bot'],
   },
-
-  // ---- handmatige progress-regel -----------------------------------
-  // Raider.IO's publieke API geeft wel boss-kills, maar niet het
-  // "43.89% best / 7 pulls" cijfer -- dat komt bij hen uit Warcraft
-  // Logs. Wil je dat tonen, typ het hier; leeg = regel verdwijnt.
-  progressNote: { boss: '', best: '', pulls: '' },
 };
