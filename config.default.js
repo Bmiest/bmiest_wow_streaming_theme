@@ -81,6 +81,12 @@ window.OVERLAY_CONFIG = {
       //   'off'  = geen
       alerts     : 'both',
 
+      // Volume van het belletje bij die melding, 0 is stil. Het geluid komt
+      // uit de Web Audio API (js/chime.js), dus er is geen bestand bij.
+      // Zet in OBS op de alerts-bron 'Control audio via OBS' aan, anders
+      // hoort alleen jij het niet en je kijkers wel -- of omgekeerd.
+      soundVolume: 0.6,
+
       raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'
 
       // latest | normal | heroic | mythic. 'latest' betekent bij Raider.IO

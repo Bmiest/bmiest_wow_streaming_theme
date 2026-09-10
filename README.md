@@ -654,7 +654,12 @@ pull the alert is about.
 `liveTracking.alerts` decides what fires: `both` (default), `kill` for kills
 only, or `off`. The alerts page keeps its own state and polls the same
 endpoints as the bottom bar, so the two never have to agree on anything.
-`alerts.html?test=1` ends its cycle with both of them.
+
+To look at them: `alerts.html?test=kill` shows the kill one on repeat and
+`?test=best` the other, instead of waiting out the full cycle of
+`?test=1`, where the two raid alerts come last. `?mute=1` silences the sound
+for a look without a noise, which is what the previews on the front page use
+-- a page that starts beeping when you open it is not a business card.
 
 The detection itself sits in `RioLive.watcher()`, not in either page: both
 want to know what changed since the last poll, each with their own state.
@@ -665,7 +670,19 @@ with a new best, then the kill.
 The manual `progressNote` stays as a fallback for when you would rather type it
 yourself.
 
-What stays out: sound on the alerts.
+### Sound
+
+The raid alert makes a noise: two short notes a fifth apart for a new best,
+and a triad with a low root under it for a kill. It comes out of the Web Audio
+API in `js/chime.js`, not from a file, so there is nothing to host, nothing
+that can 404 and nothing to download with a release -- and you retune it by
+changing a number instead of editing audio.
+
+`liveTracking.soundVolume` sets the level; `0` turns it off. In OBS, tick
+**Control audio via OBS** on the alerts source, otherwise the sound never
+reaches your mix and your viewers hear nothing.
+
+The StreamElements alerts stay silent, as before.
 
 ## 7. Scenes, Just Chatting and the transition
 

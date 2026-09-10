@@ -4,7 +4,10 @@
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG, R = window.Ribbon;
-var TEST = /[?&]test=1/.test(location.search);
+/* ?test=1 loopt alles af, ?test=kill of ?test=best pakt er één. Anders moet
+   je dertig seconden wachten tot de cyclus bij de melding is die je wil
+   zien -- die twee staan achteraan. */
+var TEST = (location.search.match(/[?&]test=([a-z0-9]+)/) || [])[1];
 
 (function(){
   var stage = document.getElementById('stage');
@@ -20,6 +23,17 @@ var LABEL = {
 };
 
 var HOLD  = 5200;
+
+/* Volume van de raidmelding, 0 zet het geluid uit. Welke gebeurtenissen een
+   melding geven regelt liveTracking.alerts. */
+var SOUND = (function(){
+  /* ?mute=1 zet het geluid uit zonder de config aan te raken. De previews op
+     de voorpagina staan daarop: een pagina die uit zichzelf begint te piepen
+     zodra je hem opent is geen visitekaartje. */
+  if(/[?&]mute=1/.test(location.search)) return 0;
+  var LT = (CFG.raiderio && CFG.raiderio.liveTracking) || {};
+  return LT.soundVolume == null ? 0.6 : LT.soundVolume;
+})();
 var box   = document.getElementById('alertHost');
 var rbox  = document.getElementById('raidHost');
 var queue = [], busy = false;
@@ -32,6 +46,10 @@ var queue = [], busy = false;
 function renderRaid(e){
   var node = U.el('div','alert alert--raid' + (e.kill ? ' alert--kill' : ''));
   node.style.setProperty('--acc', e.kill ? 'var(--jade)' : 'var(--gold)');
+
+  /* Het geluid hangt aan de weergave en niet aan de detectie: zo klinkt het
+     gelijk met wat je ziet, en doet het testpad het ook. */
+  if(window.Chime) window.Chime.play(e.kill ? 'kill' : 'best', SOUND);
 
   var mid = U.el('div','raid__mid');
   mid.appendChild(U.el('div','raid__eyebrow', e.kill ? 'boss down' : 'new best'));
@@ -165,10 +183,22 @@ if(TEST){
      stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
      hold:7600}
   ];
+  var pick = {
+    kill: function(e){ return e.kind === 'progress' &&  e.kill; },
+    best: function(e){ return e.kind === 'progress' && !e.kill; }
+  }[TEST];
+  if(pick){
+    var one = demo.filter(pick);
+    if(one.length) demo = one;
+  }
+
+  /* Wachten tot de vorige weg is plus een adempauze; met een vaste 6,4 s
+     loopt de wachtrij vol bij een melding die 7,6 s blijft staan. */
   var i = 0;
   (function loop(){
-    push(demo[i++ % demo.length]);
-    setTimeout(loop, 6400);
+    var e = demo[i++ % demo.length];
+    push(e);
+    setTimeout(loop, (e.hold || HOLD) + 1400);
   })();
 }
 })();

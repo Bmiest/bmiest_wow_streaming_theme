@@ -166,6 +166,21 @@
         </div>
         <figcaption>Just Chatting — camera left, chat right</figcaption>
       </figure>
+
+      <!-- De alertlaag is 1072 hoog en transparant, en staat op mute: een
+           pagina die uit zichzelf begint te piepen is geen visitekaartje. -->
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1072">
+          <iframe src="alerts.html?test=1&amp;mute=1" title="Alerts" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Alerts — follower, sub, bits, raid and tip, then the two raid ones</figcaption>
+      </figure>
+      <figure class="shot">
+        <div class="shot__box" data-w="2560" data-h="1072">
+          <iframe src="alerts.html?test=kill&amp;mute=1" title="Boss kill alert" scrolling="no" loading="lazy"></iframe>
+        </div>
+        <figcaption>Boss down — the full-screen one, over your gameplay. <code>?test=best</code> shows the new-best version</figcaption>
+      </figure>
     </div>
     <p class="hero__note">
       These previews are the real pages in an iframe, scaled down, so they show
@@ -230,6 +245,8 @@
           <dt><code>?jwt=eyJ…</code></dt><dd>your StreamElements token</dd>
           <dt><code>?demo=1</code></dt><dd>fake data, to line things up without streaming</dd>
           <dt><code>?test=1</code></dt><dd>on alerts.html: cycles through every type</dd>
+          <dt><code>?test=kill</code></dt><dd>just the boss-down alert, on repeat; <code>best</code> for the other one</dd>
+          <dt><code>?mute=1</code></dt><dd>on alerts.html: no sound, which is what the previews above use</dd>
           <dt><code>?health=1</code></dt><dd>reports what is not responding, top right</dd>
           <dt><code>?rio=native</code></dt><dd>raid card in the house style; <code>widget</code> or <code>off</code> also work</dd>
           <dt><code>?channel=…</code></dt><dd>a different channel than the one in the config</dd>
@@ -290,6 +307,9 @@
     if(hero) hero.style.setProperty('--s', (hero.clientWidth / 2560).toFixed(5));
     Array.prototype.forEach.call(document.querySelectorAll('.shot__box'), function(b){
       b.style.setProperty('--s', (b.clientWidth / +b.dataset.w).toFixed(5));
+      /* De alertlaag is 1072 hoog en de scenes 1440, dus de hoogte komt uit
+         het element in plaats van uit een vast getal in de CSS. */
+      b.style.setProperty('--h', b.dataset.h || 1440);
     });
   }
   fit();
