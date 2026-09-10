@@ -105,8 +105,59 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
   letter-spacing:.18em;text-transform:uppercase;
 }
 
+/* ---- vuurwerk bij een kill ------------------------------------------
+   Alleen hier. Een nieuwe beste poging krijgt het niet: als een wipe
+   vuurwerk krijgt, zegt het bij een kill niets meer. Alles is voorbij na
+   ongeveer drie seconden, dus de rest van de zeven en een halve seconde kan
+   je rustig de cijfers lezen.
+
+   Ronde stipjes en geen verlopen: een gevulde cirkel van 3px is een plat
+   vlak, en zestig van die dingen die twee seconden bewegen is minder werk
+   voor de encoder dan één was die van kleur verschiet. */
+.fw{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fw__b{position:absolute;width:0;height:0}
+
+/* Het opstijgende stipje. Zonder dit komt de ring uit niets tevoorschijn en
+   leest hij als een sterretje in plaats van als vuurwerk. */
+.fw__t{
+  position:absolute;width:5px;height:34px;margin:-17px 0 0 -2px;border-radius:3px;
+  background:var(--c);
+  animation:fwRise 380ms cubic-bezier(.3,.6,.4,1) var(--d) both;
+}
+@keyframes fwRise{
+  0%  {transform:translateY(var(--rise));opacity:0}
+  22% {opacity:.95}
+  100%{transform:translateY(0);opacity:0}
+}
+
+/* Buitenste element: radiaal naar buiten, ease-out, dus snel weg en dan
+   uitdempen. */
+.fw__s{
+  position:absolute;
+  animation:fwFly var(--life) cubic-bezier(.12,.72,.26,1) var(--sd) both;
+}
+@keyframes fwFly{
+  0%  {transform:translate(0,0);opacity:0}
+  7%  {opacity:1}
+  62% {opacity:1}
+  100%{transform:translate(var(--tx),var(--ty));opacity:0}
+}
+
+/* Binnenste element: valt, ease-in, dus versnellend. Samen met de buitenste
+   geeft dat de parabool. */
+.fw__s b{
+  display:block;width:var(--sz);height:var(--sz);
+  margin:calc(var(--sz) / -2) 0 0 calc(var(--sz) / -2);
+  border-radius:50%;background:var(--c);
+  animation:fwFall var(--life) cubic-bezier(.45,0,.85,.55) var(--sd) both;
+}
+@keyframes fwFall{from{transform:translateY(0)}to{transform:translateY(var(--drop))}}
+
 @media (prefers-reduced-motion:reduce){
   .alert,.alert.in,.alert.out{animation:none;opacity:1;transform:none}
   .alert.in .rib__acc{animation:none}
   .alert--raid,.alert--raid.in,.alert--raid.out,.raid__mid{animation:none;opacity:1}
+  /* Vuurwerk is puur beweging. Stilstaand is het zestig stippen over je
+     gameplay, dus dan liever niets. */
+  .fw{display:none}
 }

@@ -43,6 +43,68 @@ var queue = [], busy = false;
    groot mono getal met een klein label. De was erachter is vlak en half
    doorzichtig -- je gameplay blijft er vaag door zichtbaar, en een egaal
    vlak kost de encoder minder dan een verloop. */
+/* Vuurwerk, alleen bij een kill. Drie inslagen in de bovenste helft van het
+   vlak, elk een stipje dat opstijgt en daarna een ring vonken die naar
+   buiten vliegt en valt.
+
+   Twee geneste elementen per vonk: de buitenste vliegt radiaal weg met een
+   ease-out, de binnenste valt met een ease-in. Twee transform-animaties op
+   één element gaat niet, en geneste transforms vermenigvuldigen -- dus krijg
+   je zo een parabool in plaats van een rechte lijn, en dat is het verschil
+   tussen vuurwerk en een asterisk.
+
+   Deterministisch, net als de stofjes op de scene-schermen: elke kill ziet
+   er hetzelfde uit. Een boss down is één keer per avond, dus dit hoeft niet
+   te variëren -- en beweging die je kan nagaan is makkelijker bij te stellen
+   dan beweging die elke keer anders is. */
+/* Maten in doekpixels, en dat doek is 2560 breed. Eerste versie stond op
+   stipjes van 3px en een radius van 210: op zich netjes, maar naast een
+   bossnaam van 132px zag je er niets van. Alles staat nu op de schaal van
+   dit vlak. */
+var SHOTS = [
+  { x:17, y:34, d: 260, n:20, r:420, c:'var(--jade)'  },
+  { x:83, y:27, d: 880, n:18, r:340, c:'var(--paper)' },
+  { x:33, y:25, d:1480, n:22, r:300, c:'var(--gold)'  }
+];
+/* De hoogtes zijn zo gekozen dat de bovenkant van elke ring binnen het doek
+   blijft: y in doekpixels min 0,82 maal de radius moet boven 0 uitkomen. Op
+   34/27/25 procent van 1072 met radius 420/340/300 is dat 20, 10 en 22 pixels
+   over. Eerder stonden ze hoger en werden de bovenste vonken afgesneden, en
+   een afgeknipt stipje op de rand leest als een fout en niet als kadrering.
+   Drie verschillende radii, want drie identieke ringen leest mechanisch. */
+function fireworks(){
+  var fw = U.el('div','fw');
+  SHOTS.forEach(function(s){
+    var burst = U.el('div','fw__b');
+    burst.style.cssText = 'left:' + s.x + '%;top:' + s.y + '%;--c:' + s.c;
+
+    var trail = U.el('i','fw__t');
+    trail.style.cssText = '--rise:430px;--d:' + s.d + 'ms';
+    burst.appendChild(trail);
+
+    for(var i = 0; i < s.n; i++){
+      var a  = (i / s.n) * Math.PI * 2;
+      /* Elke tweede vonk korter, anders is de ring een perfecte cirkel en
+         dat leest als een tandwiel. De y-component is ingedrukt, zodat de
+         wolk breder is dan hoog -- zo kijk je er tegenaan in plaats van
+         recht in. */
+      var rr = s.r * (i % 2 ? 0.72 : 1);
+      var sp = U.el('i','fw__s');
+      sp.style.cssText =
+        '--tx:'   + Math.round(Math.cos(a) * rr)        + 'px;' +
+        '--ty:'   + Math.round(Math.sin(a) * rr * 0.82) + 'px;' +
+        '--drop:' + (170 + (i % 3) * 62)                + 'px;' +
+        '--sz:'   + (i % 4 === 0 ? 15 : 9)              + 'px;' +
+        '--life:' + (1050 + (i % 5) * 90)               + 'ms;' +
+        '--sd:'   + (s.d + 330)                         + 'ms';
+      sp.appendChild(document.createElement('b'));
+      burst.appendChild(sp);
+    }
+    fw.appendChild(burst);
+  });
+  return fw;
+}
+
 function renderRaid(e){
   var node = U.el('div','alert alert--raid' + (e.kill ? ' alert--kill' : ''));
   node.style.setProperty('--acc', e.kill ? 'var(--jade)' : 'var(--gold)');
@@ -50,6 +112,10 @@ function renderRaid(e){
   /* Het geluid hangt aan de weergave en niet aan de detectie: zo klinkt het
      gelijk met wat je ziet, en doet het testpad het ook. */
   if(window.Chime) window.Chime.play(e.kill ? 'kill' : 'best', SOUND);
+
+  /* Achter de tekst, dus vóór mid in de DOM. Een nieuwe beste krijgt niets:
+     dan betekent het bij een kill niets meer. */
+  if(e.kill) node.appendChild(fireworks());
 
   var mid = U.el('div','raid__mid');
   mid.appendChild(U.el('div','raid__eyebrow', e.kill ? 'boss down' : 'new best'));

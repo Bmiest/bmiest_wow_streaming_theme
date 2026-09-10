@@ -741,6 +741,24 @@ A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
 gameplay.
 
+A kill also gets **fireworks**: three bursts in the upper half, staggered over
+the first one and a half seconds, each a rising streak and then a ring of sparks
+that flies out and falls. Jade, white and gold, sixty dots in total, and all of
+it is over after about three seconds so the rest of the hold is quiet enough to
+read the numbers. A new best gets none, because if a wipe gets fireworks they
+mean nothing on a kill.
+
+Two nested elements per spark: the outer one flies out radially on an ease-out,
+the inner one falls on an ease-in. One element cannot carry two `transform`
+animations and nested transforms multiply, so that gives a parabola instead of
+a straight line, which is the difference between fireworks and an asterisk.
+
+The sizes are in canvas pixels, and that canvas is 2560 wide. The first version
+had 3px dots and a 210px radius, which is invisible next to a 132px boss name;
+they are 9 to 15px across rings of 300 to 420 now. The burst heights are picked
+so the top of each ring stays inside the frame, because a spark clipped on the
+edge reads as a bug and not as framing.
+
 The wash behind it is flat and 72% opaque, so your gameplay stays faintly
 visible and there is nothing to band. Duration and deaths come from the
 `bosspulls` endpoint, which carries them per pull; `RioLive.pullOf()` picks the
