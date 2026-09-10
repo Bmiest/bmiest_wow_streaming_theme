@@ -417,18 +417,34 @@ area is a few mono digits, so it costs the encoder nothing worth mentioning.
 
 ### Gameplay behind the preview
 
-The front page shows the overlay over a hatched placeholder, because a repo
-cannot ship your gameplay. Drop a short clip at `media/gameplay.webm` (or
-`.mp4`) and the hero plays it behind the bars instead, muted and looping. No
-file, no problem: a `<video>` with no loadable source and no poster is simply
-transparent, so the hatch stays and nothing has to check whether the file
-exists.
+The hero plays `media/gameplay.mp4` behind the bars, muted and looping: the
+Nymrissa Wavecaller kill from 9 September, twelve seconds of fight, kill and
+loot. Remove the file and nothing breaks -- a `<video>` with no loadable source
+and no poster is simply transparent, so the hatched placeholder shows through
+and nothing has to check whether the file exists.
 
-Two things about that clip. Use **raw gameplay in 21:9** -- the zone is
-2560x1072, which is the same 2.39:1 as your 3440x1440 capture, so it fits
-without cropping. Do not use a Twitch clip of your own stream: those already
-have the bars burned in, and you would get overlay over overlay. And keep it
-short and small; every visitor downloads it.
+Four things went into that clip, if you ever swap it:
+
+- **Raw gameplay in 21:9.** The zone is 2560x1072, the same 2.39:1 as a
+  3440x1440 capture, so it scales without cropping. Never use a Twitch clip of
+  your own stream: those have the bars burned in and you get overlay over
+  overlay.
+- **1600x670 at 24 fps**, not the full size. The zone is at most ~1600 CSS
+  pixels wide on this page, and this is a background behind an overlay, not
+  footage anyone studies. That is the difference between 12 MB and 2 MB.
+- **One mp4, no webm.** At a size where the file is small enough to ship, VP9
+  did not beat x264 here (3.8 MB against 2.0 MB), and the browser takes the
+  first source it can play. So one h264 file, which every browser handles, and
+  no second request that 404s.
+- **A 0.3 s fade at both ends**, so the loop point reads as a cut on purpose
+  rather than a glitch.
+
+```bash
+ffmpeg -i raw.mp4 -an \
+  -vf "scale=1600:670:flags=lanczos,fps=24,fade=t=in:st=0:d=0.3,fade=t=out:st=11.7:d=0.3" \
+  -c:v libx264 -crf 32 -preset slow -pix_fmt yuv420p -movflags +faststart \
+  media/gameplay.mp4
+```
 
 ### Moderation
 
