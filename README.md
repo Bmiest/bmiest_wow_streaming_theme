@@ -685,6 +685,18 @@ for a look without a noise, which is what the previews on the front page use
 The detection itself sits in `RioLive.watcher()`, not in either page: both
 want to know what changed since the last poll, each with their own state.
 
+**The two pages tick together.** StreamElements events need no help there: a
+follow is *pushed* over the socket, so the alert, the row in 'recent' and the
+bar over your camera all fire on the same instant. Raid progress is *polled*,
+and `U.poll` deliberately adds jitter so three pollers in one bar do not fire
+on the same second. For these two pages that jitter was wrong: the bottom bar
+and the alerts page look at the same endpoint, and with random offsets the
+full-screen alert could land up to half a minute after the ribbon in the card.
+They now use `U.pollAligned()`, which recomputes every tick from the wall
+clock, so whenever either page was loaded, both land on the same 30-second
+grid from the first boundary on. Each still makes its own request, so a slow
+or failed one puts that page a tick behind until the next boundary.
+
 `banner.html?demo=1` plays a short evening: the standing score, then a pull
 with a new best, then the kill.
 

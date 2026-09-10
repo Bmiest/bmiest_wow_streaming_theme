@@ -447,7 +447,9 @@ if(LMODE === 'widget' && !DEMO){
   mountWidget();
 } else if(LMODE === 'native' && !DEMO){
   U.$('#bossNative').style.display = '';
-  U.poll(loadLive, LT.pollSeconds || 30);
+  /* Op de gedeelde klok, zodat deze kaart en de melding over je beeld
+     dezelfde pull op hetzelfde moment zien. */
+  U.pollAligned(loadLive, LT.pollSeconds || 30);
 }
 
 window.Chat.start(addMessage, function(what){ window.Chat.prune(chatBox, what); });

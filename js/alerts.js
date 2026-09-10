@@ -155,7 +155,9 @@ window.SE.start(push);
     });
   }
 
-  U.poll(function(){
+  /* Zelfde gedeelde klok als de onderbalk: anders vuurt deze melding tot een
+     halve minuut na het ribbonnetje in de raidkaart. */
+  U.pollAligned(function(){
     return window.RioLive.load().then(function(L){
       if(!L) return;
       var ev = watch(L);

@@ -116,6 +116,25 @@ function poll(fn,seconds){
   setInterval(run, seconds*1000 + Math.random()*2000);
 }
 
+/* Zelfde interval als poll(), maar op een gedeelde klok in plaats van met
+   jitter. Twee pagina's die hetzelfde endpoint bekijken -- de onderbalk en de
+   alerts, beide op raidprogress -- moeten hun verandering op hetzelfde moment
+   zien. Met jitter kijken ze op willekeurige momenten en komt de melding over
+   je beeld tot een halve minuut na het ribbonnetje in de kaart.
+
+   Elke tik wordt opnieuw uit de wandklok berekend, dus er is geen drift: waar
+   de pagina ook geladen is, na de eerste grens vallen ze samen. De eerste
+   aanroep is meteen, want een verse bron moet niet dertig seconden leeg
+   staan. */
+function pollAligned(fn, seconds){
+  var ms = Math.max(1, seconds) * 1000;
+  var run = function(){
+    Promise.resolve().then(fn).catch(function(e){ console.warn('[poll]', e.message); });
+    setTimeout(run, ms - (Date.now() % ms));
+  };
+  run();
+}
+
 /* Statusregeltje rechtsboven. Dit is een diagnosehulpje, geen onderdeel van
    je stream -- een rode "offline" in beeld is erger dan het probleem dat hij
    meldt. Daarom alleen zichtbaar met ?health=1 in de URL. */
@@ -144,6 +163,7 @@ function setHealth(key, ok, note){
 window.U = {
   CFG:CFG, CLASS_COLORS:CLASS_COLORS,
   $:$, el:el, esc:esc, num:num, countTo:countTo, slug:slug,
-  getJSON:getJSON, getText:getText, poll:poll, setHealth:setHealth
+  getJSON:getJSON, getText:getText, poll:poll, pollAligned:pollAligned,
+  setHealth:setHealth
 };
 })();
