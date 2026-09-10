@@ -234,9 +234,14 @@ body.demo .cam__hint{display:grid}
 .boss__v.hit{animation:bossHit 620ms var(--ease)}
 @keyframes bossHit{0%{filter:brightness(2.3)}100%{filter:none}}
 
-/* Melding bij een nieuwe beste pull of een kill: schuift over de kaart
-   omhoog, houdt vijf seconden aan en zakt weer weg. Boven de kaart uitkomen
-   kan niet, de bron is 248px hoog. */
+/* Melding bij een poging erbij, een nieuwe beste of een kill: schuift over de
+   kaart omhoog, houdt een paar seconden aan en zakt weer weg. Boven de kaart
+   uitkomen kan niet, de bron is 248px hoog.
+
+   Een gewone poging krijgt dezelfde vorm met een gedempte kop en een kortere
+   standtijd (js/banner.js zet --acc en de timer). Alleen een nieuwe beste en
+   een kill komen ook over je gameplay; een wipe elke twee minuten hoort niet
+   over het beeld. */
 .boss__flash{
   position:absolute;left:14px;right:14px;bottom:14px;z-index:3;
   transform:translateY(170%);opacity:0;

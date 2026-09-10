@@ -248,15 +248,29 @@ var bossDiff = window.RioLive ? window.RioLive.watcher()
    onderbalk is 248px hoog en OBS knipt de bron daar af. Wil je een echte
    alert over je gameplay, dan hoort die in alerts.html. */
 var flashTimer = null;
-function bossFlash(capText, val){
+function bossFlash(capText, val, minor){
   var host = U.$('#bossFlash');
   if(!host) return;
   host.innerHTML = '';
   var r = window.Ribbon.make('raid', capText, val);
+  /* Een poging erbij is klein nieuws: zelfde vorm, maar een gedempte kop en
+     korter in beeld. Kreeg een wipe dezelfde jade balk als een kill, dan zegt
+     die kleur niets meer. */
+  if(minor) r.style.setProperty('--acc', 'var(--ink-300)');
   host.appendChild(r);
   host.classList.remove('on'); void host.offsetWidth; host.classList.add('on');
   clearTimeout(flashTimer);
-  flashTimer = setTimeout(function(){ host.classList.remove('on'); }, 5200);
+  flashTimer = setTimeout(function(){ host.classList.remove('on'); },
+                          minor ? 3200 : 5200);
+}
+
+/* De poging die er net bij kwam. Bij een kill en een nieuwe beste hangt de
+   melding aan een ander getal, dus dit is alleen voor 'last try'. Het
+   percentage is boss-HP dat nog overstond, net als bij 'new best'. */
+function lastTry(L){
+  var all = L.pulls || [], p = all[all.length - 1];
+  if(!p) return U.num(L.pullCount || 0) + ' pulls';
+  return p.pct.toFixed(2) + '%' + (p.phase ? '  \u00b7  ' + p.phase : '');
 }
 
 function paintBoss(L){
@@ -299,8 +313,14 @@ function paintBoss(L){
   if(ev.fresh){
     big.classList.remove('hit'); void big.offsetWidth; big.classList.add('hit');
   }
-  if(ev.better)    bossFlash('new best', L.bestPct.toFixed(2) + '%');
-  else if(ev.down) bossFlash('boss down', U.num(L.pullCount || 0) + ' pulls');
+  /* Kill eerst, dan een nieuwe beste, dan een gewone poging. Dezelfde
+     rangorde als in js/alerts.js: landen er twee pulls in één venster -- een
+     goede wipe en daarna de kill -- dan noemen de kaart en de melding over je
+     beeld hetzelfde. Stond 'better' hier eerst, dan zei de kaart "new best"
+     terwijl er "BOSS DOWN" over je gameplay lag. */
+  if(ev.down)        bossFlash('boss down', U.num(L.pullCount || 0) + ' pulls');
+  else if(ev.better) bossFlash('new best', L.bestPct.toFixed(2) + '%');
+  else if(ev.fresh)  bossFlash('last try', lastTry(L), true);
 
   var sp = U.$('#bossSpark');
   sp.innerHTML = '';
@@ -409,10 +429,13 @@ function demo(){
   U.$('#rioWidget').style.display = 'none';
   U.$('#bossNative').style.display = '';
 
-  /* De demo speelt een avondje na, zodat je de animaties ziet: eerst de
-     stand, dan een pull met een nieuwe beste poging, dan de kill. */
-  var PULLS = [{pct:52.45},{pct:47.19},{pct:54.02},{pct:65.01},
-               {pct:43.89},{pct:44.87},{pct:52.08},{pct:0,kill:true}];
+  /* De demo speelt een avondje na, zodat je alle drie de meldingen ziet:
+     eerst de stand, dan een gewone wipe ('last try'), dan een nieuwe beste,
+     dan de kill. De pulls staan op oplopende kwaliteit zodat het beste
+     staafje in de sparkline hetzelfde percentage aanwijst als het grote
+     getal -- anders licht er een ander staafje op dan de kaart noemt. */
+  var PULLS = [{pct:65.01},{pct:54.02},{pct:52.45},{pct:47.19},
+               {pct:52.08},{pct:43.89},{pct:44.87},{pct:0,kill:true}];
   function stand(n, best, dead){
     paintBoss({
       raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
@@ -421,9 +444,13 @@ function demo(){
       pulls:PULLS.slice(0, n)
     });
   }
-  stand(6, 47.19, false);
-  setTimeout(function(){ stand(7, 43.89, false); }, 2600);
-  setTimeout(function(){ stand(8, 43.89, true);  }, 5600);
+  /* De eerste stand zet alleen de beginwaarde: de watcher meldt op zijn
+     eerste aanroep niets, anders kondigt de overlay bij het opstarten van
+     OBS een pull van een uur geleden aan. */
+  stand(4, 47.19, false);
+  setTimeout(function(){ stand(5, 47.19, false); }, 2400);   // last try
+  setTimeout(function(){ stand(6, 43.89, false); }, 5800);   // new best
+  setTimeout(function(){ stand(8, 43.89, true);  }, 9000);   // boss down
 
   [['follow','joesswow','follows',''],
    ['sub','vassham','sub','T2 · 14 mo'],

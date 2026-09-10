@@ -25,7 +25,8 @@
 A personal one, built around what a World of Warcraft stream actually shows:
       your characters and their raid progress, the guild's pull count on the
       boss you are on, chat and your channel numbers. A top bar, a bottom bar,
-      alerts, three scene screens and a stinger. The pages run from this site,
+      alerts, three scene screens and a stinger, laid out for an ultrawide.
+      The pages run from this site,
       so in OBS you point a browser source at them and there is nothing else to
       install. Updating is a <code>git push</code>.
     </p>
@@ -79,6 +80,21 @@ A personal one, built around what a World of Warcraft stream actually shows:
       The alert layer is running in the middle: a follower, a sub, bits, a raid
       and a tip come past every few seconds, and after those the two raid
       alerts. It is muted here.
+    </p>
+
+    <!-- De verhouding van het gameplayvlak is geen toeval: 2560x1072 is de
+         maat die overblijft als de balken banden zijn in plaats van panelen
+         die over je spel liggen, en die maat is precies een ultrawide. Dat
+         staat nergens op de pagina, dus hier. -->
+    <p class="hero__note">
+      The overlay is built for an ultrawide. Instead of panels floating over
+      the game, the bars are full-width bands above and below it, and what that
+      leaves is a gameplay window of 2560 x 1072. At 2.39:1 that is the shape
+      of a 3440x1440 monitor to within 0.03%, so an ultrawide capture fills it
+      edge to edge with nothing cropped and no black bands. A 16:9 capture
+      works too: you either scale it to the full width and lose some height off
+      the top and bottom, or keep the whole frame and accept a narrow band at
+      each side.
     </p>
   </section>
 

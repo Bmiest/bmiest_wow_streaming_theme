@@ -694,11 +694,18 @@ count, the best percentage and whether the boss is down:
 
 - a new pull makes the newest bar in the sparkline grow in and the big number
   flash once. The rest of the series stays still, because animating the whole
-  row on every poll is motion without news;
+  row on every poll is motion without news. It also slides a small `last try`
+  ribbon up with the percentage that pull died at, in grey and held for 3.2
+  seconds;
 - a new best attempt (a *lower* percentage: that is boss HP still standing)
   slides a `new best` ribbon up over the card, which holds for five seconds and
   drops away, the same way the event bar moves over your camera's name plate;
 - a kill does the same with `boss down` and the pull count.
+
+Only one ribbon shows at a time, and a kill outranks a new best, which outranks
+a plain pull. That order matters when two pulls land inside one poll window: a
+good wipe and then the kill. The full-screen layer picks the same way, so the
+card and the alert over your gameplay always name the same thing.
 
 On a different boss the comparison resets, otherwise the lower pull count of a
 fresh boss would read as an improvement. And nothing fires on the first poll,
@@ -714,6 +721,10 @@ covers the whole gameplay zone:
   seconds.
 - a **new best** fires the same shape in gold with the percentage that was
   still standing, held for 5.6 seconds.
+
+A plain pull deliberately fires nothing here. That is what the small ribbon in
+the card is for: a wipe every two minutes has no business covering your
+gameplay.
 
 The wash behind it is flat and 72% opaque, so your gameplay stays faintly
 visible and there is nothing to band. Duration and deaths come from the
@@ -745,8 +756,8 @@ clock, so whenever either page was loaded, both land on the same 30-second
 grid from the first boundary on. Each still makes its own request, so a slow
 or failed one puts that page a tick behind until the next boundary.
 
-`banner.html?demo=1` plays a short evening: the standing score, then a pull
-with a new best, then the kill.
+`banner.html?demo=1` plays a short evening: the standing score, then an
+ordinary wipe, then a new best, then the kill, so all three ribbons come past.
 
 The manual `progressNote` stays as a fallback for when you would rather type it
 yourself.
