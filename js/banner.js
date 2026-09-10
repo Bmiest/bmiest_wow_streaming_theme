@@ -230,8 +230,30 @@ function mountWidget(){
 
 function cap(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
+/* Wat er sinds de vorige poll veranderde. De detectie zit in js/rio-live.js,
+   want alerts.html doet hetzelfde met zijn eigen stand. */
+var bossDiff = window.RioLive ? window.RioLive.watcher()
+                              : function(){ return {}; };
+
+/* Ribbonnetje dat over de kaart omhoog schuift, zoals de gebeurtenisbalk
+   over het naamplaatje van je camera. Boven de kaart uitkomen kan niet: de
+   onderbalk is 248px hoog en OBS knipt de bron daar af. Wil je een echte
+   alert over je gameplay, dan hoort die in alerts.html. */
+var flashTimer = null;
+function bossFlash(capText, val){
+  var host = U.$('#bossFlash');
+  if(!host) return;
+  host.innerHTML = '';
+  var r = window.Ribbon.make('raid', capText, val);
+  host.appendChild(r);
+  host.classList.remove('on'); void host.offsetWidth; host.classList.add('on');
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(function(){ host.classList.remove('on'); }, 5200);
+}
+
 function paintBoss(L){
   if(!L) return;
+  var ev = bossDiff(L);
   U.$('#raidName').textContent =
     [L.raidName, cap(L.difficulty)].filter(Boolean).join('  ·  ');
   U.$('#bossName').textContent = L.bossName || '—';
@@ -265,17 +287,28 @@ function paintBoss(L){
     lbl.textContent = n === 1 ? 'pull' : 'pulls';
   }
 
+  /* className wordt hierboven opnieuw gezet, dus de flits komt erna. */
+  if(ev.fresh){
+    big.classList.remove('hit'); void big.offsetWidth; big.classList.add('hit');
+  }
+  if(ev.better)    bossFlash('new best', L.bestPct.toFixed(2) + '%');
+  else if(ev.down) bossFlash('boss down', U.num(L.pullCount || 0) + ' pulls');
+
   var sp = U.$('#bossSpark');
   sp.innerHTML = '';
   /* De beste pull over de hele reeks bepalen, niet alleen binnen de laatste
      14 -- anders licht er een ander staafje op dan het percentage hierboven. */
   var all = L.pulls || [], bestOf = null;
   all.forEach(function(p){ if(!p.kill && (bestOf === null || p.pct < bestOf)) bestOf = p.pct; });
-  all.slice(-14).forEach(function(p){
+  var last = all.length - 1;
+  all.slice(-14).forEach(function(p, i, arr){
     var b = U.el('i');
     b.style.height = Math.max(2, Math.round((1 - p.pct/100) * 30)) + 'px';
     if(p.kill)                              b.className = 'kill';
     else if(bestOf !== null && p.pct === bestOf) b.className = 'best';
+    /* Alleen het nieuwe staafje groeit in. De rest staat stil, want de hele
+       reeks laten animeren bij elke poll is beweging zonder nieuws. */
+    if(ev.fresh && i === arr.length - 1) b.className += ' fresh';
     sp.appendChild(b);
   });
 }
@@ -307,6 +340,10 @@ function colorFor(name, given){
 
 function addMessage(m){
   var row = U.el('div', 'msg' + (m.action ? ' msg--action' : ''));
+  /* Id en login op de rij, zodat een verwijderd bericht of een timeout
+     terug te vinden is (js/chat.js prune). */
+  row.dataset.mid  = m.id || '';
+  row.dataset.user = m.login || '';
   if(m.badges.length){
     var bw = U.el('span','msg__badges');
     m.badges.forEach(function(b){ bw.appendChild(U.el('span','bdg bdg--'+b.key, b.label)); });
@@ -363,13 +400,22 @@ function demo(){
   }
   U.$('#rioWidget').style.display = 'none';
   U.$('#bossNative').style.display = '';
-  paintBoss({
-    raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
-    bossName:'The Lost Explorers', bossImg:'', summary:'2/8 Mythic',
-    defeated:true, pullCount:8, bestPct:43.89,
-    pulls:[{pct:52.45},{pct:47.19},{pct:54.02},{pct:65.01},
-           {pct:43.89},{pct:44.87},{pct:52.08},{pct:0,kill:true}]
-  });
+
+  /* De demo speelt een avondje na, zodat je de animaties ziet: eerst de
+     stand, dan een pull met een nieuwe beste poging, dan de kill. */
+  var PULLS = [{pct:52.45},{pct:47.19},{pct:54.02},{pct:65.01},
+               {pct:43.89},{pct:44.87},{pct:52.08},{pct:0,kill:true}];
+  function stand(n, best, dead){
+    paintBoss({
+      raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
+      bossName:'The Lost Explorers', bossImg:'', summary:'2/8 Mythic',
+      defeated:dead, pullCount:n, bestPct:best, bestPhase:'P3',
+      pulls:PULLS.slice(0, n)
+    });
+  }
+  stand(6, 47.19, false);
+  setTimeout(function(){ stand(7, 43.89, false); }, 2600);
+  setTimeout(function(){ stand(8, 43.89, true);  }, 5600);
 
   [['follow','joesswow','follows',''],
    ['sub','vassham','sub','T2 · 14 mo'],
@@ -384,7 +430,10 @@ function demo(){
    ['Nocteirah','ilvl 318 al zeg, en dan nog een bericht dat lang genoeg is om over meerdere regels te lopen zodat je ziet waar de naam en de badges blijven staan',null,[]]
   ].forEach(function(l,i){
     setTimeout(function(){
-      addMessage({name:l[0], html:U.esc(l[1]), color:l[2], badges:l[3], action:false});
+      addMessage({name:l[0], html:U.esc(l[1]), color:l[2], badges:l[3], action:false,
+                  /* Echte berichten dragen altijd een id en een login; de demo
+                     doet dat na, zodat een moderatieactie hier ook werkt. */
+                  id:'demo-' + i, login:l[0].toLowerCase().replace(/\s+/g,'')});
     }, 400 + i*550);
   });
 }
@@ -401,7 +450,7 @@ if(LMODE === 'widget' && !DEMO){
   U.poll(loadLive, LT.pollSeconds || 30);
 }
 
-window.Chat.start(addMessage);
+window.Chat.start(addMessage, function(what){ window.Chat.prune(chatBox, what); });
 window.SE.start(pushEvent);
 if(DEMO) demo();
 })();

@@ -21,17 +21,49 @@ var LABEL = {
 
 var HOLD  = 5200;
 var box   = document.getElementById('alertHost');
+var rbox  = document.getElementById('raidHost');
 var queue = [], busy = false;
 
+/* Raidmelding over het hele vlak: eyebrow, de boss groot, en de cijfers van
+   die poging eronder. Zelfde blokjes als de stats in de characterkaart, dus
+   groot mono getal met een klein label. De was erachter is vlak en half
+   doorzichtig -- je gameplay blijft er vaag door zichtbaar, en een egaal
+   vlak kost de encoder minder dan een verloop. */
+function renderRaid(e){
+  var node = U.el('div','alert alert--raid' + (e.kill ? ' alert--kill' : ''));
+  node.style.setProperty('--acc', e.kill ? 'var(--jade)' : 'var(--gold)');
+
+  var mid = U.el('div','raid__mid');
+  mid.appendChild(U.el('div','raid__eyebrow', e.kill ? 'boss down' : 'new best'));
+  mid.appendChild(U.el('div','raid__boss', e.boss || ''));
+  if(e.where) mid.appendChild(U.el('div','raid__where', e.where));
+
+  var row = U.el('div','raid__stats');
+  (e.stats || []).forEach(function(s){
+    var b = U.el('div','raid__stat');
+    b.appendChild(U.el('div','raid__v', s[0]));
+    b.appendChild(U.el('div','raid__l', s[1]));
+    row.appendChild(b);
+  });
+  mid.appendChild(row);
+
+  node.appendChild(mid);
+  return node;
+}
+
 function render(e){
-  var node = U.el('div','alert');
-  node.style.setProperty('--acc', R.TINT[e.kind] || R.TINT.follow);
+  var node;
+  if(e.kind === 'progress'){
+    node = renderRaid(e);
+  } else {
+    node = U.el('div','alert');
+    node.style.setProperty('--acc', R.TINT[e.kind] || R.TINT.follow);
+    node.appendChild(R.make(e.kind, LABEL[e.kind] || e.kind, e.who));
+    if(e.extra)   node.appendChild(U.el('div','alert__meta', e.extra));
+    if(e.message) node.appendChild(U.el('div','alert__msg',  e.message));
+  }
 
-  node.appendChild(R.make(e.kind, LABEL[e.kind] || e.kind, e.who));
-  if(e.extra)   node.appendChild(U.el('div','alert__meta', e.extra));
-  if(e.message) node.appendChild(U.el('div','alert__msg',  e.message));
-
-  box.appendChild(node);
+  (e.kind === 'progress' ? rbox : box).appendChild(node);
   void node.offsetWidth;
   node.classList.add('in');
 
@@ -43,7 +75,7 @@ function render(e){
       busy = false;
       next();
     }, 320);
-  }, HOLD);
+  }, e.hold || HOLD);
 }
 
 function next(){
@@ -60,6 +92,61 @@ function push(e){
 
 window.SE.start(push);
 
+/* ---- raidprogress ---------------------------------------------------
+   Deze pagina ligt over je hele gameplayzone, dus hier past wat in de
+   raidkaart niet kan: een melding over het volle vlak bij een nieuwe beste
+   poging of een kill. Dezelfde endpoints als de onderbalk, met een eigen
+   stand -- twee pagina's die los van elkaar kijken, geen afstemming nodig.
+
+   Uitzetten of beperken met liveTracking.alerts: 'both' | 'kill' | 'off'. */
+(function(){
+  var LT = (CFG.raiderio && CFG.raiderio.liveTracking) || {};
+  var WANT = LT.alerts || 'both';
+  if(!window.RioLive || LT.enabled === false || WANT === 'off') return;
+
+  var watch = window.RioLive.watcher();
+
+  function mmss(sec){
+    if(!sec) return null;
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' + s : s);
+  }
+
+  function fire(L, ev){
+    var kill = ev.down;
+    var p = window.RioLive.pullOf(L, kill ? 'kill' : 'best') || {};
+    var stats = [];
+    if(kill){
+      stats.push([U.num(L.pullCount || 0), (L.pullCount === 1 ? 'pull' : 'pulls') + ' to kill']);
+    } else {
+      stats.push([L.bestPct.toFixed(2) + '%', 'boss hp left']);
+      stats.push([U.num(L.pullCount || 0), 'pulls']);
+    }
+    if(p.phase || L.bestPhase) stats.push([p.phase || L.bestPhase, 'phase']);
+    if(mmss(p.seconds))        stats.push([mmss(p.seconds), 'duration']);
+    if(p.deaths)               stats.push([U.num(p.deaths), p.deaths === 1 ? 'death' : 'deaths']);
+
+    push({
+      kind : 'progress',
+      kill : kill,
+      boss : L.bossName || '',
+      where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
+              L.summary].filter(Boolean).join('  \u00b7  '),
+      stats: stats,
+      hold : kill ? 7600 : 5600
+    });
+  }
+
+  U.poll(function(){
+    return window.RioLive.load().then(function(L){
+      if(!L) return;
+      var ev = watch(L);
+      if(ev.down)                                  fire(L, ev);
+      else if(ev.better && WANT === 'both' && L.bestPct != null) fire(L, ev);
+    }).catch(function(e){ console.warn('[rio-live]', e.message); });
+  }, LT.pollSeconds || 30);
+})();
+
 /* alerts.html?test=1 -- loopt door alle types zodat je kan uitlijnen */
 if(TEST){
   var demo = [
@@ -68,7 +155,15 @@ if(TEST){
      message:'blijf lekker pushen die keys, we kijken mee'},
     {kind:'cheer',  who:'TheNoremac', extra:'184 bits'},
     {kind:'raid',   who:'Amphroxia',  extra:'42 viewers'},
-    {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'}
+    {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'},
+    {kind:'progress', boss:'The Lost Explorers',
+     where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  2/8 Mythic',
+     stats:[['43.89%','boss hp left'],['7','pulls'],['P3','phase'],
+            ['4:12','duration'],['18','deaths']], hold:5600},
+    {kind:'progress', kill:true, boss:'The Lost Explorers',
+     where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
+     stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
+     hold:7600}
   ];
   var i = 0;
   (function loop(){

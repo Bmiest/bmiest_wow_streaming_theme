@@ -120,5 +120,48 @@ function currentRaid(){
   });
 }
 
-window.RioLive = { load:load, currentRaid:currentRaid };
+/* Wat is er sinds de vorige stand veranderd? Dat hoort bij deze bron en niet
+   bij één weergave: de onderbalk en de alerts willen het allebei weten, elk
+   in hun eigen pagina. Vandaar een fabriek -- elke aanroeper houdt zijn eigen
+   stand bij.
+
+   Op de eerste aanroep meldt hij niets, anders kondigt de overlay bij het
+   opstarten van OBS een pull van een uur geleden aan. Bij een andere boss
+   begint hij opnieuw, anders leest de lagere pullcount van een verse boss als
+   een verbetering. */
+function watcher(){
+  var seen = { boss:null, pulls:null, best:null, down:false };
+  return function(L){
+    if(!L) return { fresh:false, better:false, down:false };
+    var n = L.pullCount || 0;
+    if(L.bossName !== seen.boss){
+      seen = { boss:L.bossName, pulls:n, best:L.bestPct, down:!!L.defeated };
+      return { fresh:false, better:false, down:false };
+    }
+    var out = {
+      fresh : seen.pulls != null && n > seen.pulls,
+      /* Een lager percentage is beter: dat is boss-HP dat nog overstond. */
+      better: seen.best != null && L.bestPct != null && L.bestPct < seen.best,
+      down  : seen.pulls != null && !!L.defeated && !seen.down
+    };
+    seen.pulls = n;
+    if(L.bestPct != null) seen.best = L.bestPct;
+    seen.down = !!L.defeated;
+    return out;
+  };
+}
+
+/* De pull waar het om gaat: bij een kill de geslaagde, bij een beste poging
+   die met datzelfde percentage. Daar hangen de cijfers aan die de alert
+   toont -- duur en aantal doden per pull komen uit bosspulls. */
+function pullOf(L, kind){
+  var list = (L && L.pulls) || [], hit = null;
+  list.forEach(function(p){
+    if(kind === 'kill' ? p.kill
+                       : (!p.kill && L.bestPct != null && Math.abs(p.pct - L.bestPct) < 0.005)) hit = p;
+  });
+  return hit;
+}
+
+window.RioLive = { load:load, currentRaid:currentRaid, watcher:watcher, pullOf:pullOf };
 })();

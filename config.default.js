@@ -75,6 +75,12 @@ window.OVERLAY_CONFIG = {
       // 'off'    = blok verbergen.
       mode       : 'native',
 
+      // Melding over je hele beeld (alerts.html) bij raidprogress:
+      //   'both' = nieuwe beste poging én kills
+      //   'kill' = alleen kills
+      //   'off'  = geen
+      alerts     : 'both',
+
       raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'
 
       // latest | normal | heroic | mythic. 'latest' betekent bij Raider.IO

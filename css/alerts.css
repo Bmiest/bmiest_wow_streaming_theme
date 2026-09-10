@@ -48,7 +48,65 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden}
 .alert.in .rib__acc{animation:accHit 520ms var(--ease) 120ms}
 @keyframes accHit{0%{filter:brightness(2.1)}100%{filter:none}}
 
+/* =====================================================================
+   RAIDMELDING  --  over het hele vlak, bij een nieuwe beste poging of een
+   kill. Dit is wat in de raidkaart niet kan: die bron is 248px hoog.
+
+   De was erachter is vlak en half doorzichtig, dus je gameplay blijft er
+   vaag door zichtbaar en er valt niets te banden. Kort aanhouden: vijf en
+   een halve seconde voor een beste poging, ruim zeven voor een kill.
+   ===================================================================== */
+#raidHost{position:absolute;inset:0;pointer-events:none}
+
+.alert--raid{
+  position:absolute;inset:0;display:grid;place-items:center;
+  background:rgba(10,11,13,.72);opacity:0;transform:none;
+}
+.alert--raid::before,.alert--raid::after{
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:var(--acc);opacity:.5;
+}
+.alert--raid::before{top:0}
+.alert--raid::after {bottom:0}
+
+.alert--raid.in {animation:raidIn  460ms var(--ease) forwards}
+.alert--raid.out{animation:raidOut 340ms var(--ease) forwards}
+@keyframes raidIn {from{opacity:0}to{opacity:1}}
+@keyframes raidOut{from{opacity:1}to{opacity:0}}
+
+/* De was komt op, de inhoud komt eronder vandaan. Twee bewegingen die bij
+   elkaar horen, niet vijf losse. */
+.raid__mid{position:relative;z-index:1;text-align:center;padding:0 120px;
+  animation:raidRise 520ms var(--ease) both}
+@keyframes raidRise{from{opacity:0;transform:translateY(26px)}
+                    to  {opacity:1;transform:none}}
+
+.raid__eyebrow{
+  font-family:var(--f-mono);font-size:30px;color:var(--acc);
+  letter-spacing:.42em;text-transform:uppercase;padding-left:.42em;
+}
+.raid__boss{
+  margin-top:22px;font-size:132px;font-weight:600;line-height:1.02;
+  letter-spacing:-.035em;color:var(--paper);
+}
+.raid__where{
+  margin-top:18px;font-size:24px;font-weight:600;color:var(--ink-300);
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.raid__stats{display:flex;justify-content:center;gap:76px;margin-top:56px}
+.raid__v{
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:62px;font-weight:500;line-height:1;color:var(--acc);
+}
+/* Deze labels staan over je gameplay, niet over een egale scene. ink-400
+   valt daar weg tegen een druk beeld, dus een stap lichter. */
+.raid__l{
+  margin-top:12px;font-size:15px;font-weight:600;color:var(--ink-200);
+  letter-spacing:.18em;text-transform:uppercase;
+}
+
 @media (prefers-reduced-motion:reduce){
   .alert,.alert.in,.alert.out{animation:none;opacity:1;transform:none}
   .alert.in .rib__acc{animation:none}
+  .alert--raid,.alert--raid.in,.alert--raid.out,.raid__mid{animation:none;opacity:1}
 }

@@ -402,6 +402,33 @@ Everything else that is live stays live regardless: chat over the IRC websocket,
 alerts and the event rows over the StreamElements socket, and viewers,
 followers, uptime and title from DecAPI every 60 s in the top bar.
 
+**The uptime ticks per second**, even though DecAPI is only asked once a
+minute. It used to stand still for a minute and then jump a minute, which reads
+as a broken clock. `Stats.uptime()` now returns seconds instead of formatted
+text, and the top bar counts on from the last answer and re-syncs on every
+poll: DecAPI stays the source, the ticking is just the in-between. The changing
+area is a few mono digits, so it costs the encoder nothing worth mentioning.
+
+### Moderation
+
+A timeout, a ban or a deleted message arrives over the same anonymous IRC
+connection as the chat itself. We already asked for the `commands` capability;
+`handle()` in `js/chat.js` simply did not look at it, so a deleted message
+stayed on screen. It does now:
+
+| Twitch sends | Means | What happens |
+|---|---|---|
+| `CLEARMSG` with `target-msg-id` | one message deleted | that row goes |
+| `CLEARCHAT` with a login | timeout or ban | every row from that person goes |
+| `CLEARCHAT` without a login | chat cleared | the box empties |
+
+Every chat row carries its message id and the sender's login as data
+attributes, and `Chat.prune(box, what)` does the removal for all three chat
+views. So no, you do not need to pull chat from StreamElements for this: their
+widget reads the same IRC feed, and it would cost you a token for something the
+anonymous connection already tells you. `banner.html?demo=1` gives its fake
+messages an id and a login too, so the removal works there as well.
+
 **Filled in and verified:**
 
 - `twitch.channel` = `bmiest` -- 154 followers via DecAPI.
@@ -592,6 +619,48 @@ own boss-progress widget makes; I derived them from the network requests on
   the card sat on `1/1 Heroic` in the Tidebound Grotto while the guild was on
   `2/8 Mythic` in the main raid. That same slug decides which tier the character
   card shows, so the two cards cannot contradict each other.
+
+**It reacts to what happens.** Between two polls the card compares the pull
+count, the best percentage and whether the boss is down:
+
+- a new pull makes the newest bar in the sparkline grow in and the big number
+  flash once. The rest of the series stays still, because animating the whole
+  row on every poll is motion without news;
+- a new best attempt (a *lower* percentage: that is boss HP still standing)
+  slides a `new best` ribbon up over the card, which holds for five seconds and
+  drops away, the same way the event bar moves over your camera's name plate;
+- a kill does the same with `boss down` and the pull count.
+
+On a different boss the comparison resets, otherwise the lower pull count of a
+fresh boss would read as an improvement. And nothing fires on the first poll,
+or the card would announce a pull from an hour ago the moment OBS starts.
+
+The card itself cannot rise *above* its own edges: that source is 248px tall
+and OBS clips it there. The full-screen version lives in `alerts.html`, which
+covers the whole gameplay zone:
+
+- a **kill** always fires one: `boss down`, the boss name large, the raid and
+  difficulty under it, and the numbers of that pull -- pulls to kill, the
+  phase, how long the fight ran and how many people died. Jade, held for 7.6
+  seconds.
+- a **new best** fires the same shape in gold with the percentage that was
+  still standing, held for 5.6 seconds.
+
+The wash behind it is flat and 72% opaque, so your gameplay stays faintly
+visible and there is nothing to band. Duration and deaths come from the
+`bosspulls` endpoint, which carries them per pull; `RioLive.pullOf()` picks the
+pull the alert is about.
+
+`liveTracking.alerts` decides what fires: `both` (default), `kill` for kills
+only, or `off`. The alerts page keeps its own state and polls the same
+endpoints as the bottom bar, so the two never have to agree on anything.
+`alerts.html?test=1` ends its cycle with both of them.
+
+The detection itself sits in `RioLive.watcher()`, not in either page: both
+want to know what changed since the last poll, each with their own state.
+
+`banner.html?demo=1` plays a short evening: the standing score, then a pull
+with a new best, then the kill.
 
 The manual `progressNote` stays as a fallback for when you would rather type it
 yourself.

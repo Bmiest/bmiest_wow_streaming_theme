@@ -23,14 +23,14 @@ function viewers(){
     return offline(t) ? null : digits(t);
   });
 }
-// DecAPI geeft "2 hours, 14 minutes, 7 seconds" -> "2:14:07"
+/* DecAPI geeft "2 hours, 14 minutes, 7 seconds". Hier komen seconden uit,
+   geen opgemaakte tekst: deze aanroep gaat maar één keer per minuut, en de
+   balk moet er zelf tussendoor kunnen doortellen. */
 function uptime(){
   return U.getText(BASE+'uptime/'+CH).then(function(t){
     if(offline(t)) return null;
     var h = /(\d+)\s*hour/.exec(t), m = /(\d+)\s*minute/.exec(t), s = /(\d+)\s*second/.exec(t);
-    var H = h?+h[1]:0, M = m?+m[1]:0, S = s?+s[1]:0;
-    var pad = function(n){ return n<10 ? '0'+n : ''+n; };
-    return H ? H+':'+pad(M)+':'+pad(S) : M+':'+pad(S);
+    return (h?+h[1]:0)*3600 + (m?+m[1]:0)*60 + (s?+s[1]:0);
   });
 }
 

@@ -219,11 +219,32 @@ body.demo .cam__hint{display:grid}
 .boss__l{font-size:8px;font-weight:600;color:var(--ink-400);margin-top:5px;
   letter-spacing:.14em;text-transform:uppercase}
 
-/* pull-historie: hoger = meer boss-HP eraf; statisch */
+/* pull-historie: hoger = meer boss-HP eraf */
 .spark{display:flex;align-items:flex-end;gap:3px;height:30px;flex:0 0 auto;padding-bottom:2px}
 .spark i{width:6px;min-height:2px;display:block;background:var(--ink-500)}
 .spark i.best{background:var(--paper-dim)}
 .spark i.kill{background:var(--jade)}
+
+/* Alleen het nieuwe staafje groeit in, en het grote getal licht kort op.
+   Beweging die antwoordt op iets dat gebeurd is, en verder staat de reeks
+   stil -- de hele rij laten animeren bij elke poll is beweging zonder
+   nieuws, en dat kost bitrate naast je gameplay. */
+.spark i.fresh{transform-origin:bottom;animation:sparkIn 520ms var(--ease) both}
+@keyframes sparkIn{from{transform:scaleY(.12);opacity:.35}to{transform:none;opacity:1}}
+.boss__v.hit{animation:bossHit 620ms var(--ease)}
+@keyframes bossHit{0%{filter:brightness(2.3)}100%{filter:none}}
+
+/* Melding bij een nieuwe beste pull of een kill: schuift over de kaart
+   omhoog, houdt vijf seconden aan en zakt weer weg. Boven de kaart uitkomen
+   kan niet, de bron is 248px hoog. */
+.boss__flash{
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:3;
+  transform:translateY(170%);opacity:0;
+  transition:transform 420ms var(--ease), opacity 260ms var(--ease);
+}
+.boss__flash.on{transform:none;opacity:1}
+.boss__flash .rib{--rib-h:34px;--rib-cut:11px}
+.boss__flash .rib__val{font-size:15px}
 
 /* =====================================================================
    4. CHAT

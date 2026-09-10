@@ -80,6 +80,10 @@ function loadFollowers(){
 
 function addMessage(m){
   var row = U.el('div','msg');
+  /* Id en login op de rij, zodat een verwijderd bericht of een timeout
+     terug te vinden is (js/chat.js prune). */
+  row.dataset.mid  = m.id || '';
+  row.dataset.user = m.login || '';
   if(m.badges.length){
     var bw = U.el('span','msg__badges');
     m.badges.forEach(function(b){ bw.appendChild(U.el('span','bdg bdg--'+b.key, b.label)); });
@@ -128,7 +132,7 @@ if(window.Labels) window.Labels.on(paintRecent);
 paintRecent();
 
 U.poll(loadFollowers, 120);
-window.Chat.start(addMessage);
+window.Chat.start(addMessage, function(what){ window.Chat.prune(box, what); });
 window.SE.start(pushEvent);
 
 if(DEMO){
@@ -145,7 +149,10 @@ if(DEMO){
    ['Thirive','disc priest supremacy','#eef1f5',[]]
   ].forEach(function(l,i){
     setTimeout(function(){
-      addMessage({name:l[0], html:U.esc(l[1]), color:l[2], badges:l[3], action:false});
+      addMessage({name:l[0], html:U.esc(l[1]), color:l[2], badges:l[3], action:false,
+                  /* Echte berichten dragen altijd een id en een login; de demo
+                     doet dat na, zodat een moderatieactie hier ook werkt. */
+                  id:'demo-' + i, login:l[0].toLowerCase().replace(/\s+/g,'')});
     }, 400 + i*350);
   });
 }

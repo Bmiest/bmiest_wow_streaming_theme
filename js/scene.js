@@ -203,6 +203,10 @@ if(MODE === 'brb'){
     var box = document.getElementById('sceneChat');
     if(!box) return;
     var row = U.el('div','msg');
+  /* Id en login op de rij, zodat een verwijderd bericht of een timeout
+     terug te vinden is (js/chat.js prune). */
+  row.dataset.mid  = m.id || '';
+  row.dataset.user = m.login || '';
     if(m.badges.length){
       var bw = U.el('span','msg__badges');
       m.badges.forEach(function(b){ bw.appendChild(U.el('span','bdg', b.label)); });
@@ -215,6 +219,8 @@ if(MODE === 'brb'){
     row.appendChild(bd);
     box.appendChild(row);
     while(box.children.length > 8) box.removeChild(box.firstChild);
+  }, function(what){
+    window.Chat.prune(document.getElementById('sceneChat'), what);
   });
 }
 

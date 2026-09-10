@@ -10,7 +10,7 @@ var CHAN = (U.CFG.twitch && U.CFG.twitch.channel || '').toLowerCase();
 var IGNORE = (CFG.ignore||[]).map(function(s){ return s.toLowerCase(); });
 var EMOTE_CDN = 'https://static-cdn.jtvnw.net/emoticons/v2/';
 
-var ws, backoff = 1000, onMsg = function(){};
+var ws, backoff = 1000, onMsg = function(){}, onClear = function(){};
 
 function parseTags(raw){
   var t={};
@@ -64,8 +64,32 @@ function badgesOf(tag){
 
 var LABEL = {broadcaster:'host', moderator:'mod', vip:'vip', subscriber:'sub'};
 
+/* Moderatie komt over dezelfde verbinding als de chat zelf; we vroegen de
+   commands-capability al aan, alleen keek deze functie er niet naar. Twitch
+   stuurt twee dingen:
+
+     CLEARMSG   -- één bericht verwijderd, met target-msg-id in de tags
+     CLEARCHAT  -- met een login erachter: die persoon is getimed out of
+                   verbannen, dus al zijn berichten weg. Zonder login: de
+                   chat is helemaal geleegd.
+
+   De tags zijn optioneel in de match, zodat het ook werkt als Twitch de
+   capability ooit niet toekent. */
 function handle(line){
   if(line.indexOf('PING')===0){ ws.send('PONG :tmi.twitch.tv'); return; }
+
+  var cm = line.match(/^@([^ ]+) :tmi\.twitch\.tv CLEARMSG #[^ ]+ :/);
+  if(cm){
+    var ct = parseTags(cm[1]);
+    if(ct['target-msg-id']) onClear({ id: ct['target-msg-id'] });
+    return;
+  }
+
+  var cc = line.match(/^(?:@[^ ]+ )?:tmi\.twitch\.tv CLEARCHAT #[^ ]+(?: :(.*))?$/);
+  if(cc){
+    onClear(cc[1] ? { user: cc[1].trim().toLowerCase() } : { all: true });
+    return;
+  }
 
   var m = line.match(/^@([^ ]+) :([^!]+)![^ ]+ PRIVMSG #[^ ]+ :(.*)$/);
   if(!m) return;
@@ -83,6 +107,9 @@ function handle(line){
 
   onMsg({
     id     : tags.id || String(Math.random()),
+    /* De login in kleine letters, want CLEARCHAT noemt de persoon zo en
+       display-name kan van hoofdletters verschillen. */
+    login  : user.toLowerCase(),
     name   : tags['display-name'] || user,
     color  : tags.color || null,
     badges : badgesOf(tags.badges).map(function(b){ return {key:b, label:LABEL[b]}; }),
@@ -113,7 +140,27 @@ function connect(){
   ws.onerror = function(){ try{ ws.close(); }catch(e){} };
 }
 
+/* Rijen weghalen die door een moderatieactie geraakt worden. Elke weergave
+   heeft zijn eigen opmaak maar dezelfde structuur: één element per bericht in
+   één doos, met het id en de login als data-attribuut. Vandaar hier en niet
+   drie keer apart. */
+function prune(box, what){
+  if(!box || !what) return;
+  if(what.all){ box.innerHTML = ''; return; }
+  Array.prototype.slice.call(box.children).forEach(function(row){
+    var d = row.dataset || {};
+    if((what.id && d.mid === what.id) || (what.user && d.user === what.user)){
+      if(row.parentNode) row.parentNode.removeChild(row);
+    }
+  });
+}
+
 window.Chat = {
-  start: function(cb){ onMsg = cb; connect(); }
+  start: function(cb, clearCb){
+    onMsg = cb || onMsg;
+    onClear = clearCb || onClear;
+    connect();
+  },
+  prune: prune
 };
 })();

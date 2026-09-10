@@ -98,10 +98,32 @@ U.$('#status').appendChild(ribLive);
 U.$('#stats').appendChild(ribView);
 U.$('#stats').appendChild(ribFoll);
 
-function setLive(on, up){
-  ribLive.classList.toggle('rib--empty', !on);
-  ribLive.setValue(on ? (up || 'live') : 'offline', true);
+/* De uptime kwam elke 60 seconden van DecAPI, en stond er dus een minuut
+   stil om daarna een minuut vooruit te springen. Dat leest als een klok die
+   stuk is. Nu telt hij zelf per seconde door vanaf het laatste antwoord, en
+   synchroniseert hij bij elke poll opnieuw: DecAPI blijft de bron, dit is
+   alleen de tussenstand. Het veranderende vlak is een paar cijfers mono, dus
+   het kost de encoder niets noemenswaardigs. */
+var upSec = null, upAt = 0;
+
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
+function clock(sec){
+  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
+  return h ? h + ':' + pad(m) + ':' + pad(s) : m + ':' + pad(s);
 }
+
+function setLive(on, sec){
+  ribLive.classList.toggle('rib--empty', !on);
+  if(!on){ upSec = null; ribLive.setValue('offline', true); return; }
+  upSec = sec;
+  upAt  = Date.now();
+  ribLive.setValue(sec == null ? 'live' : clock(sec), true);
+}
+
+setInterval(function(){
+  if(upSec == null) return;
+  ribLive.setValue(clock(upSec + (Date.now() - upAt) / 1000), true);
+}, 1000);
 
 function setFollowers(n){
   if(n == null) return;
@@ -114,7 +136,10 @@ function refresh(){
   window.Stats.viewers().then(function(v){
     ribView.setValue(v == null ? '—' : U.num(v), true);
   }).catch(function(){});
-  window.Stats.uptime().then(function(t){ setLive(!!t, t); }).catch(function(){ setLive(false); });
+  /* t is nu een getal, dus op !!t testen zou je op de eerste seconde van je
+     stream offline zetten. */
+  window.Stats.uptime().then(function(t){ setLive(t != null, t); })
+    .catch(function(){ setLive(false); });
   if(TB.showTitle !== false){
     window.Stats.title().then(function(t){
       if(t) U.$('#title').textContent = t;
@@ -123,7 +148,7 @@ function refresh(){
 }
 
 if(DEMO){
-  setLive(true, '2:14:07');
+  setLive(true, 2*3600 + 14*60 + 7);   // seconden nu, geen opgemaakte tekst
   setFollowers(154);
   ribView.setValue('31', true);
   window.Labels.set('follower-latest',   'joesswow');
