@@ -415,11 +415,16 @@ text, and the top bar counts on from the last answer and re-syncs on every
 poll: DecAPI stays the source, the ticking is just the in-between. The changing
 area is a few mono digits, so it costs the encoder nothing worth mentioning.
 
-### Your character on the pause screens
+### Your characters on the pause screens
 
-The starting, BRB and ending screens put your character on the left flank,
-full body, and so does the offline graphic. That flank was empty next to the
-halo, and on a pause screen your character is the subject.
+The starting, BRB and ending screens put a character on each flank, full body,
+and so does the offline graphic. The first two from
+`raiderio.characters` in config order, left and right. Those flanks were empty
+next to the halo, and on a pause screen your characters are the subject.
+
+With one character configured the right flank stays empty: the same render
+twice reads as a mistake rather than a design. Each fetch stands on its own, so
+if one fails the other still arrives.
 
 The image is Blizzard's own render, and getting at it needs no key. Raider.IO
 already hands us a thumbnail from Blizzard's render CDN; the same base with
@@ -434,6 +439,16 @@ window with a fixed offset that crops it out. Measured on both characters:
 Shiftheal occupies 588-1051 horizontally, Bhikhu 555-1042, so one window fits
 both. The bottom fades out, otherwise the figure ends on a hard edge above the
 cards.
+
+Both flanks use that same offset. Because the figures do not sit equally far
+left in their renders, the right one lands 25px closer to the edge than the
+left one, which on 2560 pixels is not something you can see. And the right
+flank is moved, not mirrored: these renders face front, so mirroring changes
+nothing about the composition and does put the weapons in the wrong hand.
+
+The two windows sit at 96-611 and 1949-2464. The halo is 1040 wide and
+centred, so it runs 760 to 1800 and they do not touch it; the foot cards start
+at 1136 and the windows stop at 1048.
 
 `js/raiderio.js` is back on the scene pages for this. It was there before for
 a character ribbon in the header, which only repeated the bottom bar; a

@@ -53,18 +53,21 @@ function offline(){
   window.Backdrop.mount(stage, {motes:14});
   U.$('#gTop').appendChild(rib('live', 'channel', NAME));
 
-  /* Zelfde character op de flank als de scene-schermen. Dit is een render,
-     dus build-graphics.sh moet even wachten tot Blizzards PNG binnen is. */
+  /* Zelfde characters op de flanken als de scene-schermen, één per kant.
+     Dit zijn renders van Blizzards CDN, dus build-graphics.sh moet even
+     wachten tot ze binnen zijn -- vandaar het ruime virtual-time-budget. */
   var list = (CFG.raiderio && CFG.raiderio.characters) || [];
   if(list.length && window.RaiderIO){
-    window.RaiderIO.character(list[0]).then(function(c){
-      if(!c.render) return;
-      var box = U.el('div','scene__char');
-      var img = document.createElement('img');
-      img.alt = ''; img.src = c.render;
-      box.appendChild(img);
-      stage.appendChild(box);
-    }).catch(function(){});
+    list.slice(0, 2).forEach(function(spec, i){
+      window.RaiderIO.character(spec).then(function(c){
+        if(!c.render) return;
+        var box = U.el('div','scene__char' + (i ? ' scene__char--r' : ''));
+        var img = document.createElement('img');
+        img.alt = ''; img.src = c.render;
+        box.appendChild(img);
+        stage.appendChild(box);
+      }).catch(function(){});
+    });
   }
 
   var foot = U.$('#gFoot');

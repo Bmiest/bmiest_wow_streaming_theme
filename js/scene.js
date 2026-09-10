@@ -194,23 +194,32 @@ function refresh(){
   }).catch(function(){});
 }
 
-/* ---- character op de flank -----------------------------------------
-   De linkerflank stond leeg naast de halo, en op een pauzescherm is jouw
-   character het onderwerp. De render komt van Blizzard via de omweg in
-   js/raiderio.js; daarvoor staat dat script hier weer bij. */
+/* ---- characters op de flanken --------------------------------------
+   De flanken stonden leeg naast de halo, en op een pauzescherm zijn jouw
+   characters het onderwerp. De render komt van Blizzard via de omweg in
+   js/raiderio.js; daarvoor staat dat script hier weer bij.
+
+   Eén per flank, in de volgorde van je config. Staat er maar één character
+   in, dan blijft de rechterflank leeg: twee keer dezelfde render naast
+   elkaar leest als een fout, niet als een ontwerp. Faalt er één, dan komt
+   de andere er nog gewoon -- elke fetch staat op zichzelf. */
 (function(){
   var list = (CFG.raiderio && CFG.raiderio.characters) || [];
   if(!list.length || !window.RaiderIO) return;
-  window.RaiderIO.character(list[0]).then(function(c){
-    if(!c.render) return;
-    var box = U.el('div','scene__char');
-    var img = document.createElement('img');
-    img.alt = '';
-    img.setAttribute('aria-hidden','true');
-    img.src = c.render;
-    box.appendChild(img);
-    document.getElementById('stage').appendChild(box);
-  }).catch(function(){});
+  var stage = document.getElementById('stage');
+
+  list.slice(0, 2).forEach(function(spec, i){
+    window.RaiderIO.character(spec).then(function(c){
+      if(!c.render) return;
+      var box = U.el('div','scene__char' + (i ? ' scene__char--r' : ''));
+      var img = document.createElement('img');
+      img.alt = '';
+      img.setAttribute('aria-hidden','true');
+      img.src = c.render;
+      box.appendChild(img);
+      stage.appendChild(box);
+    }).catch(function(){});
+  });
 })();
 
 /* ---- start ---------------------------------------------------------- */

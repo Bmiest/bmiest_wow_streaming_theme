@@ -26,11 +26,16 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
    half buiten beeld gedraaid las het niet als een veer maar als een veeg
    over de achtergrond. De banen doen dat werk nu. */
 
-/* ---- character op de flank -----------------------------------------
+/* ---- characters op de flanken --------------------------------------
    De render is 1600x1200 met veel transparante ruimte eromheen. Dit venster
    snijdt het figuur eruit met een vaste offset; gemeten op beide characters
    past dat (Shiftheal staat op 588-1051, Bhikhu op 555-1042). Onderaan
-   uitvagen, zodat hij niet met een harde rand boven de voetkaarten eindigt. */
+   uitvagen, zodat hij niet met een harde rand boven de voetkaarten eindigt.
+
+   Eén per flank. De halo is 1040 breed en staat gecentreerd, dus die loopt
+   van 760 tot 1800; deze twee vensters staan op 96-611 en 1949-2464 en raken
+   hem dus niet. De voetkaarten beginnen op 1136 en het venster stopt op
+   1048. */
 .scene__char{
   position:absolute;left:96px;bottom:392px;z-index:1;
   width:515px;height:755px;overflow:hidden;pointer-events:none;
@@ -38,6 +43,17 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
           mask-image:linear-gradient(to bottom,#000 76%,transparent 100%);
 }
 .scene__char img{position:absolute;left:-545px;top:-250px;width:1600px;height:1200px}
+
+/* Alleen omgezet naar de andere kant, niet gespiegeld. Ik heb het geprobeerd
+   -- dan staan ze naar elkaar toe -- maar deze renders staan frontaal, dus
+   spiegelen verandert de compositie niet en zet wel de wapens in de verkeerde
+   hand en de schouderstukken op de verkeerde schouder.
+
+   Hetzelfde vensteroffset voor beide flanken. Het figuur staat niet in beide
+   renders even ver naar links (588 tegen 555), dus de rechter komt 25px
+   dichter bij de rand uit dan de linker. Op 2560 is dat niet te zien en een
+   tweede offset zou bij een derde character weer niet kloppen. */
+.scene__char--r{left:auto;right:96px}
 
 /* ---- kop ----------------------------------------------------------- */
 .scene__top{display:flex;align-items:flex-start;gap:18px;position:relative;z-index:2}
