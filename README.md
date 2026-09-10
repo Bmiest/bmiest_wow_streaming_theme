@@ -1,8 +1,14 @@
-# bmiest overlay
+# Personal WoW overlay for Twitch
 
-Twitch overlay for a 3440x1440 ultrawide that goes out to Twitch as 2560x1440.
-The 368px left over at the bottom becomes the banner: camera, characters, raid
-progress, chat and stats.
+A World of Warcraft overlay for a 3440x1440 ultrawide that goes out to Twitch
+as 2560x1440. The 368px left over at the bottom becomes the banner: camera,
+characters, raid progress, chat and stats. Game specific on purpose -- it reads
+Raider.IO for the characters and the guild's boss progress, so it has opinions
+about what a raid night looks like.
+
+Built for the channel **bmiest**, which is why that name is in the OBS scene
+collection and on the graphics; the overlay itself carries no branding beyond
+the palette.
 
 The shape language is borrowed from Nerd or Die's *Amused* (capsules, ribbon
 bars, plenty of white space, short micro-animations), but drained of colour:

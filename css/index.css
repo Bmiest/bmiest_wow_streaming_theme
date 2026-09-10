@@ -71,9 +71,15 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
     repeating-linear-gradient(-45deg,
       rgba(63,217,164,.045) 0 2px, transparent 2px 15px),
     var(--ink-850);
-  display:grid;place-items:center}
+  /* Niet gecentreerd: daar staat de alert, en dan schemert dit labeltje
+     door de bossnaam heen. */
+  display:grid;place-items:start center;padding-top:14px}
 .zone--bottom {height:calc(248px  * var(--s))}
 .zone--bottom iframe{height:248px;position:relative;z-index:1}
+
+/* De alertlaag over de gameplayzone: zelfde maat als die zone (2560x1072),
+   dus hij valt precies samen met wat OBS erover legt. */
+.zone--game iframe{position:absolute;left:0;top:0;height:1072px;z-index:1}
 
 .zone__tag{
   font-size:11px;font-weight:600;color:var(--ink-500);
