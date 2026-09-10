@@ -98,6 +98,90 @@ A personal one, built around what a World of Warcraft stream actually shows:
     </p>
   </section>
 
+  <!-- Het snelle pad. De brontabel eronder is het handmatige pad en blijft
+       naslag; wat hier staat, staat daar dus niet nog eens. -->
+  <section class="rcard-wrap card" style="--acc:var(--jade)">
+    <span class="rcard__cap">installing</span>
+    <div class="rcard"><div class="rcard__in">
+
+      <p>
+        There is nothing to download and nothing to run. OBS fetches the pages
+        from this site, so the whole install is a scene collection, a token and
+        one local video file.
+      </p>
+
+      <ol class="steps">
+        <li>
+          <h3>Set the canvas</h3>
+          <p>
+            <i>Settings &rarr; Video</i>: base and output resolution both
+            <code>2560x1440</code>, downscale filter Lanczos, 60 FPS. The
+            layout is that canvas, split into 120 pixels of top bar, 1072 of
+            gameplay and 248 below, so the sources only land in the right place
+            if the canvas matches.
+          </p>
+        </li>
+        <li>
+          <h3>Import the scene collection</h3>
+          <p>
+            Download
+            <a href="obs-scene-collection.pages.json">obs-scene-collection.pages.json</a>,
+            open it in a text editor and replace <code>__JWT__</code> with your
+            StreamElements JWT. Then <i>Scene Collection &rarr; Import</i> and
+            pick <b>bmiest overlay</b>.
+          </p>
+          <p>
+            That brings in all seven browser sources at the right size and
+            position, and the five scenes around them. Rather do it by hand? The
+            table below has every URL, size and position.
+          </p>
+        </li>
+        <li>
+          <h3>Add the stinger</h3>
+          <p>
+            <i>Scene Transitions &rarr; + &rarr; Stinger</i>, point it at
+            <a href="stinger.webm">stinger.webm</a> and set the transition point
+            to <code>500</code> ms. This is the one file that has to live on your
+            disk: OBS will not play a stinger transition from a URL. It is
+            deliberately not in the collection either, because a Windows path
+            full of backslashes is the one thing that breaks when you edit that
+            JSON by hand.
+          </p>
+        </li>
+        <li>
+          <h3>Point the two placeholders at your own sources</h3>
+          <p>
+            Two sources come in as flat colour blocks, named
+            <code>[VERVANG] Gameplay</code> and <code>[VERVANG] Webcam</code>.
+            Replace the first with your Game Capture, <i>scale to inner
+            bounds</i> at 2560&nbsp;&times;&nbsp;1072, and the second with your
+            Video Capture Device, <i>scale to outer bounds</i> at
+            340&nbsp;&times;&nbsp;200. The camera area is a punched hole in the
+            bottom bar, so your webcam belongs behind it, not on top.
+          </p>
+        </li>
+        <li>
+          <h3>Three settings on the browser sources</h3>
+          <p>
+            Set <i>Custom frame rate</i> to 30 FPS on the two bars. Nothing in
+            them needs 60, and it halves what they cost to render.
+          </p>
+          <p>
+            Leave <i>Shutdown source when not visible</i> and <i>Refresh browser
+            when scene becomes active</i> <b>off</b>. That way your chat history
+            survives a scene switch, and the clocks on the scene screens still
+            restart when those come on screen.
+          </p>
+          <p>
+            Tick <i>Control audio via OBS</i> on the alerts source, or the sound
+            on a new best and a boss kill never reaches your mix.
+          </p>
+        </li>
+      </ol>
+
+    </div></div>
+  </section>
+
   <!-- URL's + de getallen die OBS wil weten -->
   <section class="rcard-wrap card" style="--acc:var(--jade)">
     <span class="rcard__cap">in obs</span>
@@ -167,14 +251,6 @@ A personal one, built around what a World of Warcraft stream actually shows:
         never on this site. Without one everything still runs, but alerts,
         events and the labels stay empty. The copy button hands you the URL
         without a token; paste yours on the end in OBS.
-      </p>
-
-      <p class="hint">
-        Set <i>Custom frame rate</i> to 30 FPS on the two bars, and leave
-        <i>Shutdown source when not visible</i> and <i>Refresh browser when
-        scene becomes active</i> off. That way your chat history survives a
-        scene switch, and the clocks on the scene screens still restart when
-        those come on screen.
       </p>
 
     </div></div>

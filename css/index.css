@@ -138,6 +138,32 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
    als min-height:auto bij een grid-item. */
 .cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px}
 
+/* ---- installatiestappen ---------------------------------------------
+   Genummerd omdat dit werkelijk een reeks is: de canvasmaat moet staan
+   voordat de bronnen landen, en de stinger kan pas na de import. Bij een
+   opsomming die geen volgorde heeft horen die cijfers er niet.
+
+   Het cijferblok staat in kolom 1 over alle rijen, dus moeten de kinderen
+   expliciet naar kolom 2 -- anders vult grid ze rij voor rij en belandt de
+   eerste alinea onder het cijfer. */
+.steps{list-style:none;counter-reset:step;margin-top:24px;
+  display:flex;flex-direction:column;gap:28px}
+.steps li{counter-increment:step;
+  display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:20px}
+.steps li > *{grid-column:2}
+.steps li::before{
+  content:counter(step);grid-column:1;grid-row:1 / -1;
+  width:34px;height:34px;display:grid;place-items:center;
+  font-family:var(--f-mono);font-size:15px;font-weight:500;
+  color:var(--jade);background:var(--jade-ghost);
+  clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+}
+.steps h3{font-size:17px;font-weight:600;color:var(--paper);
+  margin:6px 0 8px;letter-spacing:-.01em}
+.steps p{font-size:16px;line-height:1.6;color:var(--ink-300);max-width:72ch}
+.steps p + p{margin-top:10px}
+.steps i{font-style:normal;color:var(--paper-dim)}
+
 /* ---- brontabel ------------------------------------------------------ */
 .scroll{overflow-x:auto}
 .srcs{border-collapse:collapse;width:100%;min-width:640px}
