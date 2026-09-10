@@ -194,6 +194,25 @@ function refresh(){
   }).catch(function(){});
 }
 
+/* ---- character op de flank -----------------------------------------
+   De linkerflank stond leeg naast de halo, en op een pauzescherm is jouw
+   character het onderwerp. De render komt van Blizzard via de omweg in
+   js/raiderio.js; daarvoor staat dat script hier weer bij. */
+(function(){
+  var list = (CFG.raiderio && CFG.raiderio.characters) || [];
+  if(!list.length || !window.RaiderIO) return;
+  window.RaiderIO.character(list[0]).then(function(c){
+    if(!c.render) return;
+    var box = U.el('div','scene__char');
+    var img = document.createElement('img');
+    img.alt = '';
+    img.setAttribute('aria-hidden','true');
+    img.src = c.render;
+    box.appendChild(img);
+    document.getElementById('stage').appendChild(box);
+  }).catch(function(){});
+})();
+
 /* ---- start ---------------------------------------------------------- */
 U.poll(refresh, 60);
 window.SE.start(pushSupporter);

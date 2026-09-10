@@ -415,6 +415,30 @@ text, and the top bar counts on from the last answer and re-syncs on every
 poll: DecAPI stays the source, the ticking is just the in-between. The changing
 area is a few mono digits, so it costs the encoder nothing worth mentioning.
 
+### Your character on the pause screens
+
+The starting, BRB and ending screens put your character on the left flank,
+full body, and so does the offline graphic. That flank was empty next to the
+halo, and on a pause screen your character is the subject.
+
+The image is Blizzard's own render, and getting at it needs no key. Raider.IO
+already hands us a thumbnail from Blizzard's render CDN; the same base with
+`-main-raw.png` instead of `-avatar.jpg` is the full-body version, a 1600x1200
+PNG with a transparent background. The official route is Blizzard's profile
+API, which wants OAuth with a client secret, and that cannot live on a public
+page. Because the URL is derived from Raider.IO's answer on every poll, a
+re-render after a gear change follows along on its own.
+
+There is a lot of transparent space around the figure, so `.scene__char` is a
+window with a fixed offset that crops it out. Measured on both characters:
+Shiftheal occupies 588-1051 horizontally, Bhikhu 555-1042, so one window fits
+both. The bottom fades out, otherwise the figure ends on a hard edge above the
+cards.
+
+`js/raiderio.js` is back on the scene pages for this. It was there before for
+a character ribbon in the header, which only repeated the bottom bar; a
+portrait is a different thing.
+
 ### Gameplay behind the preview
 
 The hero plays `media/gameplay.mp4` behind the bars, muted and looping: the
@@ -483,6 +507,14 @@ messages an id and a login too, so the removal works there as well.
   Raider.IO's live tracking, the same source as the raid card beside it:
   `raid_progression` itself does not say which of its keys is the current one,
   and the last one is not always it.
+- Next to the M+ score sits the **class rank on the realm** (`m+ score
+  · #132`), from Raider.IO's `mythic_plus_ranks`. That set has four kinds
+  (overall, class, faction, faction-class) times three scopes (world, region,
+  realm), and only this one means anything on a stream: 132nd Holy Priest on
+  Ragnaros lands, 114745th in the region does not. It rides in the label
+  because it ranks that exact number. As a third stat block beside the others
+  it did not fit -- the row filled the column exactly and a five-digit rank
+  ran out of it.
 - `raiderio.guild` = Kelderklasse on EU-Draenor.
 - `goals.followers` = 200.
 

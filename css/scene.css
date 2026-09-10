@@ -26,6 +26,19 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
    half buiten beeld gedraaid las het niet als een veer maar als een veeg
    over de achtergrond. De banen doen dat werk nu. */
 
+/* ---- character op de flank -----------------------------------------
+   De render is 1600x1200 met veel transparante ruimte eromheen. Dit venster
+   snijdt het figuur eruit met een vaste offset; gemeten op beide characters
+   past dat (Shiftheal staat op 588-1051, Bhikhu op 555-1042). Onderaan
+   uitvagen, zodat hij niet met een harde rand boven de voetkaarten eindigt. */
+.scene__char{
+  position:absolute;left:96px;bottom:392px;z-index:1;
+  width:515px;height:755px;overflow:hidden;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to bottom,#000 76%,transparent 100%);
+          mask-image:linear-gradient(to bottom,#000 76%,transparent 100%);
+}
+.scene__char img{position:absolute;left:-545px;top:-250px;width:1600px;height:1200px}
+
 /* ---- kop ----------------------------------------------------------- */
 .scene__top{display:flex;align-items:flex-start;gap:18px;position:relative;z-index:2}
 .scene__top .rib{--rib-h:58px;--rib-cut:18px}

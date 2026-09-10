@@ -63,6 +63,7 @@ function makeSlot(){
     guild : U.$('.char__guild',       node),
     ilvl  : U.$('.char__ilvl',        node),
     score : U.$('.char__score',       node),
+    scorel: U.$('.char__scorel',      node),
     raid  : U.$('.prog__nm',          node),
     tiers : U.$('.prog__t',           node)
   };
@@ -106,6 +107,13 @@ function paintSlot(s, c){
   s.guild.textContent = c.guild ? '‹' + c.guild + '›' : c.realm;
   s.ilvl.textContent  = c.ilvl  != null ? Number(c.ilvl).toFixed(1) : '—';
   s.score.textContent = c.score != null ? U.num(c.score) : '—';
+  /* De klasse-realmrank van Raider.IO hoort bij het getal dat hij
+     rangschikt, dus in het label: "m+ score · #132" -- 132e Holy Priest op
+     Ragnaros zegt op een stream iets, 114745e van de regio niet. Als derde
+     blokje ernaast paste het net niet: de statsrij vulde de kolom exact, en
+     een rank van vijf cijfers liep eruit. Zo is het ook korter. */
+  s.scorel.textContent = 'm+ score' +
+    (c.rank != null ? '  \u00b7  #' + U.num(c.rank) : '');
   if(c.thumb) s.img.src = c.thumb;
   // Klassekleur alleen op ring en bolletje: kleine vlakken, grijs blijft grijs.
   s.swatch.style.background = c.color;

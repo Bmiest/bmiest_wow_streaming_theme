@@ -23,7 +23,7 @@ mkdir -p "$OUT"
 shoot(){ # naam breedte hoogte querystring
   "$CHROME" --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
     --default-background-color=00000000 --force-device-scale-factor=1 \
-    --window-size="$2","$3" --virtual-time-budget=4000 \
+    --window-size="$2","$3" --virtual-time-budget=9000 \
     --screenshot="$OUT/$1.png" \
     "http://127.0.0.1:$PORT/graphics.html?$4" >/dev/null 2>&1
   printf '  %-22s %sx%s\n' "$OUT/$1.png" "$2" "$3"

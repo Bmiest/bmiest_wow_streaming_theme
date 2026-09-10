@@ -8,6 +8,7 @@ var API = 'https://raider.io/api/v1';
 var FIELDS = [
   'gear',
   'mythic_plus_scores_by_season:current',
+  'mythic_plus_ranks',
   'raid_progression'
 ].join(',');
 
@@ -28,8 +29,32 @@ function character(c){
       guild : d.guild ? d.guild.name : '',
       color : U.CLASS_COLORS[d.class] || '#eef1f5',
       thumb : d.thumbnail_url,
+      /* Blizzards volledige render, afgeleid van diezelfde thumbnail: dezelfde
+         basis met -main-raw.png in plaats van -avatar.jpg. Dat is een PNG van
+         1600x1200 met transparante achtergrond waarin de figuur rond
+         (555,260) tot (1060,1000) staat -- gemeten op beide characters.
+
+         De officiele weg hiernaartoe is Blizzards eigen profiel-API, en die
+         wil OAuth met een client secret. Dat kan niet op een publieke pagina,
+         en deze omweg heeft geen sleutel nodig. Blizzard rendert opnieuw als
+         je uitlogt met andere gear; de URL verandert dan mee en wij volgen,
+         want we leiden hem elke poll opnieuw af. */
+      render: (function(t){
+        if(!t) return null;
+        var plain = String(t).split('?')[0];
+        var base  = plain.replace(/-avatar\.jpg$/, '');
+        return base === plain ? null : base + '-main-raw.png';
+      })(d.thumbnail_url),
       ilvl  : d.gear ? d.gear.item_level_equipped : null,
       score : season && season.scores ? Math.round(season.scores.all) : null,
+      /* Raider.IO geeft ranks per klasse en overall, elk voor wereld, regio
+         en realm. De klasse-realmrank is de enige die op een stream iets
+         zegt: 132e van je klasse op je realm leest, 114745e van de regio
+         niet. */
+      rank  : (function(r){
+        var c = r && r['class'];
+        return c && c.realm != null ? c.realm : null;
+      })(d.mythic_plus_ranks),
       raids : d.raid_progression || {},
       /* Wanneer Raider.IO dit character voor het laatst ophaalde. Zij leveren
          geen live data; sneller pollen dan hun crawl geeft hetzelfde antwoord.
