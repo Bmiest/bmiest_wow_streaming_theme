@@ -415,6 +415,21 @@ text, and the top bar counts on from the last answer and re-syncs on every
 poll: DecAPI stays the source, the ticking is just the in-between. The changing
 area is a few mono digits, so it costs the encoder nothing worth mentioning.
 
+### Gameplay behind the preview
+
+The front page shows the overlay over a hatched placeholder, because a repo
+cannot ship your gameplay. Drop a short clip at `media/gameplay.webm` (or
+`.mp4`) and the hero plays it behind the bars instead, muted and looping. No
+file, no problem: a `<video>` with no loadable source and no poster is simply
+transparent, so the hatch stays and nothing has to check whether the file
+exists.
+
+Two things about that clip. Use **raw gameplay in 21:9** -- the zone is
+2560x1072, which is the same 2.39:1 as your 3440x1440 capture, so it fits
+without cropping. Do not use a Twitch clip of your own stream: those already
+have the bars burned in, and you would get overlay over overlay. And keep it
+short and small; every visitor downloads it.
+
 ### Moderation
 
 A timeout, a ban or a deleted message arrives over the same anonymous IRC

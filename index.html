@@ -42,12 +42,28 @@ A personal one, built around what a World of Warcraft stream actually shows:
       </div>
 
       <div class="zone zone--game">
+        <!-- Echte gameplay achter de overlay, als je een clip neerzet. Zonder
+             bestand laadt dit niets en blijft de arcering staan: een video
+             zonder poster en zonder bron is gewoon doorzichtig, dus er is
+             geen JavaScript nodig om terug te vallen.
+
+             Zet er een stil, kort fragment neer op media/gameplay.webm (of
+             .mp4). Ruwe gameplay in 21:9, geen Twitch-clip van je stream --
+             daar zitten de balken al in en dan krijg je overlay over
+             overlay. Zie de README. -->
+        <video class="zone__vid" autoplay muted loop playsinline preload="auto"
+               aria-hidden="true">
+          <source src="media/gameplay.webm" type="video/webm">
+          <source src="media/gameplay.mp4" type="video/mp4">
+        </video>
         <span class="zone__tag">gameplay <b>2560 × 1072</b></span>
         <!-- De alertlaag hoort hier: op je stream ligt die over de gameplay,
-             precies in deze zone en op precies deze maat. Op mute, en op
-             ?test=kill zodat de grote melding meteen te zien is. -->
-        <iframe src="alerts.html?test=kill&amp;mute=1" title="Alerts over gameplay"
-                scrolling="no" loading="lazy"></iframe>
+             precies in deze zone en op precies deze maat. De hele cyclus, dus
+             volger, sub, bits, raid en tip komen hier voorbij en daarna de
+             twee raidmeldingen. Op mute. Niet lazy: dit is het eerste dat je
+             ziet, dat moet niet op een scroll wachten. -->
+        <iframe src="alerts.html?test=1&amp;mute=1" title="Alerts over gameplay"
+                scrolling="no"></iframe>
       </div>
 
       <div class="zone zone--bottom">
@@ -61,6 +77,9 @@ A personal one, built around what a World of Warcraft stream actually shows:
       248 below. The top carries session status, the bottom the content:
       camera, characters, raid progress, chat and recent events. The camera area
       is a hole in the bottom bar, with your webcam behind it.
+      The alert layer is running in the middle: a follower, a sub, bits, a raid
+      and a tip come past every few seconds, and after those the two raid
+      alerts. It is muted here.
     </p>
   </section>
 
@@ -179,9 +198,9 @@ A personal one, built around what a World of Warcraft stream actually shows:
            pagina die uit zichzelf begint te piepen is geen visitekaartje. -->
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1072">
-          <iframe src="alerts.html?test=1&amp;mute=1" title="Alerts" scrolling="no" loading="lazy"></iframe>
+          <iframe src="alerts.html?test=kill&amp;mute=1" title="Boss kill alert" scrolling="no" loading="lazy"></iframe>
         </div>
-        <figcaption>Alerts — follower, sub, bits, raid and tip, then the two raid ones</figcaption>
+        <figcaption>Boss down — on repeat here, so you do not have to wait out the cycle above</figcaption>
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1072">
