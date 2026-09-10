@@ -867,8 +867,7 @@ The motif comes from Amused: *flowing ribbons*. `css/backdrop.css` +
 - **four bands** as bezier paths, running 200px past the canvas on both sides
   and crossing each other. The crossing is the point: where two bands overlap
   the surface is slightly lighter, and that is the only shading in the whole
-  design, made with geometry instead of a gradient. They drift a little over 62
-  to 110 seconds;
+  design, made with geometry instead of a gradient;
 - **one crisp jade hairline** on the top edge of the thin band, through the open
   strip below the clock. Without a line like that, a field of shapes at a few
   percent opacity turns to mush; with more than one it starts to stripe;
@@ -877,12 +876,33 @@ The motif comes from Amused: *flowing ribbons*. `css/backdrop.css` +
 
 The shape of each band is four y values in `BANDS` (`js/backdrop.js`); the x of
 the control points is fixed. The composition keeps the middle clear: nothing
-sits between y 520 and 800 there, because that is where the clock is.
+sits between y 520 and 800 there, because that is where the clock is, and the
+drift amplitudes stay small enough that it is still clear at both extremes.
+
+The group does the horizontal slide, the path inside it the vertical one. One
+element cannot carry two `transform` animations, and nested transforms multiply.
+That is also why the hairline sits in a wrapper of its own: it has to inherit
+exactly the same two movements as the band it rides on, or it slides off it.
+
+The offline graphic is a rendered PNG, so it holds one frame of all this. Rerun
+`./build-graphics.sh` if you change the bands.
 
 Turn it off with `scenes.background: 'plain'`.
 
 Three things that were wrong here and are worth knowing if you go changing it:
 
+- Sliding sideways was not enough on its own. Each band drifted horizontally
+  over 62 to 132 seconds and nothing else, and a smooth curve sliding along
+  itself barely changes shape. Measured over half a period, 7.6% of the pixels
+  changed, by an average of 0.7 out of 255. On screen that reads as a still
+  image. Every band now also sinks and rises, on a period that does not line up
+  with its own horizontal one, so the two run out of phase and the crossings
+  keep moving. Same measurement after: 28% of the pixels, average 2.0.
+- The vertical drift is on the scene screens only, not in the bar strips. A
+  strip is 120 or 248px tall, so drifting a band vertically pushes it out of the
+  strip and leaves the top bar empty for half a minute. The bars keep their
+  slow horizontal slide, three times slower than the scene screens because they
+  sit next to gameplay.
 - The bands were on `skewX`. Skew only shifts horizontally: the top and bottom
   edges stay dead straight. Across 2560px that did not read as an angled ribbon
   but as three **horizontal stripes** with a hard edge, exactly the banding that

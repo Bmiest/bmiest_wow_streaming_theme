@@ -49,7 +49,10 @@ var BANDS = [
   { y:[1250,1330, 1290, 1360], h: 60 }    // 6 wit, door de onderbalk
 ];
 /* Haarlijn op de bovenrand van baan 3. Beide krijgen in de CSS dezelfde
-   animatie, anders schuift de lijn van zijn baan af. */
+   animatie, anders schuift de lijn van zijn baan af. De lijn zit daarom in
+   een eigen groepje: baan 3 schuift horizontaal op de <g> en zakt verticaal
+   op de <path>, en één element kan geen twee transform-animaties dragen. Met
+   een wrapper eromheen krijgt de lijn precies dezelfde twee. */
 var EDGE = 2;
 
 /* De viewBox bepaalt welk stuk van het doek je ziet; de paden zijn overal
@@ -61,7 +64,8 @@ function flowSVG(top, height){
   BANDS.forEach(function(b, i){
     svg += '<g class="bg__band bg__band--' + (i+1) + '"><path d="' + band(b.y, b.h) + '"/></g>';
   });
-  return svg + '<path class="bg__edge" d="' + edge(BANDS[EDGE].y) + '"/></svg>';
+  return svg + '<g class="bg__edgewrap"><path class="bg__edge" d="' +
+         edge(BANDS[EDGE].y) + '"/></g></svg>';
 }
 
 /* Een strook van het doek, voor de balken. */
