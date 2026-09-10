@@ -67,15 +67,20 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
    arcering erin: dat leest als 'hier komt iets'. Verlopen mogen op deze
    pagina wel; die wordt niet door een encoder geperst. */
 .zone--game   {height:calc(1072px * var(--s));
-  background:
-    repeating-linear-gradient(-45deg,
-      rgba(63,217,164,.045) 0 2px, transparent 2px 15px),
-    var(--ink-850);
+  /* Alleen de grondkleur hier: die is dekkend en hoort dus onder de video.
+     De arcering zit in ::before, boven de video, zodat het vlak ook met
+     echte gameplay erin nog leest als de plek waar je spel komt. */
+  background:var(--ink-850);
   /* Onderaan, niet gecentreerd en niet bovenaan: in het midden schemert dit
      labeltje door de bossnaam van een raidmelding heen, en bovenaan zit het
      tegen de gewone alerts aan -- die komen daar altijd langs. Onder is
      permanent vrij. */
   display:grid;place-items:end center;padding-bottom:14px}
+.zone--game::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(-45deg,
+    rgba(63,217,164,.07) 0 2px, transparent 2px 15px);
+}
 .zone--bottom {height:calc(248px  * var(--s))}
 .zone--bottom iframe{height:248px;position:relative;z-index:1}
 
@@ -86,15 +91,20 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
   position:absolute;inset:0;width:100%;height:100%;
   object-fit:cover;display:block;z-index:0;
 }
-.zone--game iframe{position:absolute;left:0;top:0;height:1072px;z-index:1}
-.zone--game .zone__tag{position:relative;z-index:2}
+.zone--game iframe{position:absolute;left:0;top:0;height:1072px;z-index:2}
+.zone--game .zone__tag{position:relative;z-index:3}
 
+/* Als tagje, niet als kale tekst: hier ligt echte gameplay onder en dan
+   verdwijnt donkergrijs op donkergrijs. Zelfde idioom als de bijschriften
+   op de kaarten -- eigen grond, dunne rand, hoofdletters. */
 .zone__tag{
-  font-size:11px;font-weight:600;color:var(--ink-500);
-  letter-spacing:.2em;text-transform:uppercase;
+  display:inline-flex;align-items:center;padding:5px 13px;
+  background:#0a0b0de6;border:1px solid var(--ink-600);border-radius:5px;
+  font-size:11px;font-weight:700;color:var(--ink-200);
+  letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;
 }
 .zone__tag b{font-family:var(--f-mono);font-weight:500;letter-spacing:.06em;
-  color:var(--ink-400);margin-left:10px}
+  color:var(--jade);margin-left:10px}
 
 /* Het cameravlak is een gat in de onderbalk. Hier ligt geen webcam achter,
    dus zetten we er zelf iets neer -- anders lijkt het een lek. */
