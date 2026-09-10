@@ -1163,3 +1163,27 @@ obs-scene-collection.pages.json  ready-made, points at the hosted site
 > the scene screens and the event wording. The code comments are in Dutch, and
 > so is the fake chat in demo mode, because that stands in for what viewers
 > actually type.
+
+---
+
+## 10. License
+
+The code -- every `.html`, `.css`, `.js`, the build scripts and
+`make-obs-collection.py` -- is [MIT](LICENSE). Fork it, point it at your own
+channel, take a snippet for your own overlay. No need to ask.
+
+Three things in this repo are not mine to hand out, so the MIT does not reach
+them:
+
+| Path | What it is | Terms |
+|---|---|---|
+| `media/gameplay.mp4` | World of Warcraft footage | Blizzard's. Used here under their game content policy, which covers me using it, not me relicensing it. Drop in your own clip. |
+| `graphics/*.png` | rendered channel assets | the **bmiest** name and profile art. The generator (`graphics.html`) is MIT, so rebuild them with your own name rather than reusing the PNGs. |
+| `vendor/socket.io.js` | Socket.IO 2.3.1 | MIT, (c) 2014-2020 Guillermo Rauch. Its own notice is in the file header. |
+
+Outfit and JetBrains Mono are pulled from Google Fonts at runtime and are not
+redistributed here; both are under the SIL Open Font License.
+
+The shape language is a re-implementation of the ideas in Nerd or Die's
+*Amused* -- capsules, ribbon bars, short micro-animations -- not a copy of its
+assets. Nothing from that theme ships in this repo.

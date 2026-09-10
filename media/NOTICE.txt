@@ -1,0 +1,8 @@
+gameplay.mp4 is World of Warcraft footage. It is Blizzard Entertainment's
+material, not mine, and the MIT license in ../LICENSE does not cover it.
+
+It sits here because the front page (index.html) plays it muted behind the
+hero. Blizzard's game content policy lets a streamer use gameplay footage
+non-commercially; it does not let me pass redistribution rights on to you.
+
+If you fork this overlay, replace this file with a clip of your own.
