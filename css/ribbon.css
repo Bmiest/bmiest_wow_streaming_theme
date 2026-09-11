@@ -93,6 +93,19 @@
   color:var(--acc,var(--ink-400));white-space:nowrap;
 }
 
+/* Bronlabel op de rechterrand, tegenover het bijschrift links. Zelfde vorm,
+   maar gedempt: dit is een vermelding, geen kop. Raider.IO vraagt er in hun
+   Acceptable Use om ("must include a link back to raider.io"), en op een
+   stream valt er niets te klikken -- dan is de naam in beeld het eerlijke
+   equivalent. Op de voorpagina staat hij wel als echte link. */
+.rcard__src{
+  position:absolute;top:0;right:26px;z-index:3;
+  height:22px;display:flex;align-items:center;padding:0 12px;
+  background:var(--ink-900);border:1px solid var(--ink-750);border-radius:5px;
+  font-size:10px;font-weight:600;letter-spacing:.12em;
+  color:var(--ink-400);white-space:nowrap;
+}
+
 /* Een bijschrift mag hetzelfde icoon dragen als het kopblok van een
    ribbon; dat is wat de kaarten in de onderbalk aan de balken bindt. */
 .rcard__cap svg,.rib__cap svg{

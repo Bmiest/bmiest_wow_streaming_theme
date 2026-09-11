@@ -58,10 +58,14 @@ window.OVERLAY_CONFIG = {
     raidSlug      : '',    // '' = automatisch de nieuwste raid
 
     // Live boss progress: de boss waar de guild nu op zit, met pullcount,
-    // beste percentage en de pull-historie. Draait op de ongedocumenteerde
-    // endpoints achter Raider.IO's eigen widget -- die kunnen zonder
-    // aankondiging veranderen. Gaat er iets stuk, dan verdwijnt alleen dit
-    // blok. Zet enabled op false om het uit te schakelen.
+    // beste percentage en de pull-historie. Draait op de live-tracking
+    // endpoints uit Raider.IO's swagger. Gaat er iets stuk, dan verdwijnt
+    // alleen dit blok. Zet enabled op false om het uit te schakelen.
+    //
+    // Raider.IO's voorwaarden: persoonlijk en community-gebruik mag, maar
+    // "public-facing applications that use data from this API must include
+    // a link back to raider.io". Vandaar het bronlabel op de raidkaart en
+    // de characterkaart; haal je dat weg, dan voldoe je niet meer.
     liveTracking: {
       enabled    : true,
 

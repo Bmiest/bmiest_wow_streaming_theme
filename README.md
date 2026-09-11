@@ -516,6 +516,41 @@ the OBS transform.
 Split on purpose: SE delivers the events and the labels, DecAPI the totals. That
 way your follower count does not disappear when your SE session hiccups.
 
+### Crediting Raider.IO
+
+Their API is free for this, and it comes with one condition. From the terms on
+<https://raider.io/api>:
+
+> **Attribution.** Public-facing applications that use data from this API must
+> include a link back to raider.io.
+>
+> **Acceptable Use.** This API is provided for community and personal use. You
+> may not use it to build competing services, resell data, or engage in any
+> activity that harms the Raider.IO platform or its users. Automated scraping
+> beyond the published endpoints is prohibited.
+
+So the characters card and the raid card each carry a small `raider.io` tag on
+the right edge, opposite their own caption. A stream has nothing to click, so
+the name in frame is the honest equivalent of a link; the front page carries the
+real one, in the source list and in the footer. Take those tags out and you are
+no longer keeping your side of it.
+
+Two things follow from Acceptable Use. Everything here is personal and community
+use, which is what the API is for. And every call goes to an endpoint that is in
+their swagger: live boss tracking hits
+`/api/v1/live-tracking/guild/boss-progress` and `.../guild/boss-pulls`. An
+earlier version called `/bossprogress` and `/bosspulls`, picked out of the
+network calls behind their own widget. Those answer identically, byte for byte,
+but they are not published, and "beyond the published endpoints" is the line
+their terms draw.
+
+Rate limits are nowhere near a problem at this volume: unauthenticated requests
+are limited per minute, and this overlay makes a handful every 30 seconds. If
+you ever do get an HTTP 429, the response carries a `Retry-After` header and
+their docs ask you to honour it rather than retry on a fixed interval. This
+overlay does not read that header; it polls on a fixed schedule and a failed
+call simply empties the block until the next one.
+
 ### How often it updates
 
 Three different clocks, and the slowest one is not in this overlay.

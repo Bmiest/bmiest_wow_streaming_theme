@@ -1,9 +1,14 @@
 /* Raider.IO live-tracking.
-   Dit zijn de endpoints die Raider.IO's eigen boss-progress widget
-   gebruikt. Ze staan NIET in hun publieke API-documentatie -- ik heb ze
-   afgeleid uit de netwerkcalls van raider.io/widgets. Ze kunnen dus zonder
-   aankondiging veranderen. Alles faalt stil: gaat het endpoint stuk, dan
-   verdwijnt het blok en draait de rest van de banner door.
+   Deze endpoints staan in hun swagger (raider.io/swagger.json) als
+   /api/v1/live-tracking/guild/boss-progress en .../guild/boss-pulls. Eerder
+   riep dit bestand /bossprogress en /bosspulls aan, afgeleid uit de
+   netwerkcalls van hun eigen widget. Dat gaf byte voor byte hetzelfde
+   antwoord, maar hun Acceptable Use zegt "automated scraping beyond the
+   published endpoints is prohibited" -- dus gebruiken we de gepubliceerde
+   naam, en niet die ene die toevallig ook werkt.
+
+   Alles faalt stil: gaat het endpoint stuk, dan verdwijnt het blok en
+   draait de rest van de banner door.
 
    CORS staat open (de server spiegelt je Origin) en de responses hebben
    cache-control max-age=10, dus pollen is goedkoop. */
@@ -41,8 +46,8 @@ function load(){
   var q = params();
 
   return Promise.all([
-    U.getJSON(BASE + '/bossprogress?' + q, 9000),
-    U.getJSON(BASE + '/bosspulls?'    + q, 9000).catch(function(){ return null; })
+    U.getJSON(BASE + '/guild/boss-progress?' + q, 9000),
+    U.getJSON(BASE + '/guild/boss-pulls?'    + q, 9000).catch(function(){ return null; })
   ]).then(function(r){
     var d = r[0], pr = d.overallProgress || {};
     if(d.error) throw new Error(d.error);
@@ -115,7 +120,7 @@ function currentRaid(){
         + '&region=' + encodeURIComponent(CFG.region || 'eu')
         + '&realm='  + encodeURIComponent(U.slug(g.realm || ''))
         + '&guild='  + encodeURIComponent(g.name || '');
-  return U.getJSON(BASE + '/bossprogress?' + q, 9000).then(function(d){
+  return U.getJSON(BASE + '/guild/boss-progress?' + q, 9000).then(function(d){
     return (d.raid && d.raid.slug) || null;
   });
 }
