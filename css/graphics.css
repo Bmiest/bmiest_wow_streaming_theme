@@ -35,6 +35,51 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin
   letter-spacing:.01em;
 }
 
+/* ---- infopaneel over de overlay -------------------------------------
+   320 breed, de maat die Twitch de About-tab geeft. Doek transparant, net
+   als de knoppen, zodat hij in beide Twitch-thema's los op de pagina staat.
+   Alle maten hier zijn kleiner dan elders in de overlay: dit wordt op een
+   kanaalpagina van dichtbij gelezen, niet vanaf de bank. */
+.g--about #stage{display:grid;place-items:stretch;padding:0 4px 4px}
+.g--about .rcard-wrap{--acc:var(--jade)}
+.g--about .rcard__in{padding:26px 20px 22px;gap:0;background:var(--ink-850)}
+
+.ab__h{font-size:25px;font-weight:600;line-height:1.15;letter-spacing:-.02em;
+  color:var(--paper)}
+.ab__p{margin-top:12px;font-size:13px;line-height:1.55;color:var(--ink-300)}
+
+.ab__list{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.ab__li{display:flex;align-items:center;gap:9px}
+/* Zelfde taps toelopende vorm als de vakjes van het subdoel en de kop van
+   een ribbon: het is hier een opsommingsteken, maar wel ons opsommingsteken. */
+.ab__dot{flex:0 0 9px;width:9px;height:9px;background:var(--jade);
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%)}
+.ab__lit{font-size:12.5px;color:var(--paper-dim)}
+
+/* Plattegrond van de overlay: twee balken en de gameplay ertussen, op de
+   verhoudingen uit de config. Genoeg om te herkennen wat je op de stream
+   ziet liggen, te weinig om een screenshot te willen zijn. */
+.ab__mini{margin-top:20px;height:104px;padding:5px;display:flex;
+  flex-direction:column;gap:3px;background:var(--ink-900);
+  border:1px solid var(--ink-700)}
+.ab__mbar{background:var(--jade-ghost);border:1px solid rgba(63,217,164,.42)}
+.ab__mbar--btm{position:relative}
+.ab__mgame{background:var(--ink-800);
+  background-image:repeating-linear-gradient(-45deg,
+    transparent 0 5px, rgba(129,139,152,.09) 5px 6px)}
+/* het camera-gat zit linksonder in de databalk, met dezelfde schuine hoek */
+.ab__mcam{position:absolute;left:2px;top:2px;bottom:2px;width:30px;
+  background:var(--ink-600);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%)}
+
+/* De URL staat er om overgetypt te worden -- een PNG is niet aan te klikken,
+   ook al hangt de link onder de knop. Dus mono, en de repo-naam groter dan
+   de host: dat is het deel dat fout gaat. */
+.ab__url{margin-top:auto;padding-top:20px;font-family:var(--f-mono)}
+.ab__urlh{display:block;font-size:11px;color:var(--ink-400);letter-spacing:.02em}
+.ab__urlr{display:block;margin-top:2px;font-size:13.5px;font-weight:500;
+  color:var(--jade);word-break:break-word}
+
 /* ---- panelknop ------------------------------------------------------
    Doek blijft transparant: op de kanaalpagina staat de knop dan los op
    Twitch' eigen achtergrond, en dat werkt in beide thema's. */

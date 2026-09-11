@@ -114,6 +114,63 @@ function profile(){
   stage.appendChild(box);
 }
 
+/* ---- infopaneel over de overlay -------------------------------------
+   De knoppen hieronder zijn labels; dit is het paneel waar zo'n knop naar
+   wijst. Zelfde kaart als in de onderbalk, op panelbreedte, zodat je
+   kanaalpagina dezelfde taal spreekt als je stream. */
+function about(){
+  var AB = G.about || {};          // A is hierboven al de gekozen asset
+  size(320, 430);
+  document.body.classList.add('g--about');
+
+  var card = R.card(AB.cap || 'the overlay', 'follow');
+  var b = card.body;
+
+  b.appendChild(U.el('div','ab__h', AB.title || ''));
+  b.appendChild(U.el('div','ab__p', AB.body || ''));
+
+  var list = U.el('div','ab__list');
+  (AB.bullets || []).forEach(function(t){
+    var row = U.el('div','ab__li');
+    row.appendChild(U.el('span','ab__dot'));
+    row.appendChild(U.el('span','ab__lit', t));
+    list.appendChild(row);
+  });
+  b.appendChild(list);
+
+  /* Kleine plattegrond van wat er in beeld ligt: strook boven, gameplay,
+     databalk onder met het camera-gat. De hoogtes komen uit config.layout,
+     dus het plaatje op je kanaalpagina klopt met wat er op je stream staat
+     in plaats van er ooit een keer op geleken te hebben. */
+  var L = CFG.layout || {}, mini = U.el('div','ab__mini');
+  var band = [
+    ['ab__mbar', L.topHeight    || 120],
+    ['ab__mgame', L.gameHeight  || 1072],
+    ['ab__mbar ab__mbar--btm', L.bottomHeight || 248],
+  ];
+  var tot = band.reduce(function(a, r){ return a + r[1]; }, 0);
+  band.forEach(function(r){
+    var seg = U.el('span', r[0]);
+    seg.style.flex = '0 0 ' + (r[1] / tot * 100).toFixed(2) + '%';
+    mini.appendChild(seg);
+  });
+  mini.lastChild.appendChild(U.el('span','ab__mcam'));
+  b.appendChild(mini);
+
+  /* De URL breekt op de laatste schuine streep in plaats van waar hij
+     toevallig uitkomt: een repo-naam die halverwege afknapt is niet over te
+     typen, en overtypen is precies wat een kijker met een PNG moet doen. */
+  if(AB.url){
+    var cut = String(AB.url).lastIndexOf('/') + 1;
+    var url = U.el('div','ab__url');
+    url.appendChild(U.el('span','ab__urlh', AB.url.slice(0, cut)));
+    url.appendChild(U.el('span','ab__urlr', AB.url.slice(cut)));
+    b.appendChild(url);
+  }
+
+  stage.appendChild(card);
+}
+
 /* ---- panelknop ------------------------------------------------------ */
 function panel(){
   var list = G.panels || [];
@@ -130,5 +187,5 @@ function panel(){
   stage.appendChild(el);
 }
 
-({ offline:offline, profile:profile, panel:panel }[A] || offline)();
+({ offline:offline, profile:profile, panel:panel, overlay:about }[A] || offline)();
 })();

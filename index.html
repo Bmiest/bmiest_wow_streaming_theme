@@ -334,6 +334,24 @@ A personal one, built around what a World of Warcraft stream actually shows:
         every one: the icon differentiates, the colour holds them together.
       </figcaption>
     </figure>
+
+    <!-- Het infopaneel staat naast de knoppen en niet in de grid hierboven:
+         die twee banners staan daar op gelijke schaal naast elkaar, en een
+         staand paneel van 320 breed hoort niet in die verhouding. -->
+    <figure class="asset asset--info">
+      <a href="graphics/panel-overlay.png">
+        <img src="graphics/panel-overlay.png" alt="Info panel about the overlay"
+             width="320" height="430" loading="lazy">
+      </a>
+      <figcaption>
+        Info panel — 320 × 430, a whole panel instead of a button: what a
+        viewer who clicks through is looking at. The plan on it is drawn from
+        the heights in <code>config.layout</code>, so it cannot drift away from
+        what is on screen. Text and URL come from <code>graphics.about</code>.
+        A PNG cannot be clicked, so give the panel the same link in Twitch's
+        editor.
+      </figcaption>
+    </figure>
   </section>
 
   <section class="cols">
@@ -344,6 +362,7 @@ A personal one, built around what a World of Warcraft stream actually shows:
           <dt>Chat</dt><dd>Twitch IRC over websocket, anonymous</dd>
           <dt>Characters, raid progress</dt><dd>Raider.IO, public API</dd>
           <dt>Viewers, followers, uptime, title</dt><dd>DecAPI</dd>
+          <dt>The sub goal</dt><dd>StreamElements' goal counter, or DecAPI for your real active count</dd>
           <dt>Follows, subs, bits, tips, raids</dt><dd>StreamElements, socket + REST</dd>
         </dl>
         <p class="hint">

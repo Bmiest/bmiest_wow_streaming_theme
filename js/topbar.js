@@ -19,6 +19,8 @@ var DEMO = /[?&]demo=1/.test(location.search);
 })();
 
 var GOAL = (CFG.goals && CFG.goals.followers) || 0;
+var SUB  = (CFG.goals && CFG.goals.subs) || {};
+var SUBGOAL = SUB.target || 0;
 
 /* ---- labels --------------------------------------------------------
    Sleutel -> bijschrift en tint. De sleutels zijn die van StreamElements,
@@ -74,7 +76,7 @@ window.Labels.on(function(key, val){
    houdt 'm bij. De events zelf gaan naar de onderbalk; ze schrijven
    onderweg al in de labelopslag, dus hier hoeft niets mee te gebeuren. */
 var LSRC = (CFG.labels && CFG.labels.source) || 'streamelements';
-if(LSRC === 'streamelements' || LSRC === 'both') window.SE.start(function(){});
+if(LSRC === 'streamelements' || LSRC === 'both') window.SE.start(onEvent);
 
 /* ---- status, kijkers en volgers -------------------------------------
    Dezelfde ribbons als de labelrail: kopblok met icoon, bijschrift op de
@@ -85,18 +87,160 @@ var ribFoll = window.Ribbon.make('follow', 'followers', '\u2014');
 [ribLive, ribView, ribFoll].forEach(function(r){ r.classList.add('rib--num'); });
 ribLive.classList.add('rib--empty');
 
+/* ---- doelbalkje ------------------------------------------------------
+   Eén bouwer voor allebei de doelen. Tot en met twaalf wordt het een rij
+   vakjes: "drie van vijf" lees je dan af zonder te rekenen, waar een balk
+   op 60% je dat wel laat doen. Daarboven zouden dat haarlijntjes worden,
+   dus dan een gewone balk met het doelgetal ernaast. */
+var PIP_MAX = 12;
+
+function goalBar(target){
+  var node = U.el('span','goal'), boxes = [];
+  var pips = target > 0 && target <= PIP_MAX;
+
+  if(pips){
+    node.classList.add('goal--pips');
+    var track = U.el('span','goal__track');
+    for(var i = 0; i < target; i++) boxes.push(track.appendChild(U.el('span','goal__pip')));
+    node.appendChild(track);
+  } else {
+    node.innerHTML = '<span class="goal__track"><span class="goal__fill"></span></span>' +
+                     '<span class="goal__t"></span>';
+    node.querySelector('.goal__t').textContent = target ? U.num(target) : '';
+  }
+
+  var fill = node.querySelector('.goal__fill');
+  node.set = function(n){
+    if(!target || n == null) return;
+    if(pips) boxes.forEach(function(b, i){ b.classList.toggle('on', i < n); });
+    else fill.style.width = Math.min(100, n / target * 100).toFixed(1) + '%';
+  };
+  return node;
+}
+
 /* Volgersdoel als staafje achter het getal, binnen dezelfde balk. */
-var goal = U.el('span','goal');
-goal.innerHTML = '<span class="goal__track"><span class="goal__fill"></span></span>' +
-                 '<span class="goal__t"></span>';
+var goal = goalBar(GOAL);
 ribFoll.querySelector('.rib__in').appendChild(goal);
-goal.querySelector('.goal__t').textContent = GOAL ? U.num(GOAL) : '';
-var elFill = goal.querySelector('.goal__fill');
 var elFoll = ribFoll.querySelector('.rib__val');
 
 U.$('#status').appendChild(ribLive);
 U.$('#stats').appendChild(ribView);
 U.$('#stats').appendChild(ribFoll);
+
+/* ---- subdoel ---------------------------------------------------------
+   Teller, vakjes en de belofte als bijschrift op de rand: "priest wig at
+   5". Het is de enige ribbon in de balk die niet alleen een stand toont
+   maar ook een afspraak, dus de tekst ervan komt uit de config -- de
+   overlay verzint geen beloftes namens jou. */
+var ribSub = null, subBar = null, subShown = null, subDone = false;
+
+function subCap(done){
+  if(!SUB.reward) return 'subs';
+  return done ? SUB.reward + ' unlocked' : SUB.reward + ' at ' + SUBGOAL;
+}
+
+var SUBSRC = (SUB.source || 'streamelements').toLowerCase();
+
+if(SUBGOAL){
+  ribSub = window.Ribbon.make('sub', subCap(false), '\u2014');
+  ribSub.classList.add('rib--num', 'rib--empty');
+  subBar = goalBar(SUBGOAL);
+  ribSub.querySelector('.rib__in').appendChild(subBar);
+  U.$('#stats').appendChild(ribSub);
+
+  /* SE houdt per doel een teller bij (subscriber-goal). Die staat op hun
+     server, dus hij overleeft een herstart van OBS en loopt door over
+     meerdere streams -- anders dan een optelling in de pagina, die bij elke
+     refresh op nul zou staan. Wat hij telt zijn sub-events sinds jij hem
+     voor het laatst op nul zette, en dat is je aantal actieve subs zolang
+     je vanaf nul begon. */
+  if(SUBSRC === 'streamelements' && window.SE && window.SE.onSession){
+    window.SE.onSession(function(d){
+      var g = d && d['subscriber-goal'];
+      if(g && typeof g.amount === 'number') setSubBase(g.amount);
+    });
+  }
+}
+
+function setSubs(n){
+  if(!ribSub || n == null) return;
+  n = Math.max(0, Math.round(n));
+  if(n === subShown) return;
+  subShown = n;
+  ribSub.classList.remove('rib--empty');
+  ribSub.setValue(n + ' / ' + SUBGOAL);
+  subBar.set(n);
+
+  /* Doel gehaald: het bijschrift wordt de mededeling zelf. Bewust zonder
+     doorlopende animatie -- dit vlak staat de hele stream in beeld, en iets
+     dat blijft pulseren kost elke frame bitrate die de gameplay nodig heeft.
+     De ribbon flitst al één keer, via setValue hierboven. */
+  var done = n >= SUBGOAL;
+  if(done === subDone) return;
+  subDone = done;
+  ribSub.classList.toggle('rib--done', done);
+  var cap = ribSub.querySelector('.rib__cap');
+  if(cap) cap.textContent = subCap(done);
+}
+
+/* De stand uit de bron, plus wat er sinds de laatste poll live binnenkwam.
+   Die twee staan los omdat ze op verschillende momenten binnenkomen: de
+   sub is er meteen, DecAPI weet het pas een poll later. */
+var subBase = null, subBump = 0, authWarned = false;
+
+function pushSubs(){ setSubs(subBase == null ? null : subBase + subBump); }
+
+function setSubBase(n){
+  /* Een poll die de nieuwe sub al meetelt maakt de optelling overbodig. Een
+     poll die nog achterloopt -- DecAPI cachet, en Twitch zelf loopt ook
+     achter -- mag het balkje niet terugzetten; vandaar de vergelijking in
+     plaats van een harde reset. */
+  if(subBase != null && n >= subBase + subBump) subBump = 0;
+  subBase = n;
+  pushSubs();
+}
+
+/* De events gaan naar de onderbalk; hier is alleen een sub interessant, en
+   alleen als het er een is die er nog niet was. norm() in js/streamelements.js
+   zet 'new' of 'gift' in extra bij zo'n sub en "3 mo" bij een resub -- die was
+   al actief en hoort dus niet mee te tellen in een doel van actieve subs. */
+function onEvent(e){
+  if(!ribSub || SUB.liveBump === false || !e) return;
+  if(e.kind !== 'sub' || !/\b(new|gift)\b/.test(e.extra || '')) return;
+  subBump++;
+  pushSubs();
+}
+
+var AUTH_URL = 'https://decapi.me/auth/twitch?redirect=subcount' +
+               '&scopes=channel:read:subscriptions+user:read:email';
+
+function refreshSubs(){
+  if(!ribSub) return;
+  /* StreamElements duwt zelf; die heeft deze poll niet nodig. */
+  if(SUBSRC === 'streamelements') return;
+  /* Handmatig: het getal staat in de config en de live subs komen erbij.
+     Er is dan niets om tegen te ijken, dus de optelling blijft de stream
+     lang staan -- en is weg zodra de browser source herlaadt. */
+  if(SUBSRC !== 'decapi'){
+    if(subBase == null) setSubBase(+SUB.count || 0);
+    return;
+  }
+  window.Stats.subs().then(function(n){
+    if(n === 'auth'){
+      if(!authWarned){
+        authWarned = true;
+        console.warn('[subs] DecAPI mag je subcount niet lezen. Log eenmalig in ' +
+          'op ' + AUTH_URL + ' -- tot dan telt de balk door vanaf goals.subs.count.');
+        U.setHealth('subcount', true, 'decapi niet geautoriseerd');
+      }
+      if(subBase == null) setSubBase(+SUB.count || 0);
+      return;
+    }
+    if(n == null) return;          // offline is geen nul subs
+    U.setHealth('subcount', true, '');
+    setSubBase(n);
+  }).catch(function(){});
+}
 
 /* De uptime kwam elke 60 seconden van DecAPI, en stond er dus een minuut
    stil om daarna een minuut vooruit te springen. Dat leest als een klok die
@@ -128,11 +272,12 @@ setInterval(function(){
 function setFollowers(n){
   if(n == null) return;
   U.countTo(elFoll, n);
-  if(GOAL) elFill.style.width = Math.min(100, n / GOAL * 100).toFixed(1) + '%';
+  goal.set(n);
 }
 
 function refresh(){
   window.Stats.followers().then(setFollowers).catch(function(){});
+  refreshSubs();
   window.Stats.viewers().then(function(v){
     ribView.setValue(v == null ? '—' : U.num(v), true);
   }).catch(function(){});
@@ -157,6 +302,7 @@ if(DEMO){
   window.Labels.set('tip-top',           'xxmaebeexx · EUR 42,00');
   window.Labels.set('tip-latest',        'maxartyom · EUR 5,00');
   window.Labels.set('follower-session',  '3');
+  setSubBase(3);
 } else {
   U.poll(refresh, 60);
 }

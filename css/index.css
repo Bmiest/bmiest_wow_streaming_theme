@@ -236,6 +236,17 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
 
 /* De knoppen op hun eigen maat, met een rand eromheen zodat je ziet waar het
    transparante doek van 320x100 begint. */
+/* Het infopaneel is staand en 320 breed; op zijn eigen maat laten staan,
+   want uitgerekt tot kolombreedte is het een affiche in plaats van een
+   paneel. */
+.asset--info{display:flex;margin-top:30px;flex-direction:row;gap:24px;align-items:flex-end}
+.asset--info a{flex:0 0 320px;max-width:320px}
+.asset--info figcaption{margin-top:0}
+@media(max-width:720px){
+  .asset--info{flex-direction:column;align-items:stretch}
+  .asset--info a{flex:0 0 auto;max-width:320px}
+}
+
 .panels{display:flex;flex-wrap:wrap;gap:14px 18px;margin-bottom:2px}
 .panels a{border:1px solid var(--ink-750);line-height:0}
 .panels img{width:320px;height:100px}

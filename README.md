@@ -256,6 +256,99 @@ label rail, then viewers and followers on the right. As long as a ribbon has no
 value it sits muted, exactly like an empty label. The follower goal is a small
 bar inside the follower ribbon itself.
 
+### The sub goal
+
+Right of the followers sits a sub counter: `3 / 5`, five boxes behind it, and
+the promise on the rim, `priest wig at 5`. Every other ribbon in the bar
+reports a number; this one makes a promise. So the target and the reward both
+come from the config. The overlay does not invent promises on your behalf.
+
+```js
+goals: {
+  followers: 200,
+  subs: { target: 5, reward: 'priest wig', source: 'streamelements' },
+},
+```
+
+Up to a target of twelve the bar is a row of boxes instead of a fill. At five
+you read "three of five" straight off the boxes; a bar sitting at 60% you have
+to work out. Above twelve it falls back to the same fill the follower
+goal uses, because twenty boxes is twenty hairlines. When the last box lights
+up the rim turns gold and reads `priest wig unlocked`, and then holds still.
+No pulse, no glow: that ribbon is in frame all stream, and anything that keeps
+moving costs bitrate the gameplay needs.
+
+**Where the number comes from.** A counter that adds up is not the same thing
+as the number of subs you have right now. Start from zero and the two are the
+same number. Start anywhere else and only DecAPI knows your real count.
+
+| `source` | What it is | Survives a reload |
+|---|---|---|
+| `streamelements` | SE's own goal counter, `subscriber-goal` | yes, it lives on their server |
+| `decapi` | your real active sub count, straight from Twitch | yes, it is fetched every 60 s |
+| `manual` | `count` from the config, plus what comes in live | no, the tally is in the page |
+
+**`streamelements` is the default, and the right one if you start from zero.**
+SE keeps a counter per goal, `subscriber-goal` in the session data. It does not
+reset between sessions, so it survives an OBS restart and runs on across
+streams. Clear it to zero on the day you announce the goal and the bar is your
+active sub count, because you had none.
+
+Clearing it is the awkward part. SE's dashboard edits goal values under **Widget
+Data**, but that page lists goals belonging to an SE goal widget, and this
+overlay is not one, so the counter can be there in the session data with nothing
+in the interface to click. The session API holds the same value:
+
+```bash
+# channel id
+curl -H "Authorization: Bearer $JWT" \
+  https://api.streamelements.com/kappa/v2/channels/me | jq -r ._id
+# set the counter
+curl -X PUT -H "Authorization: Bearer $JWT" -H 'Content-Type: application/json' \
+  -d '{"subscriber-goal":{"amount":0}}' \
+  https://api.streamelements.com/kappa/v2/sessions/<channel id>
+```
+
+Read the session back afterwards and check that the other keys are untouched.
+Failing all that, add an SE sub goal widget to any overlay, reset it there, and
+delete it again.
+It counts sub events, so a resub counts too and someone who lapses is not
+subtracted. Over a goal of five you will spot that, and the same screen is
+where you fix it.
+
+**`decapi` is the one that knows your real count.** Use it if you are not
+starting from zero. Your active sub count is not public, so it is the one source
+in the whole overlay that needs permission from you:
+
+```
+https://decapi.me/auth/twitch?redirect=subcount&scopes=channel:read:subscriptions+user:read:email
+```
+
+One login, once, and `decapi.me/twitch/subcount/bmiest` starts answering with a
+number instead of prose. Until then the bar says so once in the console and
+counts on from `goals.subs.count` rather than showing a goal stuck at zero.
+
+**What SE does not have** is your active sub count as a value, and that was
+measured rather than assumed: `subscriber-total` is a session counter (`0` on
+this channel while `subscriber-recent` listed subs), `subscriber-recent` is a
+list of events with no expiry, and there is no endpoint for it --
+`subscribers/<id>`, `channels/<id>/subscribers` and `twitch/<id>/subscribers`
+all 404. That is structural. SE's session data is event-driven: it counts what
+happens while it is watching. Active subs is a state question put to Twitch
+itself (Helix, scope `channel:read:subscriptions`), and SE does not re-expose
+it. DecAPI is that one Helix call, hosted -- which is why it asks for the same
+scope. SE's own goal widgets point the same way: their instructions have you
+set the *"min value"* to your current number by hand, *"if you already have 150
+followers"*. A widget that knew would not ask.
+
+**A sub during the stream counts immediately.** The socket fires before either
+source has caught up, so a new sub or a gift lights the next box on the spot,
+which is what the bar is there for. A resub does not light one: that sub was
+already active. The next refresh reconciles, and a source that
+is still behind cannot pull the bar back down. Note that SE's own counter does
+count resubs, so on `source: 'streamelements'` one can still arrive that way;
+the Goals screen is where you correct it.
+
 ### Gameplay
 
 Game Capture or Display Capture, then right-click > **Transform > Edit
@@ -370,6 +463,7 @@ the OBS transform.
 | Chat | Twitch IRC websocket (anonymous) | none |
 | Characters, raid progress | Raider.IO public API | none |
 | Followers, viewers, uptime, title | DecAPI | none |
+| The sub goal | StreamElements `subscriber-goal`, or DecAPI `subcount` | JWT, or one login -- see section 3 |
 | Follows, subs, cheers, tips, raids | StreamElements realtime socket | JWT |
 | Labels (last follower, last sub, ...) | StreamElements session API | JWT |
 
@@ -1088,6 +1182,7 @@ That writes `graphics/`:
 | `offline.png` | 1920 x 1080 | Creator Dashboard > Settings > Channel > Video Player Banner |
 | `profile-banner.png` | 1200 x 480 | Settings > Channel > Brand > Profile Banner |
 | `panel-*.png` | 320 x 100 | your channel page > About > Edit Panels |
+| `panel-overlay.png` | 320 x 430 | same place; put the repo URL under it as the link |
 
 The offline screen is the scene layout at 2560x1440 scaled down to 1920, so it
 is literally the same design as the starting and ending screens, with the
@@ -1101,6 +1196,17 @@ get the same jade head on purpose: normally the kind picks the tint too, and
 then you have five buttons in five colours that mean nothing. Here the icon
 differentiates and the colour holds them together. Their canvas stays
 transparent, so a button sits on Twitch's own background in either theme.
+
+`panel-overlay.png` is the odd one out: a whole panel rather than a button,
+about the overlay itself. Someone who clicks through on your channel page wants
+to know what they were looking at, and that does not fit in a label. It is the
+same angled card as the ones in the bottom bar, at panel width. On it is a
+small plan of what sits on screen: top bar, gameplay, and the data bar with the
+camera notch. Those heights come from `config.layout`, so the picture on your
+channel page cannot drift away from what is on your stream. Text, bullets and
+URL come from `graphics.about`. The URL is in the image because a PNG cannot be
+clicked, so give the panel the same link in Twitch's panel editor. It breaks on
+the last slash, so a repo name never splits mid-word.
 
 All motion is frozen in these renders. Without that, where the bands and the
 halo happen to be depends on how much virtual time Chrome had, and no two

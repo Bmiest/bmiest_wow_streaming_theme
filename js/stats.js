@@ -13,6 +13,12 @@ function digits(s){
 }
 function offline(s){ return /offline|not live|error|unable/i.test(String(s||'')); }
 
+/* DecAPI antwoordt op een niet-geautoriseerd kanaal met een uitleg plus een
+   inloglink in plaats van een getal. Dat is geen storing, dus het hoort niet
+   als fout te eindigen -- maar het moet wel te onderscheiden zijn van "nul
+   subs", anders staat er een doel op nul dat nooit beweegt. */
+function needsAuth(s){ return /needs to authenticate|authoriz/i.test(String(s||'')); }
+
 function followers(){
   return U.getText(BASE+'followcount/'+CH).then(function(t){
     return offline(t) ? null : digits(t);
@@ -34,6 +40,19 @@ function uptime(){
   });
 }
 
+/* Actieve subs. Anders dan de rest hierboven is dit geen open endpoint:
+   het aantal subs is prive, dus DecAPI moet er eenmalig toestemming voor
+   krijgen van de kanaaleigenaar zelf (channel:read:subscriptions). Zonder
+   die toestemming komt er proza terug; dan geeft dit 'auth' in plaats van
+   een getal, zodat de bovenbalk kan terugvallen op het getal uit de config
+   in plaats van 'nul subs' te tonen. */
+function subs(){
+  return U.getText(BASE+'subcount/'+CH).then(function(t){
+    if(needsAuth(t)) return 'auth';
+    return offline(t) ? null : digits(t);
+  });
+}
+
 /* De streamtitel. DecAPI antwoordt op een offline kanaal met proza in
    plaats van een status, dus dezelfde check als hierboven -- die stond
    eerder los in de bovenbalk. */
@@ -44,5 +63,5 @@ function title(){
   });
 }
 
-window.Stats = { followers:followers, viewers:viewers, uptime:uptime, title:title };
+window.Stats = { followers:followers, viewers:viewers, subs:subs, uptime:uptime, title:title };
 })();

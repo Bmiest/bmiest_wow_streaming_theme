@@ -66,6 +66,24 @@ function emit(type,data){
    preflight), dus dit mag rechtstreeks vanuit de browser source. */
 var API = 'https://api.streamelements.com/kappa/v2';
 
+/* ---- ruwe sessiedata -------------------------------------------------
+   Naast de labelopslag, want die twee willen iets anders. Labels zijn tekst
+   om te tonen en slaan een 0 bewust over ("er is nog niets gebeurd"); een
+   teller die bij nul hoort te beginnen heeft juist die 0 nodig. Het subdoel
+   in de bovenbalk leest hier zijn stand uit. */
+var lastSession = null, sessionSubs = [];
+
+function onSession(fn){
+  sessionSubs.push(fn);
+  if(lastSession) fn(lastSession);
+}
+function emitSession(d){
+  lastSession = d;
+  sessionSubs.forEach(function(fn){
+    try { fn(d); } catch(e){ console.warn('[SE] sessie:', e.message); }
+  });
+}
+
 function auth(){ return { headers: { Authorization: 'Bearer ' + CFG.jwt } }; }
 
 /* SE geeft "nog niets gebeurd" terug als het getal 0, niet als null of een
@@ -98,6 +116,7 @@ function loadSession(){
         var v = display(data[k]);
         if(v != null) window.Labels.set(k, v);
       });
+      emitSession(data);
       U.setHealth('se-session', true);
     })
     .catch(function(e){
@@ -147,7 +166,12 @@ function start(cb){
      subscriber-latest, ook meteen na verbinden. Precieze vorm verschilt
      per eventtype, dus defensief uitpakken. */
   socket.on('event:update', function(e){
-    if(!e || !e.name || !window.Labels) return;
+    if(!e || !e.name) return;
+    /* Ook de ruwe stand bijwerken, niet alleen het label: het subdoel leest
+       daar een teller uit die 0 mag zijn, en dit is het moment waarop hij
+       verspringt -- wachten op de volgende REST-poll duurt tot 90 seconden. */
+    if(lastSession){ lastSession[e.name] = e.data; emitSession(lastSession); }
+    if(!window.Labels) return;
     var v = display(e.data || {});
     if(v != null) window.Labels.set(e.name, v);
   });
@@ -160,5 +184,5 @@ function start(cb){
   });
 }
 
-window.SE = { start:start, norm:norm, loadSession:loadSession };
+window.SE = { start:start, norm:norm, loadSession:loadSession, onSession:onSession };
 })();

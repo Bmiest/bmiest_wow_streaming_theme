@@ -33,6 +33,10 @@ echo "rendert kanaalgraphics..."
 shoot offline        1920 1080 "a=offline"
 shoot profile-banner 1200  480 "a=profile"
 
+# Het infopaneel over de overlay. Geen knop maar een heel paneel, dus het
+# staat naast de lus hieronder en niet erin.
+shoot panel-overlay   320  430 "a=overlay"
+
 # De panelknoppen komen uit config.default.js, zodat de lijst op één plek
 # staat. Slug van het label wordt de bestandsnaam.
 node -e '
@@ -53,3 +57,4 @@ echo "klaar. Uploaden bij Twitch:"
 echo "   offline.png        Creator Dashboard > Settings > Channel > Video Player Banner"
 echo "   profile-banner.png Settings > Channel > Brand > Profile Banner"
 echo "   panel-*.png        je kanaalpagina > About > Edit Panels"
+echo "   panel-overlay.png  idem; zet de repo-URL eronder als link"

@@ -109,6 +109,62 @@ window.OVERLAY_CONFIG = {
   // ---- doelen -------------------------------------------------------
   goals: {
     followers: 200,
+
+    // Subdoel: teller plus balk in de bovenbalk, met de beloning als
+    // bijschrift op de rand. Bij een doel tot en met twaalf wordt de balk
+    // een rij vakjes -- "drie van vijf" lees je zo in een oogopslag, waar
+    // een balk op 60% je laat rekenen. Daarboven een gewone balk.
+    subs: {
+      target: 5,
+      reward: 'priest wig',   // leeg = alleen de teller, geen belofte
+
+      // Waar de stand vandaan komt. Let op wat je eigenlijk vraagt: een
+      // teller die optelt is iets anders dan het aantal subs dat je NU hebt.
+      // Begin je vanaf nul, dan vallen die twee samen en is 'streamelements'
+      // de beste keuze. Begin je ergens middenin, dan weet alleen DecAPI je
+      // echte stand.
+      //
+      //   'streamelements' = SE's eigen doelteller (subscriber-goal). Die
+      //        staat op hun server, dus hij overleeft een herstart van OBS en
+      //        loopt door over meerdere streams -- en hij is met de hand te
+      //        zetten of te wissen. Dat gaat niet altijd via hun dashboard:
+      //        dat scherm toont doelen van een SE goal-widget, en deze
+      //        overlay is er geen, dus de teller kan in de sessiedata staan
+      //        zonder dat er iets te klikken valt. Via de sessie-API lukt het
+      //        wel; zie de README. Zet hem op nul als je vanaf nul begint, SE
+      //        reset hem niet tussen sessies. Hij telt sub-events, dus een resub telt ook
+      //        mee en iemand die opzegt gaat er niet af. Bij een doel van
+      //        vijf zie je dat gebeuren, en dan corrigeer je het getal in
+      //        datzelfde scherm.
+      //
+      //   'decapi' = DecAPI's subcount: je werkelijke aantal actieve subs,
+      //        rechtstreeks bij Twitch opgehaald. Het enige dat klopt als je
+      //        niet vanaf nul begint. Vraagt eenmalig jouw toestemming:
+      //        https://decapi.me/auth/twitch?redirect=subcount&scopes=channel:read:subscriptions+user:read:email
+      //        Zonder die toestemming antwoordt DecAPI met proza in plaats
+      //        van een getal; de balk zegt dat in de console en telt door
+      //        vanaf count hieronder.
+      //
+      //   'manual' = het getal uit count, plus wat er live binnenkomt. Geen
+      //        autorisatie nodig, maar de optelling zit in de pagina en is
+      //        dus weg zodra de browser source herlaadt.
+      //
+      // Wat SE NIET heeft is je aantal actieve subs als losse waarde, en dat
+      // is nagemeten in plaats van aangenomen: subscriber-total is een
+      // sessieteller (stond op 0 met subs in subscriber-recent),
+      // subscriber-recent is een eventlijst zonder afloopdatum, en endpoints
+      // als subscribers/<id> of channels/<id>/subscribers geven 404. Hun
+      // eigen goal-widgets bevestigen het: die laten je de "min value" zelf
+      // op je huidige aantal zetten, "if you already have 150 followers".
+      // Een widget dat het wist zou er niet naar vragen.
+      source: 'streamelements',
+      count : 0,
+
+      // Een nieuwe sub of gift tijdens de stream telt meteen mee in plaats
+      // van pas bij de volgende poll -- dat moment is precies waarvoor het
+      // balkje er staat. Een resub telt niet: die sub was al actief.
+      liveBump: true,
+    },
   },
 
   // ---- scenes (starting / brb / ending) ------------------------------
@@ -146,6 +202,26 @@ window.OVERLAY_CONFIG = {
   // en je stream lopen niet uit elkaar.
   graphics: {
     tagline: 'Mythic+ and raiding on EU-Draenor',
+
+    // Het infopaneel over de overlay zelf (a=overlay). Geen knop maar een
+    // heel paneel: wie op je kanaalpagina doorklikt wil weten wat hij op
+    // je stream ziet staan, en dat past niet in één label. De tekst staat
+    // hier omdat het jouw woorden zijn, niet die van de overlay.
+    about: {
+      cap  : 'the overlay',
+      title: 'Built in the open',
+      body : 'The bars, the alerts and the scene screens on this channel are ' +
+             'one static site. No plugin and nothing installed: OBS just ' +
+             'points a browser at a page.',
+      bullets: [
+        'served from GitHub Pages',
+        'MIT licensed, fork it',
+        'raid data from Raider.IO',
+      ],
+      // Staat ook als klikdoel onder de panelknop bij Twitch; hier staat
+      // hij in beeld, want een PNG is niet aan te klikken.
+      url: 'github.com/Bmiest/bmiest_wow_streaming_theme',
+    },
 
     // Eén PNG per knop, vernoemd naar het label. De soort bepaalt icoon en
     // tint; kies er een die bestaat in js/ribbon.js (follow, sub, cheer,

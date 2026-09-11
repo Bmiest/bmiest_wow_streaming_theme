@@ -39,5 +39,27 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
   transition:width var(--t-slow) var(--ease)}
 .goal__t{font-family:var(--f-mono);font-size:14px;color:var(--ink-400)}
 
+/* Subdoel: hetzelfde staafje, maar in vakjes. Eén vakje is één sub, dus de
+   stand is te tellen zonder het getal ernaast te lezen -- en een sub erbij
+   is een vlakje dat aanspringt in plaats van een balk die vier procent
+   opschuift. De vakjes lopen taps toe zoals alles in deze balk.
+
+   Priesterwit (--holy) in plaats van het jade van het volgersdoel: de
+   beloning is een priest wig, en het scheelt twee doelen naast elkaar die
+   dezelfde kleur spreken. */
+.goal--pips .goal__track{display:flex;gap:4px;width:auto;height:9px;
+  background:none;clip-path:none}
+.goal__pip{width:14px;height:9px;background:var(--ink-700);
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%);
+  transition:background var(--t-med) var(--ease)}
+.goal__pip.on{background:var(--holy)}
+
+/* Doel gehaald. Alleen het bijschrift verkleurt: dat is het stukje dat de
+   afspraak draagt ("priest wig unlocked"), en het is klein genoeg om de
+   encoder niets te kosten. Geen gloed, geen puls -- dit staat de rest van
+   de stream in beeld. */
+.rib--done .rib__cap{color:var(--gold);border-color:var(--gold)}
+.rib--done .goal__pip.on{background:var(--gold)}
+
 .rib__val.flash{animation:flash var(--t-slow) var(--ease)}
 @keyframes flash{0%{color:var(--jade)}100%{color:var(--paper)}}
