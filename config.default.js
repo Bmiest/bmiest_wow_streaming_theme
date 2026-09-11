@@ -118,6 +118,15 @@ window.OVERLAY_CONFIG = {
       target: 5,
       reward: 'priest wig',   // leeg = alleen de teller, geen belofte
 
+      // Plaatje van de beloning, te zien in de melding bij elke sub. Leeg
+      // laten geeft de getekende wig uit js/ribbon.js. Wil je een foto, zet
+      // hem dan op media/reward.jpg en vul dat pad hier in -- dat pad staat
+      // in .gitignore, want een productfoto van een verkoper is andermans
+      // materiaal en hoort niet in een publieke repo onder MIT. Zie
+      // media/NOTICE.txt. Een eigen foto van je eigen wig mag natuurlijk wel
+      // mee; haal hem dan uit .gitignore.
+      image: '',
+
       // Optionele toevoeging achter de belofte op de rand: hoe lang hij geldt
       // ('till end of tier'), tot wanneer je het doel open zet ('by nov 30'),
       // of wat je maar wil. Gewone tekst, geen datum die omgerekend wordt --

@@ -10,3 +10,9 @@ obs-scene-collection.json
 # Gegenereerd door make-obs-collection.py
 obs-collection.local.json
 obs-collection.server.json
+
+# Foto van de beloning bij het subdoel (goals.subs.image). Een productfoto
+# van een verkoper is andermans materiaal en hoort niet in een repo die MIT
+# is; zie media/NOTICE.txt. Een foto van je eigen wig mag hier natuurlijk wel
+# uit.
+media/reward.*

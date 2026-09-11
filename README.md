@@ -441,6 +441,32 @@ icon, and the name large. It slides down 34px while it fades in, the head block
 flashes briefly, and after 5.2 seconds it slides away again. Subs and tips get a
 small pill with the tier or amount, and the message below it.
 
+A sub also gets the reward above the ribbon: the wig, with the promise under it
+in small caps. Whoever just subscribed sees what they paid into, and everyone
+else sees what is on offer. The text is the same `goals.subs` the top bar reads,
+so the promise is written in one place. It swings in over 620 ms and then stands
+still, because the alert is only on screen for five seconds and something that
+keeps moving costs bitrate for nothing.
+
+The wig is drawn, in `js/ribbon.js`, and there are three reasons for that rather
+than a photo. A seller's product shot is someone else's material and does not
+belong in a repository that is MIT. A cut-out on white fights an overlay made of
+flat tints. And a photographic gradient across a light object is the first thing
+to band at 505 Kbps. Your own photo is a different matter:
+
+```js
+goals: { subs: { image: 'media/reward.jpg' } }
+```
+
+`media/reward.*` is in `.gitignore` for the first reason above. A photo of your
+own wig is yours, so take it out of there if you want it committed. If the file
+is missing the alert falls back to the drawing instead of putting a broken
+image on your stream.
+
+To line it up: `alerts.html?test=sub` shows the sub alert on repeat. That works
+for every type now, next to `?test=kill` and `?test=best` for the two raid
+alerts, which need their own names because both are `progress`.
+
 ### Webcam
 
 Video Capture Device, then **Transform > Edit Transform**:
@@ -889,7 +915,8 @@ endpoints as the bottom bar, so the two never have to agree on anything.
 
 To look at them: `alerts.html?test=kill` shows the kill one on repeat and
 `?test=best` the other, instead of waiting out the full cycle of
-`?test=1`, where the two raid alerts come last. `?mute=1` silences the sound
+`?test=1`, where the two raid alerts come last. Any other type works by name,
+so `?test=sub` for the sub alert. `?mute=1` silences the sound
 for a look without a noise, which is what the previews on the front page use
 -- a page that starts beeping when you open it is not a business card.
 

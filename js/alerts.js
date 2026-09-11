@@ -34,6 +34,43 @@ var SOUND = (function(){
   var LT = (CFG.raiderio && CFG.raiderio.liveTracking) || {};
   return LT.soundVolume == null ? 0.6 : LT.soundVolume;
 })();
+/* ---- de beloning bij een sub ----------------------------------------
+   Boven de melding, zodat wie net gesubd heeft ziet waar hij aan meebetaalt.
+   Getekend uit js/ribbon.js, tenzij goals.subs.image naar een eigen plaatje
+   wijst. Het bijschrift komt uit dezelfde config als het doel op de
+   bovenbalk, dus de belofte staat maar op een plek. */
+var SUB = (CFG.goals && CFG.goals.subs) || {};
+
+function reward(){
+  if(!SUB.reward && !SUB.image) return document.createDocumentFragment();
+  var wrap = U.el('div','alert__reward');
+
+  if(SUB.image){
+    var img = U.el('img','alert__wig');
+    img.alt = '';
+    /* Eerst in de DOM, dan pas de src: valt het laden om, dan moet er iets
+       zijn om te vervangen. Ontbreekt het bestand, dan komt de tekening
+       ervoor in plaats van een kapot plaatje over je stream. */
+    wrap.appendChild(img);
+    img.onerror = function(){
+      var d = U.el('div','alert__wig');
+      d.innerHTML = R.WIG;
+      if(img.parentNode === wrap) wrap.replaceChild(d, img);
+    };
+    img.src = SUB.image;
+  } else {
+    var d = U.el('div','alert__wig');
+    d.innerHTML = R.WIG;
+    wrap.appendChild(d);
+  }
+
+  if(SUB.reward && SUB.target){
+    wrap.appendChild(U.el('div','alert__promise',
+      SUB.reward + ' at ' + SUB.target + (SUB.note ? ' \u00b7 ' + SUB.note : '')));
+  }
+  return wrap;
+}
+
 var box   = document.getElementById('alertHost');
 var rbox  = document.getElementById('raidHost');
 var queue = [], busy = false;
@@ -163,6 +200,7 @@ function render(e){
   } else {
     node = U.el('div','alert');
     node.style.setProperty('--acc', R.TINT[e.kind] || R.TINT.follow);
+    if(e.kind === 'sub') node.appendChild(reward());
     node.appendChild(R.make(e.kind, LABEL[e.kind] || e.kind, e.who));
     if(e.extra)   node.appendChild(U.el('div','alert__meta', e.extra));
     if(e.message) node.appendChild(U.el('div','alert__msg',  e.message));
@@ -273,10 +311,14 @@ if(TEST){
      stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
      hold:8400}
   ];
+  /* kill en best zitten allebei in 'progress', dus die hebben een eigen
+     filter. Voor de rest is het type zelf genoeg: ?test=sub zet meteen de
+     melding neer waar je de beloning mee uitlijnt, in plaats van je een
+     halve cyclus te laten wachten. */
   var pick = {
     kill: function(e){ return e.kind === 'progress' &&  e.kill; },
     best: function(e){ return e.kind === 'progress' && !e.kill; }
-  }[TEST];
+  }[TEST] || (LABEL[TEST] && function(e){ return e.kind === TEST; });
   if(pick){
     var one = demo.filter(pick);
     if(one.length) demo = one;

@@ -28,6 +28,22 @@ var GLYPH = {
   viewers:'<path d="M9 4.4c-3.3 0-6 2-7.2 4.6C3 11.6 5.7 13.6 9 13.6s6-2 7.2-4.6C15 7.4 12.3 4.4 9 4.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.1" fill="currentColor"/>'
 };
 
+/* De beloning van het subdoel, getekend in plaats van gefotografeerd. Een
+   productfoto van een verkoper is andermans materiaal en hoort niet in een
+   repo die MIT is; een witte studiofoto vecht bovendien met een overlay die
+   verder uit vlakke tinten bestaat, en een verloop over een foto is precies
+   wat er op 505 kbps als eerste gaat banden.
+
+   Wie wel een foto wil zet goals.subs.image; dan komt die hiervoor in de
+   plaats. Zie media/NOTICE.txt. */
+var WIG =
+  '<svg class="wig" viewBox="0 0 120 150" aria-hidden="true">' +
+    '<ellipse cx="60" cy="66" rx="26" ry="33" fill="var(--ink-500)"/>' +
+    '<path fill="var(--paper)" d="M20 116C20 58 18 8 60 8s40 50 40 108c0 12-3 22-8 28-4 4-10 1-9-5 ' +
+      '5-26 5-56 0-76-4-18-11-26-23-26s-19 8-23 26c-5 20-5 50 0 76 1 6-5 9-9 5-5-6-8-16-8-28Z"/>' +
+    '<path fill="var(--paper)" d="M36 44c4-13 12-20 24-20s20 7 24 20c-7-7-15-10-24-10s-17 3-24 10Z"/>' +
+  '</svg>';
+
 /* maakt <div class="rib"><span cap><div bar><div in><acc><val> */
 function make(kind, caption, value){
   var el = U.el('div', 'rib');
@@ -62,5 +78,5 @@ function card(caption, kind){
   return el;
 }
 
-window.Ribbon = { make:make, card:card, TINT:TINT, GLYPH:GLYPH };
+window.Ribbon = { make:make, card:card, TINT:TINT, GLYPH:GLYPH, WIG:WIG };
 })();
