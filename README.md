@@ -258,22 +258,28 @@ bar inside the follower ribbon itself.
 
 ### The sub goal
 
-Right of the followers sits a sub counter: `3 / 5`, five boxes behind it, and
-the promise on the rim, `priest wig at 5`. Every other ribbon in the bar
-reports a number; this one makes a promise. So the target and the reward both
-come from the config. The overlay does not invent promises on your behalf.
+Right of the followers sits a sub counter: `3 / 10`, ten boxes behind it, and
+the promise on the rim, `priest wig at 10 · by sep 30`. Every other ribbon
+in the bar reports a number; this one makes a promise. So the target, the
+reward and the deadline all come from the config. The overlay does not invent
+promises on your behalf.
 
 ```js
 goals: {
   followers: 200,
-  subs: { target: 5, reward: 'priest wig', source: 'streamelements' },
+  subs: {
+    target  : 10,
+    reward  : 'priest wig',
+    deadline: 'by sep 30',        // optional, sits behind the promise
+    source  : 'streamelements',
+  },
 },
 ```
 
-Up to a target of twelve the bar is a row of boxes instead of a fill. At five
-you read "three of five" straight off the boxes; a bar sitting at 60% you have
-to work out. Above twelve it falls back to the same fill the follower
-goal uses, because twenty boxes is twenty hairlines. When the last box lights
+Up to a target of twelve the bar is a row of boxes instead of a fill. You can
+count boxes; a bar sitting at 30% you have to work out. Above twelve it falls
+back to the same fill the follower goal uses, because twenty boxes is twenty
+hairlines. When the last box lights
 up the rim turns gold and reads `priest wig unlocked`, and then holds still.
 No pulse, no glow: that ribbon is in frame all stream, and anything that keeps
 moving costs bitrate the gameplay needs.
@@ -294,6 +300,11 @@ reset between sessions, so it survives an OBS restart and runs on across
 streams. Clear it to zero on the day you announce the goal and the bar is your
 active sub count, because you had none.
 
+You do not have to clear it. Leaving the counter where it stands and setting
+`target` above it is the same trick as SE's own min value: the bar starts part
+filled and the remainder is what you are asking for. It does mean the bar shows
+progress you did not make, so decide which you would rather have on screen.
+
 Clearing it is the awkward part. SE's dashboard edits goal values under **Widget
 Data**, but that page lists goals belonging to an SE goal widget, and this
 overlay is not one, so the counter can be there in the session data with nothing
@@ -313,8 +324,7 @@ Read the session back afterwards and check that the other keys are untouched.
 Failing all that, add an SE sub goal widget to any overlay, reset it there, and
 delete it again.
 It counts sub events, so a resub counts too and someone who lapses is not
-subtracted. Over a goal of five you will spot that, and the same screen is
-where you fix it.
+subtracted. Over a goal this size you will spot that.
 
 **`decapi` is the one that knows your real count.** Use it if you are not
 starting from zero. Your active sub count is not public, so it is the one source

@@ -136,7 +136,10 @@ var ribSub = null, subBar = null, subShown = null, subDone = false;
 
 function subCap(done){
   if(!SUB.reward) return 'subs';
-  return done ? SUB.reward + ' unlocked' : SUB.reward + ' at ' + SUBGOAL;
+  if(done) return SUB.reward + ' unlocked';
+  /* De termijn hoort bij de belofte, dus hij staat erachter zolang het doel
+     nog open staat. Is het gehaald, dan is de datum niet meer het nieuws. */
+  return SUB.reward + ' at ' + SUBGOAL + (SUB.deadline ? ' \u00b7 ' + SUB.deadline : '');
 }
 
 var SUBSRC = (SUB.source || 'streamelements').toLowerCase();
