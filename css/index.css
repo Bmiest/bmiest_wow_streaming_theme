@@ -117,11 +117,15 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
   letter-spacing:.2em;text-transform:uppercase;
 }
 
-.hero__note{max-width:78ch;font-size:16px;line-height:1.6;color:var(--ink-300)}
+/* Eén maat voor lopende tekst op deze pagina, en een krappere voor
+   bijschriften. Er stonden er vier naast elkaar (70, 72, 74, 78ch), en dat
+   zie je: blokken die bijna even breed zijn lezen als scheef in plaats van
+   als verschillend. */
+.hero__note{max-width:72ch;font-size:16px;line-height:1.6;color:var(--ink-300)}
 
 /* ---- kaarten -------------------------------------------------------- */
 .card .rcard__in{padding:30px 34px 36px}
-.card p{font-size:16px;line-height:1.6;color:var(--ink-300);max-width:74ch}
+.card p{font-size:16px;line-height:1.6;color:var(--ink-300);max-width:72ch}
 .card p + p{margin-top:14px}
 
 /* Volle breedte met tekst in één kolom laat de kaart half leeg staan, en
@@ -148,6 +152,17 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
    eerste alinea onder het cijfer. */
 .steps{list-style:none;counter-reset:step;margin-top:24px;
   display:flex;flex-direction:column;gap:28px}
+
+/* Breed genoeg: twee kolommen, om dezelfde reden als card--wide hierboven.
+   Een stap is hooguit 70ch, dus in een kaart van 1600 stond de helft leeg
+   en werd de pagina een scherm langer dan nodig. Kolomsgewijs lezen kan
+   hier omdat de stappen genummerd zijn; bij een lijst zonder volgorde zou
+   dat niet mogen. Drempel op 1280: daaronder houdt een kolom nog maar een
+   regel of vijftig tekens over, en dan is smal lezen erger dan leeg staan. */
+@media(min-width:1280px){
+  .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:30px 52px;align-items:start}
+}
 .steps li{counter-increment:step;
   display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:20px}
 .steps li > *{grid-column:2}
@@ -160,7 +175,7 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
 }
 .steps h3{font-size:17px;font-weight:600;color:var(--paper);
   margin:6px 0 8px;letter-spacing:-.01em}
-.steps p{font-size:16px;line-height:1.6;color:var(--ink-300);max-width:72ch}
+.steps p{font-size:16px;line-height:1.6;color:var(--ink-300);max-width:70ch}
 .steps p + p{margin-top:10px}
 .steps i{font-style:normal;color:var(--paper-dim)}
 
@@ -232,14 +247,15 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
   background:var(--ink-900)}
 .asset img{width:100%;height:auto;display:block}
 .asset figcaption{margin-top:12px;font-size:14px;line-height:1.5;
-  color:var(--ink-400);max-width:70ch}
+  color:var(--ink-400);max-width:66ch}
 
 /* De knoppen op hun eigen maat, met een rand eromheen zodat je ziet waar het
    transparante doek van 320x100 begint. */
 /* Het infopaneel is staand en 320 breed; op zijn eigen maat laten staan,
    want uitgerekt tot kolombreedte is het een affiche in plaats van een
    paneel. */
-.asset--info{display:flex;margin-top:30px;flex-direction:row;gap:24px;align-items:flex-end}
+.asset--info{display:flex;margin-top:30px;flex-direction:row;gap:28px;
+  align-items:flex-end;max-width:1040px}
 .asset--info a{flex:0 0 320px;max-width:320px}
 .asset--info figcaption{margin-top:0}
 @media(max-width:720px){
