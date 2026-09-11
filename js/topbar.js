@@ -136,10 +136,10 @@ var ribSub = null, subBar = null, subShown = null, subDone = false;
 
 function subCap(done){
   if(!SUB.reward) return 'subs';
-  if(done) return SUB.reward + ' unlocked';
-  /* De termijn hoort bij de belofte, dus hij staat erachter zolang het doel
-     nog open staat. Is het gehaald, dan is de datum niet meer het nieuws. */
-  return SUB.reward + ' at ' + SUBGOAL + (SUB.deadline ? ' \u00b7 ' + SUB.deadline : '');
+  /* De toevoeging hoort bij de belofte en blijft dus ook staan als het doel
+     gehaald is: juist dan wil een kijker weten hoe lang de wig blijft. */
+  var t = done ? SUB.reward + ' unlocked' : SUB.reward + ' at ' + SUBGOAL;
+  return t + (SUB.note ? ' \u00b7 ' + SUB.note : '');
 }
 
 var SUBSRC = (SUB.source || 'streamelements').toLowerCase();
@@ -157,7 +157,10 @@ if(SUBGOAL){
      refresh op nul zou staan. Wat hij telt zijn sub-events sinds jij hem
      voor het laatst op nul zette, en dat is je aantal actieve subs zolang
      je vanaf nul begon. */
-  if(SUBSRC === 'streamelements' && window.SE && window.SE.onSession){
+  /* In demo staat de stand al klaar; de poll voor de andere bronnen draait
+     daar toch niet, dus deze abonnee hoort er ook buiten te blijven. Anders
+     overschrijft je echte sessie het cijfer waar je de balk mee uitlijnt. */
+  if(!DEMO && SUBSRC === 'streamelements' && window.SE && window.SE.onSession){
     window.SE.onSession(function(d){
       var g = d && d['subscriber-goal'];
       if(g && typeof g.amount === 'number') setSubBase(g.amount);
