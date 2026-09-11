@@ -66,6 +66,9 @@ function offline(){
         img.alt = ''; img.src = c.render;
         box.appendChild(img);
         stage.appendChild(box);
+        /* Zelfde vermelding als op de scene-schermen: deze characters komen
+           van Raider.IO en dit scherm staat los op je kanaalpagina. */
+        if(!U.$('.scene__src')) stage.appendChild(U.el('div','scene__src','raider.io'));
       }).catch(function(){});
     });
   }

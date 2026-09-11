@@ -127,6 +127,15 @@ img.alert__wig{object-fit:contain}
   margin-top:18px;font-size:24px;font-weight:600;color:var(--ink-300);
   letter-spacing:.16em;text-transform:uppercase;
 }
+/* De bronvermelding staat in de hoek, buiten het midden: de melding gaat
+   over de boss, niet over waar het cijfer vandaan komt. Hij komt mee op met
+   de was, want hij zit in hetzelfde element -- geen eigen beweging. */
+.raid__src{
+  position:absolute;right:38px;bottom:26px;z-index:1;
+  font-size:16px;font-weight:600;letter-spacing:.16em;
+  color:var(--ink-400);
+}
+
 .raid__stats{display:flex;justify-content:center;gap:76px;margin-top:56px}
 .raid__v{
   font-family:var(--f-mono);font-variant-numeric:tabular-nums;

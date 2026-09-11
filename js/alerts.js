@@ -216,6 +216,10 @@ function renderRaid(e){
   mid.appendChild(row);
 
   node.appendChild(mid);
+  /* Bron in de hoek. Deze melding draait op Raider.IO's live-tracking en
+     staat hier los van de onderbalk in beeld, dus de vermelding hoort ook
+     hier. Klein en gedempt: het is een bronregel, niet het nieuws. */
+  node.appendChild(U.el('div','raid__src','raider.io'));
   return node;
 }
 

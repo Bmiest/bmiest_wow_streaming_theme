@@ -529,10 +529,15 @@ Their API is free for this, and it comes with one condition. From the terms on
 > activity that harms the Raider.IO platform or its users. Automated scraping
 > beyond the published endpoints is prohibited.
 
-So the characters card and the raid card each carry a small `raider.io` tag on
-the right edge, opposite their own caption. A stream has nothing to click, so
-the name in frame is the honest equivalent of a link; the front page carries the
-real one, in the source list and in the footer. Take those tags out and you are
+So every surface that shows their data credits them. In the bottom bar the
+characters card and the raid card each carry a small `raider.io` tag on the
+right edge, opposite their own caption. The full-screen boss-down and new-best
+alerts carry one in the corner, because those run on the same live tracking and
+appear on their own. The starting, BRB and ending screens carry one as soon as a
+character actually loads, and so does the offline banner, because the bottom bar
+with its tag is not on screen at those moments. A stream has nothing to click,
+so the name in frame is the honest equivalent of a link; the front page carries
+the real one, in the source list and in the footer. Take those out and you are
 no longer keeping your side of it.
 
 Two things follow from Acceptable Use. Everything here is personal and community

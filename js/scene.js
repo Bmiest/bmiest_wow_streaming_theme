@@ -208,6 +208,17 @@ function refresh(){
   if(!list.length || !window.RaiderIO) return;
   var stage = document.getElementById('stage');
 
+  /* De characters op de flanken komen van Raider.IO, en op deze schermen is
+     de onderbalk met zijn bronlabel niet in beeld. Dus hier een eigen
+     vermelding, zodra er ook echt een character verschijnt -- staat er niks,
+     dan valt er niks te crediteren. */
+  var credited = false;
+  function credit(){
+    if(credited) return;
+    credited = true;
+    stage.appendChild(U.el('div','scene__src','raider.io'));
+  }
+
   list.slice(0, 2).forEach(function(spec, i){
     window.RaiderIO.character(spec).then(function(c){
       if(!c.render) return;
@@ -218,6 +229,7 @@ function refresh(){
       img.src = c.render;
       box.appendChild(img);
       stage.appendChild(box);
+      credit();
     }).catch(function(){});
   });
 })();
