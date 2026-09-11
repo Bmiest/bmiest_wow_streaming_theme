@@ -115,7 +115,7 @@ window.OVERLAY_CONFIG = {
     // een rij vakjes -- "drie van vijf" lees je zo in een oogopslag, waar
     // een balk op 60% je laat rekenen. Daarboven een gewone balk.
     subs: {
-      target: 5,
+      target: 10,
       reward: 'priest wig',   // leeg = alleen de teller, geen belofte
 
       // Plaatje van de beloning, te zien in de melding bij elke sub. Leeg
@@ -131,7 +131,7 @@ window.OVERLAY_CONFIG = {
       // ('till end of tier'), tot wanneer je het doel open zet ('by nov 30'),
       // of wat je maar wil. Gewone tekst, geen datum die omgerekend wordt --
       // dan staat er wat jij beloofd hebt in plaats van wat een tijdzone
-      // ervan maakt. Leeg laten mag; dan staat er alleen "priest wig at 5".
+      // ervan maakt. Leeg laten mag; dan staat er alleen "priest wig at 10".
       note: 'till end of tier',
 
       // Waar de stand vandaan komt. Let op wat je eigenlijk vraagt: een

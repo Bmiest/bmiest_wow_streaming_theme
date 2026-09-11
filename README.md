@@ -258,8 +258,8 @@ bar inside the follower ribbon itself.
 
 ### The sub goal
 
-Right of the followers sits a sub counter: `0 / 5`, five boxes behind it, and
-the promise on the rim, `priest wig at 5 · till end of tier`. Every other ribbon
+Right of the followers sits a sub counter: `0 / 10`, ten boxes behind it, and
+the promise on the rim, `priest wig at 10 · till end of tier`. Every other ribbon
 in the bar reports a number; this one makes a promise. So the target, the
 reward and the terms all come from the config. The overlay does not invent
 promises on your behalf.
@@ -268,7 +268,7 @@ promises on your behalf.
 goals: {
   followers: 200,
   subs: {
-    target  : 5,
+    target  : 10,
     reward  : 'priest wig',
     note    : 'till end of tier', // optional, sits behind the promise
     source  : 'streamelements',
