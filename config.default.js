@@ -122,7 +122,7 @@ window.OVERLAY_CONFIG = {
       // je wil tonen, geen datum die omgerekend wordt: dan staat er wat jij
       // beloofd hebt in plaats van wat een tijdzone ervan maakt. Leeg laten
       // mag; dan staat er alleen "priest wig at 10".
-      deadline: 'by sep 30',
+      deadline: 'by nov 30',
 
       // Waar de stand vandaan komt. Let op wat je eigenlijk vraagt: een
       // teller die optelt is iets anders dan het aantal subs dat je NU hebt.
