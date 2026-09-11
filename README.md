@@ -259,22 +259,32 @@ bar inside the follower ribbon itself.
 ### The sub goal
 
 Right of the followers sits a sub counter: `0 / 10`, ten boxes behind it, and
-the promise on the rim, `priest wig at 10 · till end of tier`. Every other ribbon
-in the bar reports a number; this one makes a promise. So the target, the
-reward and the terms all come from the config. The overlay does not invent
-promises on your behalf.
+the next promise on the rim, `priest wig at 5`. Every other ribbon in the bar
+reports a number; this one makes a promise. So the tiers, their rewards and
+their terms all come from the config. The overlay does not invent promises on
+your behalf.
 
 ```js
 goals: {
   followers: 200,
   subs: {
-    target  : 10,
-    reward  : 'priest wig',
-    note    : 'till end of tier', // optional, sits behind the promise
-    source  : 'streamelements',
+    tiers: [
+      { at:  5, reward: 'priest wig' },
+      { at: 10, reward: 'priest wig', note: 'till end of tier' },
+    ],
+    source: 'streamelements',
   },
 },
 ```
+
+A goal can have more than one step. The highest tier sets the length of the
+bar; a gold hairline marks where an earlier one falls due. The rim always
+carries the next tier you have not reached, because that is the only one a
+viewer can still do anything about: `priest wig at 5` until the fifth box, then
+`priest wig at 10 · till end of tier`, and `priest wig unlocked · till end of
+tier` once it is all in. Boxes for a tier you already won turn gold, so what is
+banked and what you are working on are two different colours. One tier is fine
+too, and then it is simply a goal with a reward.
 
 Up to a target of twelve the bar is a row of boxes instead of a fill. You can
 count boxes; a bar sitting at 60% you have to work out. Above twelve it falls

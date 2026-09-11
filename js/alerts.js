@@ -41,8 +41,32 @@ var SOUND = (function(){
    bovenbalk, dus de belofte staat maar op een plek. */
 var SUB = (CFG.goals && CFG.goals.subs) || {};
 
+/* Dezelfde trappen als de bovenbalk, en dezelfde regel: toon de
+   eerstvolgende die nog niet gehaald is. Daarvoor is de stand nodig, dus
+   die komt uit SE's doelteller -- lukt dat niet, dan valt hij terug op de
+   eerste trap, wat aan het begin van een doel het juiste antwoord is. */
+var TIERS = (SUB.tiers && SUB.tiers.length
+      ? SUB.tiers.slice()
+      : (SUB.target ? [{ at:SUB.target, reward:SUB.reward, note:SUB.note }] : []))
+    .filter(function(t){ return t && t.at > 0; })
+    .sort(function(a, b){ return a.at - b.at; });
+
+var subCount = 0;
+if(window.SE && window.SE.onSession){
+  window.SE.onSession(function(d){
+    var g = d && d['subscriber-goal'];
+    if(g && typeof g.amount === 'number') subCount = g.amount;
+  });
+}
+
+function nextTier(){
+  for(var i = 0; i < TIERS.length; i++) if(subCount < TIERS[i].at) return TIERS[i];
+  return TIERS[TIERS.length - 1];
+}
+
 function reward(){
-  if(!SUB.reward && !SUB.image) return document.createDocumentFragment();
+  var tier = nextTier();
+  if(!tier && !SUB.image) return document.createDocumentFragment();
   var wrap = U.el('div','alert__reward');
 
   if(SUB.image){
@@ -64,9 +88,11 @@ function reward(){
     wrap.appendChild(d);
   }
 
-  if(SUB.reward && SUB.target){
+  if(tier && tier.reward){
+    var done = subCount >= tier.at;
     wrap.appendChild(U.el('div','alert__promise',
-      SUB.reward + ' at ' + SUB.target + (SUB.note ? ' \u00b7 ' + SUB.note : '')));
+      (done ? tier.reward + ' unlocked' : tier.reward + ' at ' + tier.at) +
+      (tier.note ? ' \u00b7 ' + tier.note : '')));
   }
   return wrap;
 }

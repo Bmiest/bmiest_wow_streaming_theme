@@ -110,13 +110,21 @@ window.OVERLAY_CONFIG = {
   goals: {
     followers: 200,
 
-    // Subdoel: teller plus balk in de bovenbalk, met de beloning als
-    // bijschrift op de rand. Bij een doel tot en met twaalf wordt de balk
-    // een rij vakjes -- "drie van vijf" lees je zo in een oogopslag, waar
-    // een balk op 60% je laat rekenen. Daarboven een gewone balk.
+    // Subdoel: teller plus balk in de bovenbalk, met de eerstvolgende
+    // beloning als bijschrift op de rand. Tot en met twaalf wordt de balk
+    // een rij vakjes -- "drie van tien" lees je zo in een oogopslag, waar
+    // een balk op 30% je laat rekenen. Daarboven een gewone balk.
     subs: {
-      target: 10,
-      reward: 'priest wig',   // leeg = alleen de teller, geen belofte
+      // Trappen. Elke trap is een aantal subs met wat je daarvoor doet; de
+      // hoogste bepaalt hoe lang de balk is. Op de rand staat steeds de
+      // eerstvolgende die je nog niet gehaald hebt, want dat is de enige die
+      // je kijkers nog iets kan schelen. Gehaalde trappen kleuren goud.
+      //
+      // Eén trap mag ook: dan is het gewoon een doel met een beloning.
+      tiers: [
+        { at:  5, reward: 'priest wig' },
+        { at: 10, reward: 'priest wig', note: 'till end of tier' },
+      ],
 
       // Plaatje van de beloning, te zien in de melding bij elke sub. Leeg
       // laten geeft de getekende wig uit js/ribbon.js. Wil je een foto, zet
@@ -126,13 +134,6 @@ window.OVERLAY_CONFIG = {
       // media/NOTICE.txt. Een eigen foto van je eigen wig mag natuurlijk wel
       // mee; haal hem dan uit .gitignore.
       image: '',
-
-      // Optionele toevoeging achter de belofte op de rand: hoe lang hij geldt
-      // ('till end of tier'), tot wanneer je het doel open zet ('by nov 30'),
-      // of wat je maar wil. Gewone tekst, geen datum die omgerekend wordt --
-      // dan staat er wat jij beloofd hebt in plaats van wat een tijdzone
-      // ervan maakt. Leeg laten mag; dan staat er alleen "priest wig at 10".
-      note: 'till end of tier',
 
       // Waar de stand vandaan komt. Let op wat je eigenlijk vraagt: een
       // teller die optelt is iets anders dan het aantal subs dat je NU hebt.
@@ -150,8 +151,8 @@ window.OVERLAY_CONFIG = {
       //        wel; zie de README. Zet hem op nul als je vanaf nul begint, SE
       //        reset hem niet tussen sessies. Hij telt sub-events, dus een resub telt ook
       //        mee en iemand die opzegt gaat er niet af. Bij een doel van
-      //        vijf zie je dat gebeuren, en dan corrigeer je het getal in
-      //        datzelfde scherm.
+      //        deze grootte zie je dat gebeuren, en dan corrigeer je het
+      //        getal in datzelfde scherm.
       //
       //   'decapi' = DecAPI's subcount: je werkelijke aantal actieve subs,
       //        rechtstreeks bij Twitch opgehaald. Het enige dat klopt als je

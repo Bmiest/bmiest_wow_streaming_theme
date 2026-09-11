@@ -20,7 +20,18 @@ var DEMO = /[?&]demo=1/.test(location.search);
 
 var GOAL = (CFG.goals && CFG.goals.followers) || 0;
 var SUB  = (CFG.goals && CFG.goals.subs) || {};
-var SUBGOAL = SUB.target || 0;
+
+/* Trappen, oplopend. Een doel zonder trappen mag ook: target/reward/note
+   wordt dan die ene trap, zodat een simpele config simpel blijft. */
+var TIERS = (SUB.tiers && SUB.tiers.length
+      ? SUB.tiers.slice()
+      : (SUB.target ? [{ at:SUB.target, reward:SUB.reward, note:SUB.note }] : []))
+    .filter(function(t){ return t && t.at > 0; })
+    .sort(function(a, b){ return a.at - b.at; });
+
+/* De hoogste trap bepaalt hoe lang de balk is. */
+var SUBGOAL = TIERS.length ? TIERS[TIERS.length - 1].at : 0;
+var MARKS   = TIERS.map(function(t){ return t.at; });
 
 /* ---- labels --------------------------------------------------------
    Sleutel -> bijschrift en tint. De sleutels zijn die van StreamElements,
@@ -94,14 +105,20 @@ ribLive.classList.add('rib--empty');
    dus dan een gewone balk met het doelgetal ernaast. */
 var PIP_MAX = 12;
 
-function goalBar(target){
+function goalBar(target, marks){
   var node = U.el('span','goal'), boxes = [];
   var pips = target > 0 && target <= PIP_MAX;
 
   if(pips){
     node.classList.add('goal--pips');
     var track = U.el('span','goal__track');
-    for(var i = 0; i < target; i++) boxes.push(track.appendChild(U.el('span','goal__pip')));
+    for(var i = 0; i < target; i++){
+      boxes.push(track.appendChild(U.el('span','goal__pip')));
+      /* Streepje waar een trap eindigt die niet het eind van de balk is:
+         daar ligt een belofte die eerder ingaat. */
+      if(marks && marks.indexOf(i + 1) > -1 && i + 1 < target)
+        track.appendChild(U.el('span','goal__tick'));
+    }
     node.appendChild(track);
   } else {
     node.innerHTML = '<span class="goal__track"><span class="goal__fill"></span></span>' +
@@ -112,8 +129,15 @@ function goalBar(target){
   var fill = node.querySelector('.goal__fill');
   node.set = function(n){
     if(!target || n == null) return;
-    if(pips) boxes.forEach(function(b, i){ b.classList.toggle('on', i < n); });
-    else fill.style.width = Math.min(100, n / target * 100).toFixed(1) + '%';
+    if(!pips){ fill.style.width = Math.min(100, n / target * 100).toFixed(1) + '%'; return; }
+    /* Gehaalde trappen kleuren goud: die beloning is binnen. De vakjes
+       daarboven horen bij de lopende trap en blijven wit. */
+    var won = 0;
+    (marks || []).forEach(function(m){ if(n >= m) won = m; });
+    boxes.forEach(function(b, i){
+      b.classList.toggle('on',  i < n);
+      b.classList.toggle('won', i < won);
+    });
   };
   return node;
 }
@@ -134,20 +158,29 @@ U.$('#stats').appendChild(ribFoll);
    overlay verzint geen beloftes namens jou. */
 var ribSub = null, subBar = null, subShown = null, subDone = false;
 
-function subCap(done){
-  if(!SUB.reward) return 'subs';
-  /* De toevoeging hoort bij de belofte en blijft dus ook staan als het doel
+/* De eerstvolgende trap die nog niet gehaald is. Dat is de enige die een
+   kijker nog iets kan schelen; zijn ze allemaal binnen, dan de laatste,
+   want dan is die het nieuws. */
+function tierAt(n){
+  for(var i = 0; i < TIERS.length; i++) if(n < TIERS[i].at) return { t:TIERS[i], done:false };
+  return { t:TIERS[TIERS.length - 1], done:true };
+}
+
+function subCap(n){
+  var s = tierAt(n), t = s.t;
+  if(!t || !t.reward) return 'subs';
+  /* De toevoeging hoort bij de belofte en blijft dus ook staan als de trap
      gehaald is: juist dan wil een kijker weten hoe lang de wig blijft. */
-  var t = done ? SUB.reward + ' unlocked' : SUB.reward + ' at ' + SUBGOAL;
-  return t + (SUB.note ? ' \u00b7 ' + SUB.note : '');
+  return (s.done ? t.reward + ' unlocked' : t.reward + ' at ' + t.at)
+       + (t.note ? ' \u00b7 ' + t.note : '');
 }
 
 var SUBSRC = (SUB.source || 'streamelements').toLowerCase();
 
 if(SUBGOAL){
-  ribSub = window.Ribbon.make('sub', subCap(false), '\u2014');
+  ribSub = window.Ribbon.make('sub', subCap(0), '\u2014');
   ribSub.classList.add('rib--num', 'rib--empty');
-  subBar = goalBar(SUBGOAL);
+  subBar = goalBar(SUBGOAL, MARKS);
   ribSub.querySelector('.rib__in').appendChild(subBar);
   U.$('#stats').appendChild(ribSub);
 
@@ -181,12 +214,14 @@ function setSubs(n){
      doorlopende animatie -- dit vlak staat de hele stream in beeld, en iets
      dat blijft pulseren kost elke frame bitrate die de gameplay nodig heeft.
      De ribbon flitst al één keer, via setValue hierboven. */
+  /* Het bijschrift verspringt bij elke trap, niet alleen aan het eind. */
+  var cap = ribSub.querySelector('.rib__cap');
+  if(cap) cap.textContent = subCap(n);
+
   var done = n >= SUBGOAL;
   if(done === subDone) return;
   subDone = done;
   ribSub.classList.toggle('rib--done', done);
-  var cap = ribSub.querySelector('.rib__cap');
-  if(cap) cap.textContent = subCap(done);
 }
 
 /* De stand uit de bron, plus wat er sinds de laatste poll live binnenkwam.

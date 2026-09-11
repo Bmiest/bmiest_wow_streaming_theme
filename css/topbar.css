@@ -54,6 +54,16 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
   transition:background var(--t-med) var(--ease)}
 .goal__pip.on{background:var(--holy)}
 
+/* Gehaalde trap: goud, dezelfde kleur die de rest van de overlay voor een
+   binnengehaalde mijlpaal gebruikt. De vakjes erboven horen bij de lopende
+   trap en blijven wit, zodat je in een oogopslag ziet wat binnen is en
+   waar je nu aan werkt. */
+.goal__pip.won{background:var(--gold)}
+
+/* Streepje waar een trap eindigt die niet het eind van de balk is: daar
+   ligt een belofte die eerder ingaat dan de laatste. */
+.goal__tick{width:1px;height:15px;margin:0 3px;background:var(--gold);opacity:.7}
+
 /* Doel gehaald. Alleen het bijschrift verkleurt: dat is het stukje dat de
    afspraak draagt ("priest wig unlocked"), en het is klein genoeg om de
    encoder niets te kosten. Geen gloed, geen puls -- dit staat de rest van

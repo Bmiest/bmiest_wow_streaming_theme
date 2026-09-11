@@ -28,20 +28,24 @@ var GLYPH = {
   viewers:'<path d="M9 4.4c-3.3 0-6 2-7.2 4.6C3 11.6 5.7 13.6 9 13.6s6-2 7.2-4.6C15 7.4 12.3 4.4 9 4.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.1" fill="currentColor"/>'
 };
 
-/* De beloning van het subdoel, getekend in plaats van gefotografeerd. Een
-   productfoto van een verkoper is andermans materiaal en hoort niet in een
-   repo die MIT is; een witte studiofoto vecht bovendien met een overlay die
-   verder uit vlakke tinten bestaat, en een verloop over een foto is precies
-   wat er op 505 kbps als eerste gaat banden.
+/* De beloning van het subdoel: de monnikskruin, getekend in plaats van
+   gefotografeerd. Een productfoto van een verkoper is andermans materiaal en
+   hoort niet in een repo die MIT is; een uitknip op wit vecht bovendien met
+   een overlay van vlakke tinten, en een verloop over een licht object is op
+   505 kbps het eerste dat gaat banden.
+
+   Drie vormen: het hoofd, de pot haar eroverheen met een rechte pony, en de
+   kale kruin is gewoon het hoofd dat er bovenuit steekt. De twee kleuren
+   staan als hex en niet als token -- dit is een plaatje van een voorwerp,
+   geen onderdeel van de interface, net zoals de klassekleuren in js/util.js
+   uit WoW komen en niet uit dit palet.
 
    Wie wel een foto wil zet goals.subs.image; dan komt die hiervoor in de
    plaats. Zie media/NOTICE.txt. */
 var WIG =
   '<svg class="wig" viewBox="0 0 120 150" aria-hidden="true">' +
-    '<ellipse cx="60" cy="66" rx="26" ry="33" fill="var(--ink-500)"/>' +
-    '<path fill="var(--paper)" d="M20 116C20 58 18 8 60 8s40 50 40 108c0 12-3 22-8 28-4 4-10 1-9-5 ' +
-      '5-26 5-56 0-76-4-18-11-26-23-26s-19 8-23 26c-5 20-5 50 0 76 1 6-5 9-9 5-5-6-8-16-8-28Z"/>' +
-    '<path fill="var(--paper)" d="M36 44c4-13 12-20 24-20s20 7 24 20c-7-7-15-10-24-10s-17 3-24 10Z"/>' +
+    '<ellipse cx="60" cy="76" rx="31" ry="42" fill="#cbb49c"/>' +
+    '<path fill="#a8845c" d="M19 98C17 72 31 44 60 44s43 28 41 54l-9-16H28Z"/>' +
   '</svg>';
 
 /* maakt <div class="rib"><span cap><div bar><div in><acc><val> */
