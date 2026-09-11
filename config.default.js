@@ -122,8 +122,8 @@ window.OVERLAY_CONFIG = {
       //
       // Eén trap mag ook: dan is het gewoon een doel met een beloning.
       tiers: [
-        { at:  5, reward: 'priest wig' },
-        { at: 10, reward: 'priest wig', note: 'till end of tier' },
+        { at:  5, reward: 'priest/monk wig' },
+        { at: 10, reward: 'priest/monk wig', note: 'till end of tier' },
       ],
 
       // Plaatje van de beloning, te zien in de melding bij elke sub. Leeg
@@ -218,7 +218,7 @@ window.OVERLAY_CONFIG = {
   // Zelfde tokens en dezelfde ribbons als de overlay, dus je kanaalpagina
   // en je stream lopen niet uit elkaar.
   graphics: {
-    tagline: 'Mythic+ and raiding on EU-Draenor',
+    tagline: 'Super average mythic raiding on EU-Draenor',
 
     // Het infopaneel over de overlay zelf (a=overlay). Geen knop maar een
     // heel paneel: wie op je kanaalpagina doorklikt wil weten wat hij op
