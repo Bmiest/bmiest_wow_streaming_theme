@@ -579,6 +579,25 @@ pull count climbs, the best percentage drops, and on a kill the block flips to
 iframe carries `refresh=60` instead and Raider.IO refreshes its own widget every
 60 s.
 
+**What the cards say about all this.** Both Raider.IO cards carry the freshness
+of their own data in the source label on the top right: `raider.io · 22:41`.
+That is deliberately Raider.IO's timestamp and not the moment this overlay
+fetched — `last_crawled_at` for the characters, the newest pull for the raid
+card. The difference is the whole point. When their parsing falls behind on a
+busy evening, the polls here keep succeeding and the card just keeps saying the
+same thing; a clock of our own fetch would tick along happily and tell you
+nothing. Once a card falls behind — fifteen minutes for a pull, twelve hours
+for a crawl — the age comes with it (`22:41 · 38m late`) and the stamp turns
+gold. Not red: nothing is broken, Raider.IO is simply not caught up. Those two
+thresholds are far apart on purpose, because live tracking is supposed to keep
+pace with the raid while a character crawl a few hours old is just Raider.IO's
+normal rhythm — they recrawl when someone opens your profile, not while you
+play. `raiderio.showUpdated: false` leaves only the attribution. In `widget`
+mode the raid card gets no stamp: that iframe refreshes itself on another
+domain, so when it last did is not ours to know, and an invented time is worse
+than none. `?health=1` carries the other half, the time this overlay last polled
+each source, which is how you tell a stalled bar from a stalled crawler.
+
 **Which tier, also every 5 minutes.** The character rows show the tier
 Raider.IO's live tracking calls current, and that lookup runs on every poll
 rather than once at load, so the cards follow the guild into a new raid without

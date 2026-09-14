@@ -80,6 +80,27 @@ function load(){
       best = d.bestPercent;
     }
 
+    /* Hoe ver Raider.IO zelf is. Zij lezen je combatlog en dat parsen loopt
+       achter als het druk is; onze poll slaagt dan nog steeds, alleen staat
+       er hetzelfde in als dertig seconden geleden. Dit is dus het enige
+       getal dat "houdt de kaart de raid bij" beantwoordt -- het tijdstip van
+       onze fetch zegt alleen dat het netwerk het doet.
+
+       De nieuwste tijd die in de pulls staat, want een lopende pull heeft
+       nog geen pull_ended_at. Valt bosspulls weg (die mag falen), dan blijft
+       pullStartedAt uit boss-progress over. */
+    var updated = null;
+    function newest(t){
+      var v = t ? Date.parse(t) : NaN;
+      if(!isNaN(v) && (updated === null || v > updated)) updated = v;
+    }
+    ((r[1] && r[1].pulls) || []).forEach(function(p){
+      var x = p.details || {};
+      newest(x.pull_ended_at);
+      newest(x.pull_started_at);
+    });
+    newest(d.pullStartedAt);
+
     return {
       guild     : d.guild ? d.guild.name : '',
       raidName  : d.raid  ? d.raid.name  : '',
@@ -98,6 +119,7 @@ function load(){
       bestPhase : bestPhase,
       phase     : d.phase_label || '',
       defeated  : !!d.isDefeated,
+      updated   : updated,
       pulls     : pulls
     };
   });

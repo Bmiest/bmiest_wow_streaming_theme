@@ -41,6 +41,46 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-icon]'), function(
 U.$('#camPlate').appendChild(window.Ribbon.make('live', '',
   CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live'));
 
+/* Tijdstempel in het bronlabel van een kaart. Bewust de tijd die in de DATA
+   zit -- Raider.IO's crawl van je character, en de laatste pull die hun
+   live-tracking verwerkt heeft -- en niet het moment waarop wij ophaalden.
+
+   Dat verschil is het hele punt. Loopt Raider.IO achter met het parsen van
+   je log (dat gebeurt op een drukke avond), dan slagen onze polls gewoon en
+   staat er alleen dertig seconden later hetzelfde in. Een klokje van onze
+   eigen fetch tikt dan vrolijk door terwijl de kaart de raid niet bijhoudt,
+   en dat is precies het geval waarin je dit stempeltje nodig hebt. Wanneer
+   wij pollen staat in de diagnoseregel (?health=1); dat is het antwoord op
+   "ligt het aan mij", en dat hoort niet op je stream.
+
+   Per kaart, want de twee bronnen lopen niet gelijk: characters crawlen zij
+   in uren, live-tracking in seconden.
+
+   Duurt het te lang, dan komt de ouderdom erbij en kleurt hij goud. Onder de
+   grens niet: dan is het gewoon een tijd en hoeft er niets te schreeuwen. */
+var STAMP = (CFG.raiderio && CFG.raiderio.showUpdated) !== false;
+
+function lateness(min){
+  if(min < 60)   return min + 'm';
+  if(min < 1440) return Math.round(min / 60) + 'h';
+  return Math.round(min / 1440) + 'd';
+}
+
+function stamp(sel, when, lateAfterMin){
+  if(!STAMP) return;
+  var n = U.$(sel); if(!n) return;
+  var t = typeof when === 'number' ? when : (when ? Date.parse(when) : NaN);
+  if(!t || isNaN(t)){
+    /* Geen tijd in het antwoord: liever leeg dan een verzonnen tijd. */
+    n.textContent = ''; n.classList.remove('is-late');
+    return;
+  }
+  var min  = Math.round((Date.now() - t) / 60000);
+  var late = min >= lateAfterMin;
+  n.textContent = U.hhmm(t) + (late ? '  \u00b7  ' + lateness(min) + ' late' : '');
+  n.classList.toggle('is-late', late);
+}
+
 /* =====================================================================
    CHARACTERS  --  één kolom per character, naast elkaar in dezelfde kaart
    ===================================================================== */
@@ -173,15 +213,22 @@ function loadRaidSlug(){
 }
 
 /* Raider.IO crawlt characters op hun eigen ritme en zet er last_crawled_at
-   bij. Staat daar iets van dagen oud, dan verspringt er tijdens je stream
-   niets en is dat geen fout van de overlay. Onder twee uur melden we niets:
-   die regel moet alleen aangaan als er iets te zien is. */
-function crawlNote(list){
+   bij. De kaart toont er twee naast elkaar, dus de oudste crawl is wat de
+   kaart waard is -- die staat ook in het stempeltje bij het bronlabel. */
+function oldestCrawl(list){
   var oldest = null;
   list.forEach(function(c){
     var t = c.crawled ? Date.parse(c.crawled) : NaN;
     if(!isNaN(t) && (oldest === null || t < oldest)) oldest = t;
   });
+  return oldest;
+}
+
+/* Staat daar iets van dagen oud, dan verspringt er tijdens je stream niets en
+   is dat geen fout van de overlay. Onder twee uur melden we niets: deze regel
+   moet alleen aangaan als er iets te zien is. */
+function crawlNote(list){
+  var oldest = oldestCrawl(list);
   if(oldest === null) return '';
   var min = Math.round((Date.now() - oldest) / 60000);
   if(min < 120)  return '';
@@ -200,8 +247,20 @@ function loadChars(){
     }));
   }).then(function(res){
     var ok = res.filter(Boolean);
-    U.setHealth('raider.io', ok.length > 0, crawlNote(ok));
+    /* Twee tijden, twee plekken. In de kaart wat Raider.IO weet, in de
+       diagnoseregel wanneer wij het vroegen -- naast elkaar lees je daaruit
+       af of de overlay stilstaat of hun crawler. */
+    U.setHealth('raider.io', ok.length > 0,
+      [crawlNote(ok), 'gepolld ' + U.hhmm()].filter(Boolean).join(', '));
     if(!ok.length) return;
+    /* Twaalf uur, ruim boven de grens van crawlNote hierboven. Die regel is
+       een diagnosehulpje achter ?health=1 en mag bij twee uur al iets zeggen;
+       dit stempeltje staat op je stream. Raider.IO crawlt een character niet
+       terwijl je speelt maar als iemand je profiel opvraagt, dus een crawl van
+       een paar uur oud is het normale ritme en niet iets om goud voor te
+       kleuren -- dan zegt die kleur straks niets meer. Pas als er een nacht
+       tussen zit staat je ilvl er echt verkeerd bij. */
+    stamp('#charAt', oldestCrawl(ok), 720);
     showChars(ok);
   });
 }
@@ -227,6 +286,10 @@ function widgetUrl(){
     + '&orientation=rect&hide=logo&chromargb=transparent&theme=dragonflight&refresh=60';
 }
 
+/* Geen tijdstempel in deze modus: de widget ververst zichzelf (refresh=60)
+   in een iframe van een ander domein. Wanneer dat gebeurde weten we niet, en
+   de mounttijd neerzetten zou een tijd zijn die na een uur nog steeds die van
+   het opstarten is. Liever leeg dan verzonnen. */
 function mountWidget(){
   var box = U.$('#rioWidget'), fr = U.$('#rioFrame');
   box.style.display = '';
@@ -345,7 +408,15 @@ function paintBoss(L){
    blijft alleen dit blok leeg en loopt de rest door. */
 function loadLive(){
   if(!window.RioLive) return Promise.resolve();
-  return window.RioLive.load().then(paintBoss).catch(function(e){
+  return window.RioLive.load().then(function(L){
+    paintBoss(L);
+    /* Vijftien minuten: een pull duurt er een stuk of zeven en een pauze
+       tussendoor mag. Daarboven zit je wel te raiden terwijl de kaart
+       stilstaat, en dat is het geval dat je wil zien. */
+    if(L) stamp('#bossAt', L.updated, 15);
+    U.setHealth('rio-live', true, 'gepolld ' + U.hhmm());
+  }).catch(function(e){
+    U.setHealth('rio-live', false);
     console.warn('[rio-live]', e.message);
   });
 }

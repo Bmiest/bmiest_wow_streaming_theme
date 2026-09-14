@@ -68,6 +68,17 @@ function num(n){
   return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
 }
 
+/* Wandklok als uu:mm, lokale tijd. De kaarten in de onderbalk zetten hiermee
+   neer wanneer hun bron voor het laatst antwoordde, en die lees je af tegen
+   de klok op je eigen scherm -- niet tegen UTC. Seconden zouden er alleen
+   maar bij bewegen: de snelste kaart ververst per dertig seconden. */
+function hhmm(t){
+  var d = t == null ? new Date() : new Date(t);
+  if(isNaN(d.getTime())) return '';
+  var h = d.getHours(), m = d.getMinutes();
+  return (h<10?'0':'') + h + ':' + (m<10?'0':'') + m;
+}
+
 // Telt op naar de nieuwe waarde en flasht jade. Kort en op een klein
 // vlak, dus goedkoop voor de encoder.
 function countTo(node,to,fmt){
@@ -162,7 +173,7 @@ function setHealth(key, ok, note){
 
 window.U = {
   CFG:CFG, CLASS_COLORS:CLASS_COLORS,
-  $:$, el:el, esc:esc, num:num, countTo:countTo, slug:slug,
+  $:$, el:el, esc:esc, num:num, hhmm:hhmm, countTo:countTo, slug:slug,
   getJSON:getJSON, getText:getText, poll:poll, pollAligned:pollAligned,
   setHealth:setHealth
 };

@@ -108,6 +108,28 @@ window.OVERLAY_CONFIG = {
     },
     rotateSeconds : 20,
     pollSeconds   : 300,
+
+    // Zet in het bronlabel van de character- en de raidkaart hoe vers de
+    // gegevens erin zijn ("raider.io · 21:04"). Dat is de tijd die in de
+    // data zit -- Raider.IO's crawl van je character, en de laatste pull
+    // die hun live-tracking verwerkt heeft -- en niet het moment waarop
+    // deze overlay ophaalde.
+    //
+    // Precies dat onderscheid is waar het voor bedoeld is: loopt Raider.IO
+    // achter met het parsen van je log, dan slagen onze polls gewoon en
+    // blijft de kaart op dezelfde stand staan. Een klokje van onze eigen
+    // fetch zou dan doortikken en niets melden. Wanneer wij pollen staat in
+    // de diagnoseregel (?health=1), want dat hoort niet op je stream.
+    //
+    // Loopt de bron te ver achter -- een kwartier voor een pull, twaalf uur
+    // voor een crawl -- dan komt de ouderdom erbij ("21:04 · 38m late") en
+    // kleurt het stempeltje goud. Die twee grenzen verschillen zo veel omdat
+    // live-tracking per seconde hoort mee te lopen en een charactercrawl van
+    // een paar uur oud gewoon het ritme van Raider.IO is.
+    //
+    // In widget-modus krijgt de raidkaart geen tijd: die iframe ververst
+    // zichzelf op een ander domein, dus wat daar in staat weten we niet.
+    showUpdated   : true,
   },
 
   // ---- doelen -------------------------------------------------------

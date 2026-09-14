@@ -106,6 +106,30 @@
   color:var(--ink-400);white-space:nowrap;
 }
 
+/* Wanneer die bron voor het laatst antwoordde, in datzelfde plaatje. Het is
+   een mededeling over die ene kaart -- Raider.IO crawlt characters op zijn
+   eigen trage ritme terwijl de raidkaart per dertig seconden loopt, dus
+   "hoe vers is dit" verschilt per kaart en hoort er per kaart bij te staan.
+   Een eigen pil ernaast maakte de bovenrand druk; hier hangt hij aan de
+   naam waar hij bij hoort.
+
+   Mono en tabulair, want anders schuift het label bij elke verversing een
+   paar pixels op -- dat leest als beweging in een balk die verder stilstaat.
+   Leeg is echt leeg: tot de eerste geslaagde poll valt er niets te melden,
+   en dan hoort er ook geen scheidingspunt te staan. */
+.rcard__at{
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:9px;font-weight:400;letter-spacing:.04em;
+  color:var(--ink-400);opacity:.8;
+}
+.rcard__at:empty{display:none}
+.rcard__at::before{content:'\00b7';margin:0 6px;opacity:.65}
+
+/* Loopt de bron achter, dan moet dat juist wel opvallen: goud, zoals de
+   beste poging in de raidkaart. Niet rood -- er is niets stuk, Raider.IO is
+   alleen nog niet bij. Dat onderscheid is het hele punt van dit stempeltje. */
+.rcard__at.is-late{color:var(--gold);opacity:1}
+
 /* Een bijschrift mag hetzelfde icoon dragen als het kopblok van een
    ribbon; dat is wat de kaarten in de onderbalk aan de balken bindt. */
 .rcard__cap svg,.rib__cap svg{
