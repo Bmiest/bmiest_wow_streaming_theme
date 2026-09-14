@@ -338,6 +338,14 @@ function lastTry(L){
 
 function paintBoss(L){
   if(!L) return;
+  /* Hier en niet in loadLive: wie deze kaart tekent, tekent ook hoe vers hij
+     is. Anders staat de demo op de voorpagina met een stempeltje op de
+     characterkaart en niets op deze, en dat leest als een fout.
+
+     Vijftien minuten: een pull duurt er een stuk of zeven en een pauze
+     tussendoor mag. Daarboven zit je wel te raiden terwijl de kaart
+     stilstaat, en dat is het geval dat je wil zien. */
+  stamp('#bossAt', L.updated, 15);
   var ev = bossDiff(L);
   U.$('#raidName').textContent =
     [L.raidName, cap(L.difficulty)].filter(Boolean).join('  ·  ');
@@ -410,10 +418,6 @@ function loadLive(){
   if(!window.RioLive) return Promise.resolve();
   return window.RioLive.load().then(function(L){
     paintBoss(L);
-    /* Vijftien minuten: een pull duurt er een stuk of zeven en een pauze
-       tussendoor mag. Daarboven zit je wel te raiden terwijl de kaart
-       stilstaat, en dat is het geval dat je wil zien. */
-    if(L) stamp('#bossAt', L.updated, 15);
     U.setHealth('rio-live', true, 'gepolld ' + U.hhmm());
   }).catch(function(e){
     U.setHealth('rio-live', false);
@@ -512,6 +516,11 @@ function demo(){
       raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
       bossName:'The Lost Explorers', bossImg:'', summary:'2/8 Mythic',
       defeated:dead, pullCount:n, bestPct:best, bestPhase:'P3',
+      /* Deze pulls gebeuren in het verhaal nu, dus het stempeltje staat op
+         de klok van wie kijkt. Bewust niet iets ouds om de gouden 'late'
+         te laten zien: op de voorpagina leest dat als een overlay die het
+         niet bijhoudt, en dat is precies het omgekeerde van de bedoeling. */
+      updated:Date.now(),
       pulls:PULLS.slice(0, n)
     });
   }
