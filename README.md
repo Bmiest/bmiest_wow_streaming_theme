@@ -1,10 +1,15 @@
-# Personal WoW overlay for Twitch
+# Ultrawide streaming theme for WoW
 
-A World of Warcraft overlay for a 3440x1440 ultrawide that goes out to Twitch
-as 2560x1440. The 368px left over at the bottom becomes the banner: camera,
-characters, raid progress, chat and stats. Game specific on purpose -- it reads
-Raider.IO for the characters and the guild's boss progress, so it has opinions
-about what a raid night looks like.
+A streaming theme cut for one specific setup: a **3440x1440 ultrawide** that
+goes out to Twitch as 2560x1440. That is the premise, not a detail — the whole
+layout starts from the shape of the screen. The 368px the game does not need
+become the bars: camera, characters, raid progress, chat and stats, and nothing
+but the alerts ever crosses the gameplay.
+
+What fills those bars is World of Warcraft, on purpose -- it reads Raider.IO
+for the characters and the guild's boss progress, so it has opinions about what
+a raid night looks like. But it is the ultrawide that decides the shape, and
+that is the part worth copying if your own screen is that wide.
 
 Built for the channel **bmiest**, which is why that name is in the OBS scene
 collection and on the graphics; the overlay itself carries no branding beyond
@@ -82,6 +87,22 @@ the overlay in the proportions it has on your stream, every source URL with a
 copy button, and the sizes and positions OBS asks for. Those previews are the
 real pages in an `iframe`, scaled down -- not screenshots, so nothing goes
 stale when the overlay changes.
+
+Two things there follow from the character rotation. The three scene previews
+each start the rotation a step further along (`scene-brb.html?rot=1`,
+`scene-ending.html?rot=2`), because they load at the same moment and otherwise
+show the same pair three times over; in OBS there is nothing behind the URL and
+it just starts at the first pair. And a **Characters** strip lists the whole
+roster at once, from the same `js/raiderio.js` the overlay runs on, for anyone
+who is not going to sit out a rotation of a minute to see all of them.
+
+That strip is the one place that asks Raider.IO once instead of polling, so it
+retries a failed character once after 900ms -- their API hands out a 500 often
+enough that a single attempt regularly left holes in the row. A character that
+still does not answer drops out and the rest stay. `index.html` deliberately
+does **not** load `config.js`: it is the public showcase, it has the shared
+config it needs, and your StreamElements token has no business being in a page
+that draws a row of characters.
 
 ### The collection
 
@@ -592,7 +613,18 @@ gold. Not red: nothing is broken, Raider.IO is simply not caught up. Those two
 thresholds are far apart on purpose, because live tracking is supposed to keep
 pace with the raid while a character crawl a few hours old is just Raider.IO's
 normal rhythm — they recrawl when someone opens your profile, not while you
-play. `raiderio.showUpdated: false` leaves only the attribution. In `widget`
+play.
+
+The character stamp describes **the page that is on screen**, not the whole
+list, and it is re-stamped on every rotation. That distinction only started to
+matter with the alts in there: Raider.IO recrawls a character when someone
+opens their profile, and nobody opens an alt's profile, so their crawl dates
+run weeks behind. Taken across all five, the oldest of them put a gold "late"
+above a card showing two characters that had both been crawled that afternoon.
+The diagnostics line behind `?health=1` still reports the oldest of everything,
+which is the right scope for a line that answers "is anything in here stale".
+
+`raiderio.showUpdated: false` leaves only the attribution. In `widget`
 mode the raid card gets no stamp: that iframe refreshes itself on another
 domain, so when it last did is not ours to know, and an invented time is worse
 than none. `?health=1` carries the other half, the time this overlay last polled
@@ -617,13 +649,29 @@ area is a few mono digits, so it costs the encoder nothing worth mentioning.
 ### Your characters on the pause screens
 
 The starting, BRB and ending screens put a character on each flank, full body,
-and so does the offline graphic. The first two from
-`raiderio.characters` in config order, left and right. Those flanks were empty
-next to the halo, and on a pause screen your characters are the subject.
+and so does the offline graphic. Those flanks were empty next to the halo, and
+on a pause screen your characters are the subject.
 
-With one character configured the right flank stays empty: the same render
-twice reads as a mistake rather than a design. Each fetch stands on its own, so
-if one fails the other still arrives.
+**The pair rotates** through `raiderio.characters` in config order, on the same
+`rotateSeconds` as the character card in the bottom bar, with a 420ms
+crossfade. Without it everything past the first two in your config would never
+be seen here. The pair steps on by two but wraps around the list, so an odd
+count never leaves a flank empty: five characters come past as 1-2, 3-4, 5-1,
+2-3, 4-5. That also makes the same render on both flanks impossible, except
+with a single character configured -- then the right flank stays empty, because
+the same render twice reads as a mistake rather than a design.
+
+Each fetch stands on its own, so if one fails the rest still arrive. A
+character whose render Blizzard no longer serves drops out of the rotation
+altogether: the renders are preloaded and only the ones that actually arrive
+go in the pool. That is not hypothetical -- for a character that has not
+logged in for a long time, the render is gone from the CDN and every variant
+under it answers 403, the avatar included. In the bottom bar that costs you
+nothing, the portrait disc just stays empty; here it would have been a blank
+flank standing on screen for twenty seconds.
+
+The offline graphic keeps the first two and does not rotate: it is shot once
+to a PNG, so there is no second moment to show anything else.
 
 The image is Blizzard's own render, and getting at it needs no key. Raider.IO
 already hands us a thumbnail from Blizzard's render CDN; the same base with
@@ -634,16 +682,34 @@ page. Because the URL is derived from Raider.IO's answer on every poll, a
 re-render after a gear change follows along on its own.
 
 There is a lot of transparent space around the figure, so `.scene__char` is a
-window with a fixed offset that crops it out. Measured on both characters:
-Shiftheal occupies 588-1051 horizontally, Bhikhu 555-1042, so one window fits
-both. The bottom fades out, otherwise the figure ends on a hard edge above the
-cards.
+515x755 window that crops it out. That used to be a fixed offset, measured by
+hand on the two characters that were in there: Shiftheal occupies 588-1051
+horizontally, Bhikhu 555-1042, so one window fit both. **That does not survive
+a fifth character.** Blizzard renders every race into the same frame, so a
+tauren or an orc fills it far wider and taller than a humanoid does; on the
+fixed offset one of them had his horns cut off at the top while another hung
+lopsided in the window.
 
-Both flanks use that same offset. Because the figures do not sit equally far
-left in their renders, the right one lands 25px closer to the edge than the
-left one, which on 2560 pixels is not something you can see. And the right
-flank is moved, not mirrored: these renders face front, so mirroring changes
-nothing about the composition and does put the weapons in the wrong hand.
+So `RaiderIO.fitRender()` measures it instead. The render has a transparent
+background, which makes the figure the bounding box of everything that is not
+see-through -- read off a canvas at quarter size, which is precise enough and
+costs nothing. Blizzard's CDN sends `access-control-allow-origin: *`, so the
+canvas stays readable; if reading it ever fails the function returns null and
+the caller falls back to the fixed offset from the CSS. The visible `<img>`
+carries the same `crossOrigin` as the one measured on, otherwise the browser
+fetches each render twice -- a CORS fetch and a plain one are separate cache
+entries.
+
+The figure is then scaled to fit, centred on itself horizontally and stood on
+the bottom edge. It gets 90% of the window's width and all of its height: the
+air beside it is what makes it a portrait instead of a crop, and 463 of 515px
+is what Shiftheal had. Standing them on one line beats letting each float at
+its own height. The bottom fades out, otherwise the figure ends on a hard edge
+above the cards, and the feet run into that fade.
+
+Both flanks use the same window. The right flank is moved, not mirrored: these
+renders face front, so mirroring changes nothing about the composition and does
+put the weapons in the wrong hand.
 
 The two windows sit at 96-611 and 1949-2464. The halo is 1040 wide and
 centred, so it runs 760 to 1800 and they do not touch it; the foot cards start
@@ -707,14 +773,39 @@ messages an id and a login too, so the removal works there as well.
 **Filled in and verified:**
 
 - `twitch.channel` = `bmiest` -- 154 followers via DecAPI.
-- `raiderio.characters` = Shiftheal on **EU-Ragnaros** (cross-realm member of
-  Kelderklasse) and Bhikhu on **EU-Twisting Nether** (Mistweaver monk,
-  Kelderklasse). Item level and score are not written down here on purpose:
-  they change, and the card shows them. They sit side by side in the
-  character card; add more and the card rotates through them in pairs. For a
-  cross-realm member Raider.IO returns no guild on the character itself, so the
-  realm shows under such a name; the guild already appears with the raid
-  progress.
+- `raiderio.characters` = five, in this order: Shiftheal on **EU-Ragnaros**
+  (Holy priest, cross-realm member of Kelderklasse), Bhikhu on **EU-Twisting
+  Nether** (Mistweaver monk, Kelderklasse), Beo on **EU-Ragnaros** (Arms
+  warrior), Beos on **EU-Ragnaros** (Protection paladin) and Beoh on
+  **EU-Ragnaros** (Restoration druid). Item level and score are not written
+  down here on purpose: they change, and the card shows them. Two sit side by
+  side in the character card and it rotates through the rest in pairs, three
+  pages for these five, the last one with an empty column. The pause screens
+  rotate along; the offline graphic keeps the first two. For a cross-realm
+  member Raider.IO returns no guild on the character itself, so the realm shows
+  under such a name; the guild already appears with the raid progress.
+
+  **Check the realm, not just the name.** Three of these live on Ragnaros, and
+  a name is only unique per realm: there is an unrelated Beo on Twisting Nether
+  who answered first while Ragnaros was handing out 500s, and he sat in this
+  config until the armory link said otherwise. Raider.IO returns the realm it
+  actually found in its answer -- compare that against the character you meant.
+- The last three are **alts**, and the card says so honestly: no M+ score, no
+  raid kills, an item level from an older tier. The rank next to the score is
+  left off entirely when there is none -- Raider.IO answers 0 there, and "#0"
+  reads as a place in a list that does not exist.
+- **A character whose render has gone** drops out of the pause-screen rotation
+  rather than leaving a blank flank for twenty seconds: `js/scene.js` preloads
+  the renders and keeps the ones that arrive. It is worth guarding, because for
+  a character that has not been logged in for long enough, Blizzard drops the
+  render from its CDN and every path under it answers 403. The bottom bar takes
+  it more cheaply -- the portrait disc just stays empty. Note that Raider.IO
+  appends `?alt=/wow/static/images/2d/avatar/<race>-<gender>.jpg` to every
+  thumbnail, present render or not, so that parameter tells you nothing; it is
+  a fallback the CDN only reaches for when the real file is missing, and
+  `js/raiderio.js` strips the query before deriving the full-body URL. Which is
+  the right thing to do: kept on, a missing render would answer with that 2.5 KB
+  avatar and it would get blown up into a 515x755 window.
 - Under each character is that character's **own raid progress** per difficulty
   (`2/8 M`, `8/8 H`, `8/8 N`), instead of the highest key of the week. The
   highest difficulty with kills is tinted jade. Which tier that is comes from
@@ -939,6 +1030,38 @@ covers the whole gameplay zone:
 A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
 gameplay.
+
+**The boss is behind it**, the same picture as the corner of the raid card in
+the bottom bar -- `boss.portraitUrl` from Raider.IO's live tracking. Getting it
+onto a full-screen alert took a different treatment than the corner, for two
+reasons.
+
+Those portraits are **128x64**. Across 2560 pixels that is a twenty-fold blow-up,
+so it is used as colour and not as a picture: `.raid__art` is the whole field,
+blurred to a haze in the boss's own colours, sitting behind the name. And the
+portrait is a bust on a **black** field while the alert lies over your gameplay
+under a 72% wash — composited normally that black is indistinguishable from the
+wash, which is exactly what the first attempt looked like on a busy frame.
+`mix-blend-mode: screen` solves both: black contributes nothing, so only the
+boss lights up and the rest stays the wash.
+
+`.raid__bust` is the same portrait unblurred, against the right flank. Not
+bottom-centre, where it ran straight through the row of numbers, and not behind
+the name, where it fought the 132px type: the flank is where this theme already
+puts figures, and `.raid__mid` keeps 120px clear there. Both layers only exist
+when Raider.IO gave a picture -- without one the alert is what it was before.
+
+The `?test=` path borrows the art from the boss the guild is actually on, in a
+single call that holds nothing up. A made-up picture would be a lie and a
+hard-coded portrait from an old tier would rot; this is either right or absent.
+The boss *name* in that path stays invented, because it is there to align
+against.
+
+This is the one place in the theme with a gradient in it, against the rule in
+[the shape: ribbons](#the-shape-ribbons). It earns the exception by being
+still: it fades in, sits there for eight seconds and goes. The bars break that
+rule by being on screen the whole stream, which is where a soft wash over 2560
+pixels actually costs you bitrate every frame.
 
 A kill also gets **fireworks**: ten bursts across the upper half, each a rising
 streak and then a ring of sparks that flies out and falls. Jade, white and gold,
