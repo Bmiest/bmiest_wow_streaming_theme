@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Personal WoW overlay for Twitch</title>
-<meta name="description" content="A personal World of Warcraft overlay for Twitch: top bar, bottom bar, alerts, scene screens and a stinger. Hosted, nothing to install.">
+<title>Ultrawide streaming theme for WoW</title>
+<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens and a stinger. World of Warcraft data from Raider.IO. Hosted, nothing to install.">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/index.css">
@@ -20,15 +20,17 @@
       </div></div>
     </div>
 
-    <h1>WoW overlay for Twitch</h1>
+    <h1>Ultrawide streaming theme for WoW</h1>
     <p class="lead">
-A personal one, built around what a World of Warcraft stream actually shows:
+      Cut for one specific setup: a <b>3440x1440 ultrawide</b> that goes out to
+      Twitch as 2560x1440. The layout starts from that shape — the 368px the
+      game does not need become a top bar and a bottom bar, and nothing but the
+      alerts ever crosses the gameplay. What fills them is World of Warcraft:
       your characters and their raid progress, the guild's pull count on the
-      boss you are on, chat and your channel numbers. A top bar, a bottom bar,
-      alerts, three scene screens and a stinger, laid out for an ultrawide.
-      The pages run from this site,
-      so in OBS you point a browser source at them and there is nothing else to
-      install. Updating is a <code>git push</code>.
+      boss you are on, chat and your channel numbers. Three scene screens and a
+      stinger come with it. The pages run from this site, so in OBS you point a
+      browser source at them and there is nothing else to install. Updating is a
+      <code>git push</code>.
     </p>
     <p class="base">base URL <b id="base">…</b></p>
   </header>
@@ -268,13 +270,13 @@ A personal one, built around what a World of Warcraft stream actually shows:
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-brb.html" title="Be right back" scrolling="no" loading="lazy"></iframe>
+          <iframe src="scene-brb.html?rot=1" title="Be right back" scrolling="no" loading="lazy"></iframe>
         </div>
         <figcaption>Be right back — the clock counts up, chat stays on screen</figcaption>
       </figure>
       <figure class="shot">
         <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-ending.html" title="Ending" scrolling="no" loading="lazy"></iframe>
+          <iframe src="scene-ending.html?rot=2" title="Ending" scrolling="no" loading="lazy"></iframe>
         </div>
         <figcaption>Ending — sign-off with schedule and socials</figcaption>
       </figure>
@@ -303,7 +305,23 @@ A personal one, built around what a World of Warcraft stream actually shows:
     <p class="hero__note">
       These previews are the real pages in an iframe, scaled down, so they show
       whatever the overlay shows right now. The chat in them is stand-in text
-      for what viewers type.
+      for what viewers type. The three scene screens start their character
+      rotation one step apart (<code>?rot=</code>), so you see three different
+      pairs here instead of the same one three times.
+    </p>
+  </section>
+
+  <!-- De hele rij characters in één keer. In de onderbalk en op de
+       pauzeschermen komen ze twee tegelijk langs; wie hier komt kijken heeft
+       geen zin om een rotatie van een minuut uit te zitten. -->
+  <section class="screens">
+    <h2>Characters</h2>
+    <div class="roster" id="roster"></div>
+    <p class="hero__note" id="rosterNote">
+      The bottom bar shows two of these at a time and rotates through the rest,
+      and the pause screens do the same with full-body renders. Straight from
+      Raider.IO, so this is the same data the overlay runs on — item level and
+      score included.
     </p>
   </section>
 
@@ -431,6 +449,11 @@ A personal one, built around what a World of Warcraft stream actually shows:
 </div>
 
 <script src="config.default.js"></script>
+<!-- Geen config.js hier. Deze pagina is de publieke etalage en heeft aan de
+     gedeelde config genoeg; je StreamElements-token hoort er niet in te
+     hangen voor een rijtje characters. -->
+<script src="js/util.js"></script>
+<script src="js/raiderio.js"></script>
 <script>
 (function(){
   'use strict';
@@ -468,6 +491,86 @@ A personal one, built around what a World of Warcraft stream actually shows:
       return '<a href="' + src + '"><img src="' + src + '" alt="' + p.label +
              '" width="320" height="100" loading="lazy"></a>';
     }).join('');
+  })();
+
+  /* De characterrij. Dezelfde bron als de overlay zelf -- js/raiderio.js --
+     zodat deze pagina niet uit de pas kan lopen met wat er in de onderbalk
+     staat. Elke fetch staat op zichzelf: valt Raider.IO om voor één
+     character, dan staat de rest er gewoon. Blijft de hele rij leeg, dan
+     halen we de sectie weg; een kop met niets eronder is geen etalage. */
+  (function(){
+    var host = document.getElementById('roster');
+    var list = ((window.OVERLAY_CONFIG || {}).raiderio || {}).characters || [];
+    if(!host || !list.length || !window.RaiderIO) return;
+
+    /* Plekken vooruit neerzetten, zodat de rij in configvolgorde staat en
+       niet in de volgorde waarin de antwoorden binnenkomen. */
+    var cells = list.map(function(){
+      var d = document.createElement('div');
+      d.className = 'ros ros--wait';
+      host.appendChild(d);
+      return d;
+    });
+
+    function fill(cell, c){
+      var U = window.U;
+      cell.className = 'ros';
+      cell.innerHTML =
+        '<div class="ros__pic">' +
+          '<img alt="" width="82" height="82">' +
+          '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+            '<circle cx="50" cy="50" r="48"></circle></svg>' +
+        '</div>' +
+        '<div><div class="ros__nm"></div>' +
+             '<div class="ros__sp"></div>' +
+             '<div class="ros__rl"></div></div>' +
+        '<div class="ros__st">' +
+          '<div><b class="ros__il"></b><i>item level</i></div>' +
+          '<div><b class="ros__ms"></b><i>m+ score</i></div>' +
+        '</div>';
+      cell.querySelector('.ros__nm').textContent = c.name;
+      cell.querySelector('.ros__sp').textContent =
+        [c.spec, c.klass].filter(Boolean).join(' ');
+      cell.querySelector('.ros__rl').textContent = c.realm;
+      cell.querySelector('.ros__il').textContent =
+        c.ilvl != null ? Number(c.ilvl).toFixed(1) : '\u2014';
+      cell.querySelector('.ros__ms').textContent =
+        c.score != null ? U.num(c.score) : '\u2014';
+      cell.querySelector('circle').style.stroke = c.color;
+      /* Van een character dat lang niet ingelogd heeft is de render van
+         Blizzards CDN verdwenen; dan blijft de schijf leeg staan in plaats
+         van een kapot plaatje te tonen. Zelfde afweging als in de
+         onderbalk. */
+      var img = cell.querySelector('img');
+      img.onerror = function(){ img.onerror = null; img.removeAttribute('src'); };
+      if(c.thumb) img.src = c.thumb;
+    }
+
+    /* Raider.IO geeft met enige regelmaat een 500 terug die bij de volgende
+       poging gewoon werkt. De overlay zelf pollt elke vijf minuten en loopt
+       daar vanzelf overheen; deze pagina vraagt het één keer bij het laden,
+       dus die ene herkansing is hier het verschil tussen een volle rij en
+       een halve. */
+    function fetchChar(spec){
+      return window.RaiderIO.character(spec).catch(function(){
+        return new Promise(function(done){ setTimeout(done, 900); })
+          .then(function(){ return window.RaiderIO.character(spec); });
+      });
+    }
+
+    /* Eén fetch per character, en het resultaat twee keer gebruikt: meteen
+       de plek invullen, en aan het eind tellen of er iets overbleef. */
+    Promise.all(list.map(function(spec, i){
+      return fetchChar(spec).then(function(c){
+        fill(cells[i], c);
+        return true;
+      }).catch(function(){
+        cells[i].remove();
+        return false;
+      });
+    })).then(function(res){
+      if(res.indexOf(true) < 0) host.closest('section').remove();
+    });
   })();
 
   /* Kopieren: de volledige URL van de bron, zonder token. */
