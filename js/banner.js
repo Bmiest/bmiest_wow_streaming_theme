@@ -152,9 +152,18 @@ function paintSlot(s, c){
      Ragnaros zegt op een stream iets, 114745e van de regio niet. Als derde
      blokje ernaast paste het net niet: de statsrij vulde de kolom exact, en
      een rank van vijf cijfers liep eruit. Zo is het ook korter. */
+  /* Geen rang voor wie geen keys loopt: Raider.IO geeft daar 0 terug, en
+     "#0" leest als een plek in een lijst die niet bestaat. Vandaar de test
+     op de waarde zelf en niet op null. */
   s.scorel.textContent = 'm+ score' +
-    (c.rank != null ? '  \u00b7  #' + U.num(c.rank) : '');
+    (c.rank ? '  \u00b7  #' + U.num(c.rank) : '');
+  /* Van een character dat lang niet ingelogd heeft, heeft Blizzards CDN geen
+     render meer staan: elk pad eronder geeft 403, ook het avatarplaatje waar
+     Raider.IO nog naar wijst. Dan de src weghalen, zodat er de lege
+     portretschijf overblijft in plaats van een kapot plaatje. */
+  s.img.onerror = function(){ s.img.onerror = null; s.img.removeAttribute('src'); };
   if(c.thumb) s.img.src = c.thumb;
+  else        s.img.removeAttribute('src');
   // Klassekleur alleen op ring en bolletje: kleine vlakken, grijs blijft grijs.
   s.swatch.style.background = c.color;
   s.ring.style.stroke = c.color;
@@ -172,7 +181,26 @@ function showPage(p){
   elRow.style.opacity = '0';
   elRow.style.transform = 'translateY(5px)';
   setTimeout(function(){
-    slots.forEach(function(s,i){ paintSlot(s, chars[page*slots.length + i]); });
+    var shown = [];
+    slots.forEach(function(s,i){
+      var c = chars[page*slots.length + i];
+      paintSlot(s, c);
+      if(c) shown.push(c);
+    });
+    /* Het stempeltje hoort bij wat er nu staat, niet bij de hele lijst. Dat
+       ging pas mis toen er alts bij kwamen: Raider.IO crawlt een character
+       als iemand zijn profiel opvraagt, en bij een character dat al twee jaar
+       stilligt gebeurt dat nooit. Over de hele lijst gerekend stond er
+       daardoor "863d late" in goud boven een kaart met twee characters die
+       vanmiddag nog gecrawld waren.
+
+       Twaalf uur, ruim boven de grens van crawlNote hieronder. Die regel is
+       een diagnosehulpje achter ?health=1 en mag bij twee uur al iets zeggen;
+       dit stempeltje staat op je stream. Een crawl van een paar uur oud is
+       het normale ritme en niet iets om goud voor te kleuren -- dan zegt die
+       kleur straks niets meer. Pas als er een nacht tussen zit staat je ilvl
+       er echt verkeerd bij. */
+    stamp('#charAt', oldestCrawl(shown), 720);
     elRow.style.opacity = '1';
     elRow.style.transform = 'none';
   }, 220);
@@ -253,15 +281,7 @@ function loadChars(){
     U.setHealth('raider.io', ok.length > 0,
       [crawlNote(ok), 'gepolld ' + U.hhmm()].filter(Boolean).join(', '));
     if(!ok.length) return;
-    /* Twaalf uur, ruim boven de grens van crawlNote hierboven. Die regel is
-       een diagnosehulpje achter ?health=1 en mag bij twee uur al iets zeggen;
-       dit stempeltje staat op je stream. Raider.IO crawlt een character niet
-       terwijl je speelt maar als iemand je profiel opvraagt, dus een crawl van
-       een paar uur oud is het normale ritme en niet iets om goud voor te
-       kleuren -- dan zegt die kleur straks niets meer. Pas als er een nacht
-       tussen zit staat je ilvl er echt verkeerd bij. */
-    stamp('#charAt', oldestCrawl(ok), 720);
-    showChars(ok);
+    showChars(ok);   // het stempeltje zet showPage, per pagina die in beeld komt
   });
 }
 
