@@ -197,6 +197,18 @@ function renderRaid(e){
      gelijk met wat je ziet, en doet het testpad het ook. */
   if(window.Chime) window.Chime.play(e.kill ? 'kill' : 'best', SOUND);
 
+  /* Bossart achter de melding. Twee lagen uit dezelfde afbeelding -- de
+     vorm ervan staat in css/alerts.css. Alleen ophangen als Raider.IO er
+     een had: een lege laag is een lege laag, maar twee elementen met een
+     mix-blend-mode erop zijn wel werk voor de compositor. */
+  if(e.art){
+    ['raid__art','raid__bust'].forEach(function(cls){
+      var l = U.el('div', cls);
+      l.style.backgroundImage = 'url("' + e.art + '")';
+      node.appendChild(l);
+    });
+  }
+
   /* Achter de tekst, dus vóór mid in de DOM. Een nieuwe beste krijgt niets:
      dan betekent het bij een kill niets meer. */
   if(e.kill) node.appendChild(fireworks());
@@ -303,6 +315,7 @@ window.SE.start(push);
       kind : 'progress',
       kill : kill,
       boss : L.bossName || '',
+      art  : L.bossImg || '',
       where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
               L.summary].filter(Boolean).join('  \u00b7  '),
       stats: stats,
@@ -352,6 +365,24 @@ if(TEST){
   if(pick){
     var one = demo.filter(pick);
     if(one.length) demo = one;
+  }
+
+  /* De bossart van de demo is die van de boss waar de guild nu op zit. Een
+     verzonnen plaatje zou hier niet kloppen, en het vaste portret van een
+     boss uit een oude tier gaat een keer verlopen; dit klopt altijd of het
+     is er niet. De naam in de demo blijft wel verzonnen -- dit pad is om op
+     uit te lijnen, en de voorbeelden op de voorpagina draaien erop.
+
+     Eén losse aanroep die niets ophoudt: komt het antwoord binnen terwijl er
+     al een melding staat, dan pakt de volgende ronde hem op. Faalt hij, dan
+     is de melding wat hij hiervoor was. */
+  if(window.RioLive){
+    window.RioLive.load().then(function(L){
+      if(!L || !L.bossImg) return;
+      demo.forEach(function(e){
+        if(e.kind === 'progress') e.art = L.bossImg;
+      });
+    }).catch(function(){});
   }
 
   /* Wachten tot de vorige weg is plus een adempauze; met een vaste 6,4 s

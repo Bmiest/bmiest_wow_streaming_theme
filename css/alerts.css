@@ -108,6 +108,56 @@ img.alert__wig{object-fit:contain}
 @keyframes raidIn {from{opacity:0}to{opacity:1}}
 @keyframes raidOut{from{opacity:1}to{opacity:0}}
 
+/* ---- bossart achter de melding --------------------------------------
+   Dezelfde afbeelding als het hoekje op de raidkaart in de onderbalk
+   (`boss.portraitUrl` uit Raider.IO's live-tracking), maar hier over het
+   hele vlak. Twee dingen staan dat in de weg, en samen bepalen ze de vorm.
+
+   Ten eerste: die portretten zijn **128x64**. Op een melding van 2560 breed
+   is dat twintig keer opgeblazen. Scherp bedoeld wordt dat een blokkenbrij,
+   dus het is hier kleur en geen plaatje -- een waas in de kleuren van de
+   boss achter je tekst.
+
+   Ten tweede: het portret is een buste op een **zwart vlak**, en de melding
+   ligt over je gameplay met een was van 72% erover. Normaal samengesteld
+   valt zo'n zwart vlak samen met die was en zie je niets; het eerste dat
+   hier stond was op een druk beeld niet van de was te onderscheiden.
+   `mix-blend-mode:screen` lost allebei op: zwart telt niet mee, dus alleen
+   de boss licht op en de rest blijft de was. Vandaar ook geen masker dat het
+   midden vrijhoudt -- daar zit juist het enige wat niet zwart is.
+
+   .raid__art  -- vol vlak, zwaar geblurd, midden op de tekst. De bossnaam
+                  staat er op 132px overheen, dus de waas blijft op de helft
+                  hangen en dooft naar de randen uit.
+   .raid__bust -- hetzelfde portret, niet geblurd, tegen de rechterflank.
+                  Daar staat geen tekst (.raid__mid houdt 120px marge), en
+                  onderaan het midden zou hij door de statistiekenrij lopen.
+                  Dezelfde plek als de characters op de pauzeschermen.
+
+   Beide lagen horen in de DOM vóór .raid__mid, zodat de tekst erover valt.
+   Ze staan er alleen als er een afbeelding is: js/alerts.js hangt ze niet op
+   bij een lege bossImg, en dan is de melding wat hij hiervoor was. */
+.raid__art,.raid__bust{
+  position:absolute;z-index:0;pointer-events:none;
+  background-repeat:no-repeat;mix-blend-mode:screen;
+}
+.raid__art{
+  inset:0;background-size:cover;background-position:center 44%;
+  opacity:.5;filter:blur(30px) saturate(1.5);
+  /* Opschalen, anders trekt de blur een doorzichtige rand langs het vlak. */
+  transform:scale(1.15);
+  -webkit-mask-image:radial-gradient(72% 92% at 50% 46%,
+                     #000 0%,#000 52%,transparent 100%);
+          mask-image:radial-gradient(72% 92% at 50% 46%,
+                     #000 0%,#000 52%,transparent 100%);
+}
+.raid__bust{
+  right:-40px;bottom:0;width:1020px;height:660px;
+  background-size:contain;background-position:right bottom;opacity:.62;
+  -webkit-mask-image:linear-gradient(to left,#000 0%,#000 34%,transparent 96%);
+          mask-image:linear-gradient(to left,#000 0%,#000 34%,transparent 96%);
+}
+
 /* De was komt op, de inhoud komt eronder vandaan. Twee bewegingen die bij
    elkaar horen, niet vijf losse. */
 .raid__mid{position:relative;z-index:1;text-align:center;padding:0 120px;
