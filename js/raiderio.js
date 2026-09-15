@@ -99,5 +99,68 @@ function pickRaid(raids, slug){
   };
 }
 
-window.RaiderIO = { character:character, guild:guild, pickRaid:pickRaid };
+/* ---- een render passend in zijn venster -----------------------------
+   De pauzeschermen en de offline-graphic zetten zo'n render van 1600x1200
+   in een venster van 515x755. Dat ging met een vast offset, gemeten op de
+   twee characters die er toen in stonden. Dat houdt geen stand: Blizzard
+   rendert elk ras in hetzelfde kader, dus een tauren of een orc vult dat
+   kader veel breder en hoger dan een mensachtige, en met vijf characters
+   in de rotatie liep de ene zijn hoorns eruit terwijl de andere scheef in
+   het venster hing.
+
+   Meten kan gewoon: de render heeft een transparante achtergrond, dus het
+   figuur is de bounding box van alles wat niet doorzichtig is. Op een
+   kwart van het formaat is dat nauwkeurig genoeg en kost het niets.
+   Blizzards CDN stuurt access-control-allow-origin:*, dus het canvas
+   blijft leesbaar -- lukt dat toch niet, dan geven we null terug en valt
+   de aanroeper stil terug op het vaste offset uit de CSS. */
+function fitRender(im, boxW, boxH){
+  var STEP = 4,               // op kwartformaat meten is nauwkeurig zat
+      MAX  = 1.15,            // niet opschalen tot het gaat pixelen
+      /* Het figuur mag de zijkanten niet raken. In de oorspronkelijke
+         uitsnede vulde Shiftheal 463 van de 515px, en die lucht ernaast is
+         wat het een portret maakt in plaats van een uitsnede. Verticaal
+         niet: daar hoort hij vol te staan, met zijn voeten in het masker. */
+      WIDE = 0.90;
+  try {
+    var cw = Math.max(1, Math.round(im.naturalWidth  / STEP)),
+        ch = Math.max(1, Math.round(im.naturalHeight / STEP));
+    var cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    var cx = cv.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(im, 0, 0, cw, ch);
+    var d = cx.getImageData(0, 0, cw, ch).data;
+    var x0 = cw, y0 = ch, x1 = -1, y1 = -1;
+    for(var y = 0; y < ch; y++){
+      for(var x = 0; x < cw; x++){
+        /* Verkleinen middelt de alpha uit, dus de rand van het figuur komt
+           er halfdoorzichtig uit. Onder deze drempel is het schaduw. */
+        if(d[(y * cw + x) * 4 + 3] > 24){
+          if(x < x0) x0 = x;
+          if(x > x1) x1 = x;
+          if(y < y0) y0 = y;
+          if(y > y1) y1 = y;
+        }
+      }
+    }
+    if(x1 < 0) return null;                       // volledig transparant
+    var bx = x0 * STEP, by = y0 * STEP,
+        bw = (x1 - x0 + 1) * STEP, bh = (y1 - y0 + 1) * STEP;
+    var s = Math.min(boxW * WIDE / bw, boxH / bh, MAX);
+    /* Horizontaal gecentreerd op het figuur zelf, en met de voeten op de
+       onderrand -- daar loopt het masker toch uit, en zo staan ze allemaal
+       op dezelfde lijn in plaats van elk op hun eigen hoogte te zweven. */
+    return {
+      width : im.naturalWidth  * s,
+      height: im.naturalHeight * s,
+      left  : (boxW - bw * s) / 2 - bx * s,
+      top   : boxH - (by + bh) * s
+    };
+  } catch(e){
+    return null;
+  }
+}
+
+window.RaiderIO = { character:character, guild:guild, pickRaid:pickRaid,
+                    fitRender:fitRender };
 })();

@@ -55,7 +55,12 @@ function offline(){
 
   /* Zelfde characters op de flanken als de scene-schermen, één per kant.
      Dit zijn renders van Blizzards CDN, dus build-graphics.sh moet even
-     wachten tot ze binnen zijn -- vandaar het ruime virtual-time-budget. */
+     wachten tot ze binnen zijn -- vandaar het ruime virtual-time-budget.
+
+     Hier de eerste twee uit je config en geen rotatie: dit scherm wordt één
+     keer naar een PNG geschoten, dus er is geen tweede moment om iets
+     anders te laten zien. Het passend zetten gebeurt wel op dezelfde manier
+     als daar, anders valt een breed ras hier alsnog buiten zijn venster. */
   var list = (CFG.raiderio && CFG.raiderio.characters) || [];
   if(list.length && window.RaiderIO){
     list.slice(0, 2).forEach(function(spec, i){
@@ -63,9 +68,16 @@ function offline(){
         if(!c.render) return;
         var box = U.el('div','scene__char' + (i ? ' scene__char--r' : ''));
         var img = document.createElement('img');
-        img.alt = ''; img.src = c.render;
+        img.alt = ''; img.crossOrigin = 'anonymous';
         box.appendChild(img);
         stage.appendChild(box);
+        img.onload = function(){
+          var g = window.RaiderIO.fitRender(img, box.clientWidth, box.clientHeight);
+          if(g) ['width','height','left','top'].forEach(function(k){
+            img.style[k] = g[k] + 'px';
+          });
+        };
+        img.src = c.render;
         /* Zelfde vermelding als op de scene-schermen: deze characters komen
            van Raider.IO en dit scherm staat los op je kanaalpagina. */
         if(!U.$('.scene__src')) stage.appendChild(U.el('div','scene__src','raider.io'));
