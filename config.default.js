@@ -49,10 +49,15 @@ window.OVERLAY_CONFIG = {
   raiderio: {
     region: 'eu',
     // Twee characters staan naast elkaar in de kaart. Zet je er meer in,
-    // dan rouleert de kaart per paar.
+    // dan rouleert de kaart per paar -- en de flanken van de pauzeschermen
+    // rouleren mee, op dezelfde rotateSeconds. De volgorde hier is de
+    // volgorde waarin ze langskomen, dus je hoofdpaar bovenaan.
     characters: [
       { realm: 'ragnaros',        name: 'Shiftheal' },  // cross-realm lid van Kelderklasse
       { realm: 'twisting-nether', name: 'Bhikhu'    },  // cross-realm lid van Kelderklasse
+      { realm: 'ragnaros',        name: 'Beo'       },  // arms warrior
+      { realm: 'ragnaros',        name: 'Beos'      },  // prot paladin
+      { realm: 'ragnaros',        name: 'Beoh'      },  // resto druid
     ],
     guild: { realm: 'draenor', name: 'Kelderklasse' },
     raidSlug      : '',    // '' = automatisch de nieuwste raid

@@ -199,10 +199,16 @@ function refresh(){
    characters het onderwerp. De render komt van Blizzard via de omweg in
    js/raiderio.js; daarvoor staat dat script hier weer bij.
 
-   Eén per flank, in de volgorde van je config. Staat er maar één character
-   in, dan blijft de rechterflank leeg: twee keer dezelfde render naast
-   elkaar leest als een fout, niet als een ontwerp. Faalt er één, dan komt
-   de andere er nog gewoon -- elke fetch staat op zichzelf. */
+   Twee vensters, links en rechts, en staan er meer characters in je config
+   dan die twee, dan rouleert het paar door op raiderio.rotateSeconds --
+   dezelfde cadans als de characterkaart in de onderbalk. Anders zou alles
+   achter de eerste twee van je lijst hier nooit in beeld komen.
+
+   Het paar schuift per twee op maar loopt rond de lijst heen, dus bij een
+   oneven aantal blijft er nooit een flank leeg: bij vijf characters komen
+   ze als 1-2, 3-4, 5-1, 2-3, 4-5 langs. Twee keer dezelfde render naast
+   elkaar kan daardoor niet, op één character in je config na -- dan blijft
+   de rechterflank leeg, want dat leest als een fout en niet als ontwerp. */
 (function(){
   var list = (CFG.raiderio && CFG.raiderio.characters) || [];
   if(!list.length || !window.RaiderIO) return;
@@ -219,18 +225,107 @@ function refresh(){
     stage.appendChild(U.el('div','scene__src','raider.io'));
   }
 
-  list.slice(0, 2).forEach(function(spec, i){
-    window.RaiderIO.character(spec).then(function(c){
-      if(!c.render) return;
-      var box = U.el('div','scene__char' + (i ? ' scene__char--r' : ''));
-      var img = document.createElement('img');
-      img.alt = '';
-      img.setAttribute('aria-hidden','true');
-      img.src = c.render;
-      box.appendChild(img);
-      stage.appendChild(box);
-      credit();
-    }).catch(function(){});
+  /* Twee vaste vensters; wat erin staat wisselt. Ze hangen er al voordat de
+     eerste render binnen is, want een leeg venster is niets te zien. */
+  var slots = [0, 1].map(function(i){
+    var box = U.el('div', 'scene__char' + (i ? ' scene__char--r' : ''));
+    var img = document.createElement('img');
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    /* Zelfde CORS-modus als het plaatje waarop we meten, anders haalt de
+       browser dezelfde render twee keer op: een CORS-fetch en een gewone
+       staan los van elkaar in zijn cache. */
+    img.crossOrigin = 'anonymous';
+    box.appendChild(img);
+    box.style.opacity = '0';
+    stage.appendChild(box);
+    return { box: box, img: img };
+  });
+
+  /* Alleen wie een render heeft die Blizzard ook echt teruggeeft. Raider.IO
+     leidt die URL af van de thumbnail en weet niet of hij nog bestaat: van
+     een character dat lang niet ingelogd heeft, is de render van hun CDN
+     verdwenen en geeft elke variant 403. In de kaart onderaan valt dat mee,
+     daar blijft de portretschijf gewoon leeg, maar hier zou het een lege
+     flank worden die twintig seconden in beeld staat. Dus laden we ze
+     vooruit en houden we over wie er doorkomt -- dat vooruitladen is
+     sowieso nodig: het zijn PNG's van een megabyte, en pas bij de overgang
+     beginnen betekent een venster dat leeg staat tot hij binnen is. */
+  function preload(url){
+    return new Promise(function(done){
+      var im = new Image();
+      im.crossOrigin = 'anonymous';
+      im.onload = function(){
+        /* Meteen ook uitrekenen hoe dit figuur in het venster past. Beide
+           vensters zijn even groot, dus één meting volstaat. */
+        done({ url: url,
+               geo: window.RaiderIO.fitRender(im, slots[0].box.clientWidth,
+                                                  slots[0].box.clientHeight) });
+      };
+      im.onerror = function(){ done(null); };
+      im.src = url;
+    });
+  }
+
+  /* Waar de rotatie begint. index.html zet zijn drie voorbeelden hiermee uit
+     de pas (?rot=1, ?rot=2), want die laden tegelijk en lieten anders drie
+     keer hetzelfde paar zien. In OBS staat er niets achter de URL en begint
+     hij gewoon bij het eerste paar. */
+  var pool = [],
+      page = +((location.search.match(/[?&]rot=(\d+)/) || [])[1] || 0);
+
+  function pageCount(){
+    var n = pool.length;
+    if(n < 3) return 1;
+    return (n % 2) ? n : n / 2;
+  }
+
+  /* Het paar dat bij pagina p hoort. Bij één character blijft rechts leeg. */
+  function pairAt(p){
+    var n = pool.length;
+    if(n === 1) return [pool[0], null];
+    return [pool[(2 * p) % n], pool[(2 * p + 1) % n]];
+  }
+
+  function paint(p){
+    pairAt(p).forEach(function(c, i){
+      var s = slots[i];
+      if(c){
+        s.img.src = c.url;
+        /* Geen meting gelukt: inline stijlen weghalen en het vaste offset
+           uit scene.css laten staan. Dat kan scheef vallen voor een groot
+           ras, maar het is wat er voorheen ook stond. */
+        ['width','height','left','top'].forEach(function(k){
+          s.img.style[k] = c.geo ? c.geo[k] + 'px' : '';
+        });
+      }
+      s.box.style.opacity = c ? '1' : '0';
+    });
+  }
+
+  /* Uitfaden, wisselen, infaden. De 420ms is de overgang uit scene.css; een
+     src-wissel op een zichtbaar venster zou anders als een sprong lezen. */
+  function rotate(){
+    slots.forEach(function(s){ s.box.style.opacity = '0'; });
+    setTimeout(function(){
+      page = (page + 1) % pageCount();
+      paint(page);
+    }, 420);
+  }
+
+  Promise.all(list.map(function(spec){
+    return window.RaiderIO.character(spec)
+      .then(function(c){ return c.render ? preload(c.render) : null; })
+      .catch(function(){ return null; });
+  })).then(function(res){
+    pool = res.filter(Boolean);
+    if(!pool.length) return;
+    page = page % pageCount();
+    paint(page);
+    credit();
+    if(pageCount() > 1){
+      setInterval(rotate, ((CFG.raiderio && CFG.raiderio.rotateSeconds) || 20) * 1000);
+    }
   });
 })();
 

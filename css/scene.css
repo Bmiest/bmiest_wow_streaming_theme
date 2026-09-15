@@ -41,6 +41,13 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
   width:515px;height:755px;overflow:hidden;pointer-events:none;
   -webkit-mask-image:linear-gradient(to bottom,#000 76%,transparent 100%);
           mask-image:linear-gradient(to bottom,#000 76%,transparent 100%);
+  /* Rouleren de flanken door meer dan twee characters, dan wisselen ze met
+     een crossfade -- js/scene.js wacht deze 420ms af voor het de src omzet,
+     zodat een wissel niet als een sprong leest. Staan er maar twee in je
+     config, dan gebeurt er niets en kost deze regel ook niets. De
+     offline-graphic (js/graphics.js) zet geen opacity en staat dus gewoon
+     op 1. */
+  opacity:1;transition:opacity .42s var(--ease);
 }
 .scene__char img{position:absolute;left:-545px;top:-250px;width:1600px;height:1200px}
 
