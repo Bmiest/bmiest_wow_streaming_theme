@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Bronvergelijking: Raider.IO vs Warcraft Logs</title>
+<title>Raid source comparison: Raider.IO vs Warcraft Logs</title>
 <!-- Geen overlaypagina maar een werkbank. Zet hem naast je stream open
      tijdens een raidavond en je ziet per poll wat beide bronnen zeggen en
      welke js/progress.js zou kiezen. Zo hoef je niet op de kaart zelf te
@@ -37,14 +37,14 @@
 </style>
 
 <h1>Raider.IO vs Warcraft Logs</h1>
-<p class="sub">Elke 30 seconden opnieuw. Afwijkende velden staan <span class="diff">goud</span>.
-   Token via <code>?wcl=&lt;token&gt;</code>.</p>
+<p class="sub">Re-polled every 30 seconds. Fields that disagree are <span class="diff">gold</span>.
+   Token goes in the URL as <code>?wcl=&lt;token&gt;</code>.</p>
 
 <div class="row">
   <div class="box" id="boxR"><h2>raider.io</h2><dl id="dlR"></dl></div>
   <div class="box" id="boxW"><h2>warcraftlogs</h2><dl id="dlW"></dl></div>
 </div>
-<div class="verdict" id="verdict">wachten op de eerste poll…</div>
+<div class="verdict" id="verdict">waiting for the first poll…</div>
 <div class="log" id="log"></div>
 
 <script src="config.default.js"></script>
@@ -63,7 +63,7 @@
     if(v == null || v === '') return '—';
     if(k === 'updated') return new Date(v).toLocaleTimeString();
     if(k === 'bestPct') return Number(v).toFixed(2) + '%';
-    if(k === 'defeated') return v ? 'ja' : 'nee';
+    if(k === 'defeated') return v ? 'yes' : 'no';
     return String(v);
   }
 
@@ -72,7 +72,7 @@
   function paint(dl, rec, other){
     dl.innerHTML = '';
     if(!rec){
-      dl.innerHTML = '<dt>status</dt><dd class="dim">geen antwoord</dd>';
+      dl.innerHTML = '<dt>status</dt><dd class="dim">no answer</dd>';
       return;
     }
     FIELDS.forEach(function(k){
@@ -82,6 +82,49 @@
       if(other && fmt(k, other[k]) !== mine) dd.classList.add('diff');
       dl.appendChild(dt); dl.appendChild(dd);
     });
+  }
+
+  var DEMO = /[?&]demo=1/.test(location.search);
+
+  /* Een opname van 17 september 2026, 09:45 -- de stand waarop deze hele
+     bron-keuze gebouwd is. Bewust een vastgelegd voorbeeld en geen verzonnen
+     getallen: dit is echt gemeten, en het staat er met de datum bij zodat
+     niemand het voor de stand van vandaag aanziet. */
+  var SAMPLE = {
+    rio: { source:'raiderio', bossName:'Vashnik the Malignant', pullCount:19,
+           bestPct:4.25, phase:'', defeated:false, summary:'4/8 Mythic',
+           updated: Date.parse('2026-09-16T20:36:28Z') },
+    wcl: { source:'warcraftlogs', bossName:'Vashnik the Malignant', pullCount:21,
+           bestPct:0.01, phase:'', defeated:true, summary:'',
+           updated: Date.parse('2026-09-16T20:47:54Z') }
+  };
+
+  function sub(html){ document.querySelector('.sub').innerHTML = html; }
+
+  function demo(){
+    sub('A <b>recorded example</b> from 17 September 2026, not live data. ' +
+        'Drop the <code>?demo=1</code> to poll for real.');
+    paint(document.getElementById('dlR'), SAMPLE.rio, SAMPLE.wcl);
+    paint(document.getElementById('dlW'), SAMPLE.wcl, SAMPLE.rio);
+    document.getElementById('boxW').className = 'box win';
+    document.getElementById('verdict').innerHTML =
+      'The card shows <b>warcraftlogs</b> (furthest along), wcl is 686s ahead. ' +
+      'Raider.IO still had the boss alive at 19 pulls while its own progress ' +
+      'line already counted the kill.';
+    note('recorded example, 17 September 2026 — not live data');
+    note('add ?wcl=<token> to this URL to compare your own guild live');
+  }
+
+  function explain(){
+    /* In de subregel en niet in het oordeel: het oordeel wordt elke poll
+       overschreven, en dan is de uitleg na dertig seconden weg. */
+    sub('<b>No Warcraft Logs token on this URL</b>, so there is nothing to ' +
+        'compare — only Raider.IO below. Add <code>?wcl=&lt;token&gt;</code> ' +
+        'for both, or see <a href="?demo=1" style="color:var(--jade)">a ' +
+        'recorded example</a>.');
+    note('a token is minted from a Warcraft Logs API client and lasts a year;');
+    note('the client secret that mints it never goes in a page.');
+    U.poll(tick, 30);   // raider.io alleen is nog steeds het kijken waard
   }
 
   var log = document.getElementById('log'), lines = [];
@@ -95,9 +138,9 @@
        het hele punt van deze pagina. Progress.pick() krijgt daarna dezelfde
        twee records, dus het oordeel hier is het oordeel dat de kaart velt. */
     Promise.all([
-      window.RioLive.load().catch(function(e){ note('raider.io faalde: ' + e.message); return null; }),
+      window.RioLive.load().catch(function(e){ note('raider.io failed: ' + e.message); return null; }),
       window.WCL.available()
-        ? window.WCL.load().catch(function(e){ note('wcl faalde: ' + e.message); return null; })
+        ? window.WCL.load().catch(function(e){ note('wcl failed: ' + e.message); return null; })
         : Promise.resolve(null)
     ]).then(function(r){
       var rio = r[0], wcl = r[1];
@@ -110,21 +153,28 @@
       boxW.className = 'box' + (wcl ? '' : ' dead') + (got && got.rec === wcl ? ' win' : '');
 
       var v = document.getElementById('verdict');
-      if(!got){ v.innerHTML = 'Geen van beide antwoordde — de kaart valt terug op de bewaarde stand.'; return; }
+      if(!got){ v.innerHTML = 'Neither source answered — the card falls back on its remembered reading.'; return; }
       var lead = (wcl && rio) ? Math.round(((wcl.updated||0) - (rio.updated||0)) / 1000) : null;
-      v.innerHTML = 'De kaart toont <b>' + got.rec.source + '</b> (' + got.why + ')' +
+      var why = { 'verste stand':'furthest along', 'blijft staan':'held, lead too small',
+                  'enige bron':'only source answering' }[got.why] || got.why;
+      v.innerHTML = 'The card shows <b>' + (got.rec.source || 'raiderio') + '</b> (' + why + ')' +
         (lead === null ? '' :
-         ', wcl ligt ' + (lead >= 0 ? lead + 's vóór' : (-lead) + 's achter')) + '.';
+         ', wcl is ' + (lead >= 0 ? lead + 's ahead' : (-lead) + 's behind')) + '.';
 
       if(wcl && rio && wcl.pullCount !== rio.pullCount)
-        note('pulls verschillen: wcl ' + wcl.pullCount + ' vs rio ' + rio.pullCount);
+        note('pulls disagree: wcl ' + wcl.pullCount + ' vs rio ' + rio.pullCount);
       if(wcl && rio && !!wcl.defeated !== !!rio.defeated)
-        note('kill verschilt: wcl ' + wcl.defeated + ' vs rio ' + rio.defeated);
+        note('kill disagrees: wcl ' + wcl.defeated + ' vs rio ' + rio.defeated);
     });
   }
 
-  if(!window.WCL.available())
-    note('geen wcl-token of gilde-id — alleen raider.io. Geef ?wcl=<token> mee.');
+  /* Zonder token valt er niets te vergelijken, en dan is een halfleeg
+     scherm met één logregel geen antwoord op "wat doet deze pagina". Deze
+     pagina hangt in de voettekst van de voorpagina, dus hij moet zichzelf
+     kunnen uitleggen aan iemand die hier voor het eerst komt. */
+  if(DEMO){ demo(); return; }
+
+  if(!window.WCL.available()){ explain(); return; }
   U.poll(tick, 30);
 })();
 </script>

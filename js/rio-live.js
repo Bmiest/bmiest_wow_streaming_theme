@@ -102,6 +102,9 @@ function load(){
     newest(d.pullStartedAt);
 
     return {
+      /* Zelfde veld als js/wcl.js zet. js/progress.js vult hem anders alsnog
+         in, maar dan weet compare.html het niet en staat er 'undefined'. */
+      source    : 'raiderio',
       guild     : d.guild ? d.guild.name : '',
       raidName  : d.raid  ? d.raid.name  : '',
       raidSlug  : d.raid  ? d.raid.slug  : '',
