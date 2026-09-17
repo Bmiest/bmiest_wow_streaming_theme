@@ -80,20 +80,38 @@ function borrow(win, rio){
   return win;
 }
 
-function pick(wcl, rio){
-  if(wcl && !rio) return { rec: wcl, why: 'enige bron' };
-  if(rio && !wcl) return { rec: rio, why: 'enige bron' };
+/* Zuiver: welke bron er nu staat komt van de aanroeper mee. load() houdt zijn
+   eigen stand bij en compare.html de zijne, en juist daardoor komt die pagina
+   op hetzelfde oordeel uit als de kaart. Las deze functie de stand uit de
+   module, dan stond hij op compare.html eeuwig op null en kon die pagina het
+   ene geval waar de drempel voor bestaat niet eens laten zien.
+
+   De sleutels in `why` zijn codes en geen zinnen: de kaart en die pagina
+   schrijven er hun eigen tekst bij, en zo lekt er geen Nederlands een Engels
+   scherm op. */
+function pick(wcl, rio, held){
+  if(wcl && !rio) return { rec: wcl, why: 'only' };
+  if(rio && !wcl) return { rec: rio, why: 'only' };
   if(!wcl && !rio) return null;
 
-  var a = wcl.updated || 0, b = rio.updated || 0;
+  /* Geen tijdstempel is geen mening. Raider.IO levert er geen zodra bosspulls
+     wegvalt (die mag falen) en er nog geen pull loopt -- dat betekent "ik weet
+     het niet", niet "oneindig oud". Met `|| 0` erin won de ander met
+     anderhalf miljard seconden voorsprong, dwars langs de drempel heen, en
+     dan stond de kaart vast op één bron tot de andere weer een tijd had. */
+  var a = wcl.updated, b = rio.updated;
+  if(a == null && b == null)
+    return { rec: held === 'raiderio' ? rio : wcl, why: 'untimed' };
+  if(a == null) return { rec: rio, why: 'only-timed' };
+  if(b == null) return { rec: wcl, why: 'only-timed' };
+
   var lead = a - b;
 
   /* Wie er staat, blijft staan tot de ander echt vooruit ligt. */
-  if(held === 'warcraftlogs' && lead > -LEAD) return { rec: wcl, why: 'blijft staan' };
-  if(held === 'raiderio'     && lead <  LEAD) return { rec: rio, why: 'blijft staan' };
+  if(held === 'warcraftlogs' && lead > -LEAD) return { rec: wcl, why: 'held' };
+  if(held === 'raiderio'     && lead <  LEAD) return { rec: rio, why: 'held' };
 
-  return lead >= 0 ? { rec: wcl, why: 'verste stand' }
-                   : { rec: rio, why: 'verste stand' };
+  return lead >= 0 ? { rec: wcl, why: 'ahead' } : { rec: rio, why: 'ahead' };
 }
 
 function load(){
@@ -106,12 +124,12 @@ function load(){
     wantR ? tryLoad(window.RioLive.load) : Promise.resolve(null)
   ]).then(function(res){
     var wcl = res[0], rio = res[1];
-    var got = pick(wcl, rio);
+    var got = pick(wcl, rio, held);
 
     if(!got){
       /* Niets binnen. De laatste stand dan maar, met een vlag erop. */
       var c = cacheGet();
-      U.setHealth('progress', false, c ? 'terug op geheugen' : 'geen bron');
+      U.setHealth('progress', false, c ? 'using remembered reading' : 'no source');
       if(!c) return null;
       var old = c.rec;
       old.stale = true;
@@ -121,11 +139,11 @@ function load(){
 
     var rec = got.rec;
     rec.stale = false;
-    /* js/rio-live.js zet zelf geen bronnaam; die is daar impliciet. */
-    if(!rec.source) rec.source = 'raiderio';
     borrow(rec, rio);
     held = rec.source;
 
+    /* Deze regel staat achter ?health=1 op je stream, dus Engels net als de
+       rest van wat in beeld komt. */
     U.setHealth('progress', true,
       rec.source + (wcl && rio ? ' (' + got.why + ')' : ''));
     cacheSet(rec);

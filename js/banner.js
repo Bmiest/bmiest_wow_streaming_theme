@@ -263,8 +263,8 @@ function crawlNote(list){
   if(oldest === null) return '';
   var min = Math.round((Date.now() - oldest) / 60000);
   if(min < 120)  return '';
-  if(min < 2880) return Math.round(min / 60) + 'u oud';
-  return Math.round(min / 1440) + 'd oud';
+  if(min < 2880) return Math.round(min / 60) + 'h old';
+  return Math.round(min / 1440) + 'd old';
 }
 
 function loadChars(){
@@ -282,7 +282,7 @@ function loadChars(){
        diagnoseregel wanneer wij het vroegen -- naast elkaar lees je daaruit
        af of de overlay stilstaat of hun crawler. */
     U.setHealth('raider.io', ok.length > 0,
-      [crawlNote(ok), 'gepolld ' + U.hhmm()].filter(Boolean).join(', '));
+      [crawlNote(ok), 'polled ' + U.hhmm()].filter(Boolean).join(', '));
     if(!ok.length) return;
     showChars(ok);   // het stempeltje zet showPage, per pagina die in beeld komt
   });
@@ -456,7 +456,7 @@ function loadLive(){
   if(!window.Progress) return Promise.resolve();
   return window.Progress.load().then(function(L){
     paintBoss(L);
-    U.setHealth('rio-live', true, 'gepolld ' + U.hhmm());
+    U.setHealth('rio-live', true, 'polled ' + U.hhmm());
   }).catch(function(e){
     U.setHealth('rio-live', false);
     console.warn('[rio-live]', e.message);

@@ -1482,7 +1482,9 @@ css/banner.css   bottom bar
 css/alerts.css   alerts
 js/util.js       helpers
 js/raiderio.js   character + guild
-js/rio-live.js   live boss progress + pull history
+js/rio-live.js   live boss progress + pull history (Raider.IO)
+js/wcl.js        live boss progress (Warcraft Logs), needs ?wcl=<token>
+js/progress.js   picks between those two and remembers the last good answer
 scene.html       starting / brb / ending             (2560 x 1440)
 scene-starting.html  wrappers for OBS' Local file mode, which takes no
 scene-brb.html       query string; they set window.SCENE_MODE
@@ -1504,6 +1506,9 @@ js/camevent.js   event bar under the camera
 js/topbar.js     top bar
 js/banner.js     bottom bar
 js/alerts.js     alert queue
+
+compare.html     both raid sources side by side, with the verdict; ?demo=1
+                 for a recorded example
 
 serve.sh         local preview on http://localhost:8777
 build-stinger.sh renders stinger.webm

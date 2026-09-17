@@ -61,7 +61,14 @@
 
   function fmt(k, v){
     if(v == null || v === '') return '—';
-    if(k === 'updated') return new Date(v).toLocaleTimeString();
+    if(k === 'updated'){
+      /* Met alleen een tijd leest 22:47 van gisteravond als twaalf minuten
+         verschil in plaats van een dag -- op de pagina die juist moet laten
+         zien hoe oud iets is. Datum erbij zodra het niet vandaag is. */
+      var d = new Date(v), now = new Date();
+      var sameDay = d.toDateString() === now.toDateString();
+      return (sameDay ? '' : d.toLocaleDateString() + ' ') + d.toLocaleTimeString();
+    }
     if(k === 'bestPct') return Number(v).toFixed(2) + '%';
     if(k === 'defeated') return v ? 'yes' : 'no';
     return String(v);
@@ -86,6 +93,21 @@
 
   var DEMO = /[?&]demo=1/.test(location.search);
 
+  /* Deze pagina houdt dezelfde stand bij als de kaart en geeft hem mee aan
+     pick(). Anders kan ze het ene geval waar de drempel voor bestaat niet
+     laten zien: staat de kaart op WCL terwijl Raider.IO twintig seconden
+     voorloopt, dan blijft WCL staan -- en zonder die stand zou hier
+     'raiderio' verschijnen, precies het omgekeerde van wat je op stream ziet. */
+  var held = null;
+
+  var WHY = {
+    'ahead'     : 'furthest along',
+    'held'      : 'held, lead below the threshold',
+    'only'      : 'only source answering',
+    'only-timed': 'the other has no timestamp',
+    'untimed'   : 'neither has a timestamp'
+  };
+
   /* Een opname van 17 september 2026, 09:45 -- de stand waarop deze hele
      bron-keuze gebouwd is. Bewust een vastgelegd voorbeeld en geen verzonnen
      getallen: dit is echt gemeten, en het staat er met de datum bij zodat
@@ -99,19 +121,20 @@
            updated: Date.parse('2026-09-16T20:47:54Z') }
   };
 
-  function sub(html){ document.querySelector('.sub').innerHTML = html; }
+  /* Aanvullen en niet vervangen: in demomodus staan er vijf velden goud, en
+     precies dan was de uitleg van die kleur eruit gehaald. */
+  var SUB0 = document.querySelector('.sub').innerHTML;
+  function sub(html){ document.querySelector('.sub').innerHTML = SUB0 + ' ' + html; }
 
   function demo(){
-    sub('A <b>recorded example</b> from 17 September 2026, not live data. ' +
+    sub('Showing a <b>recorded example</b>, not live data. ' +
         'Drop the <code>?demo=1</code> to poll for real.');
-    paint(document.getElementById('dlR'), SAMPLE.rio, SAMPLE.wcl);
-    paint(document.getElementById('dlW'), SAMPLE.wcl, SAMPLE.rio);
-    document.getElementById('boxW').className = 'box win';
-    document.getElementById('verdict').innerHTML =
-      'The card shows <b>warcraftlogs</b> (furthest along), wcl is 686s ahead. ' +
-      'Raider.IO still had the boss alive at 19 pulls while its own progress ' +
-      'line already counted the kill.';
-    note('recorded example, 17 September 2026 — not live data');
+    /* Door dezelfde pick() als de kaart, niet met een uitgeschreven antwoord:
+       verander je de drempel of de gelijkspelregel in js/progress.js, dan
+       verandert dit voorbeeld mee in plaats van te blijven liegen. */
+    render(SAMPLE.wcl, SAMPLE.rio);
+    note('recorded example — Raider.IO still had the boss alive at 19 pulls');
+    note('while its own progress line already counted the kill');
     note('add ?wcl=<token> to this URL to compare your own guild live');
   }
 
@@ -124,13 +147,13 @@
         'recorded example</a>.');
     note('a token is minted from a Warcraft Logs API client and lasts a year;');
     note('the client secret that mints it never goes in a page.');
-    U.poll(tick, 30);   // raider.io alleen is nog steeds het kijken waard
   }
 
   var log = document.getElementById('log'), lines = [];
   function note(s){
     lines.unshift(new Date().toLocaleTimeString() + '  ' + s);
-    log.textContent = lines.slice(0, 12).join('\n');
+    lines.length = Math.min(lines.length, 12);   // anders groeit hij een raidavond lang door
+    log.textContent = lines.join('\n');
   }
 
   function tick(){
@@ -142,30 +165,38 @@
       window.WCL.available()
         ? window.WCL.load().catch(function(e){ note('wcl failed: ' + e.message); return null; })
         : Promise.resolve(null)
-    ]).then(function(r){
-      var rio = r[0], wcl = r[1];
+    ]).then(function(r){ render(r[1], r[0]); });
+  }
+
+  function render(wcl, rio){
       paint(document.getElementById('dlR'), rio, wcl);
       paint(document.getElementById('dlW'), wcl, rio);
 
-      var got = window.Progress.pick(wcl, rio);
+      var got = window.Progress.pick(wcl, rio, held);
+      if(got && got.rec) held = got.rec.source;
       var boxR = document.getElementById('boxR'), boxW = document.getElementById('boxW');
       boxR.className = 'box' + (rio ? '' : ' dead') + (got && got.rec === rio ? ' win' : '');
       boxW.className = 'box' + (wcl ? '' : ' dead') + (got && got.rec === wcl ? ' win' : '');
 
       var v = document.getElementById('verdict');
       if(!got){ v.innerHTML = 'Neither source answered — the card falls back on its remembered reading.'; return; }
-      var lead = (wcl && rio) ? Math.round(((wcl.updated||0) - (rio.updated||0)) / 1000) : null;
-      var why = { 'verste stand':'furthest along', 'blijft staan':'held, lead too small',
-                  'enige bron':'only source answering' }[got.why] || got.why;
-      v.innerHTML = 'The card shows <b>' + (got.rec.source || 'raiderio') + '</b> (' + why + ')' +
+      /* Alleen een voorsprong tonen als allebei een tijd hebben; anders stond
+         er een verschil met epoch 0 en las je "1789934874s ahead". */
+      var lead = (wcl && rio && wcl.updated != null && rio.updated != null)
+        ? Math.round((wcl.updated - rio.updated) / 1000) : null;
+      v.innerHTML = 'The card shows <b>' + got.rec.source + '</b> (' +
+        (WHY[got.why] || got.why) + ')' +
         (lead === null ? '' :
-         ', wcl is ' + (lead >= 0 ? lead + 's ahead' : (-lead) + 's behind')) + '.';
+         ', wcl is ' + (lead >= 0 ? lead + 's ahead' : (-lead) + 's behind')) + '.' +
+        (got.rec.source === 'warcraftlogs'
+          ? ' It still borrows the progress line and the boss portrait from Raider.IO,' +
+            ' so the <code>summary</code> gap below is not lost on the card.'
+          : '');
 
       if(wcl && rio && wcl.pullCount !== rio.pullCount)
         note('pulls disagree: wcl ' + wcl.pullCount + ' vs rio ' + rio.pullCount);
       if(wcl && rio && !!wcl.defeated !== !!rio.defeated)
         note('kill disagrees: wcl ' + wcl.defeated + ' vs rio ' + rio.defeated);
-    });
   }
 
   /* Zonder token valt er niets te vergelijken, en dan is een halfleeg
@@ -174,7 +205,10 @@
      kunnen uitleggen aan iemand die hier voor het eerst komt. */
   if(DEMO){ demo(); return; }
 
-  if(!window.WCL.available()){ explain(); return; }
+  /* Zonder token valt er niets te vergelijken, maar Raider.IO alleen is nog
+     steeds het kijken waard -- dus uitleg erbij en daarna gewoon pollen. Eén
+     plek die de poller start, anders lopen er bij een extra tak zomaar twee. */
+  if(!window.WCL.available()) explain();
   U.poll(tick, 30);
 })();
 </script>
