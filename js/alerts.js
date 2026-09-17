@@ -234,7 +234,7 @@ function renderRaid(e){
   /* Dezelfde vermelding als op de kaart, en om dezelfde reden: wie deze
      cijfers leverde. js/progress.js kan per poll van bron wisselen. */
   node.appendChild(U.el('div','raid__src',
-    e.src === 'warcraftlogs' ? 'warcraftlogs.com' : 'raider.io'));
+    { warcraftlogs: 'warcraftlogs.com', demo: 'demo' }[e.src] || 'raider.io'));
   /* Hier mag .com wel: de melding vult je scherm, dus daar is ruimte zat.
      Op de raidkaart niet -- zie SRC_LABEL in js/banner.js. */
   return node;
@@ -351,11 +351,11 @@ if(TEST){
     {kind:'cheer',  who:'TheNoremac', extra:'184 bits'},
     {kind:'raid',   who:'Amphroxia',  extra:'42 viewers'},
     {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'},
-    {kind:'progress', boss:'The Lost Explorers',
+    {kind:'progress', src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  2/8 Mythic',
      stats:[['43.89%','boss hp left'],['7','pulls'],['P3','phase'],
             ['4:12','duration'],['18','deaths']], hold:5600},
-    {kind:'progress', kill:true, boss:'The Lost Explorers',
+    {kind:'progress', kill:true, src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
      stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
      hold:8400}
@@ -387,11 +387,12 @@ if(TEST){
       if(!L) return;
       demo.forEach(function(e){
         if(e.kind !== 'progress') return;
+        /* Alleen het plaatje lenen, niet de bronnaam. De cijfers in deze
+           melding zijn verzonnen, dus een echte dienst eronder zetten is een
+           vermelding voor iets wat zij niet geleverd hebben -- daar staat
+           'demo'. Wie de art leverde staat in de bronnenlijst op de
+           voorpagina, waar het over de hele site gaat. */
         if(L.bossImg) e.art = L.bossImg;
-        /* Ook de bronnaam meenemen, want die hangt aan het plaatje: staat er
-           art van de bron die nu wint, dan hoort daar diezelfde vermelding
-           bij. De cijfers in de demo blijven verzonnen. */
-        e.src = L.source || 'raiderio';
       });
     }).catch(function(){});
   }

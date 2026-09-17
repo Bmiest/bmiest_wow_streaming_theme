@@ -284,6 +284,9 @@ function loadChars(){
     U.setHealth('raider.io', ok.length > 0,
       [crawlNote(ok), 'polled ' + U.hhmm()].filter(Boolean).join(', '));
     if(!ok.length) return;
+    /* Echte characters, dus de vermelding hoort er weer bij te staan -- ook
+       als de demo hierboven even zijn terugval had neergezet. */
+    var cs = U.$('#charSrc'); if(cs) cs.textContent = 'raider.io';
     showChars(ok);   // het stempeltje zet showPage, per pagina die in beeld komt
   });
 }
@@ -300,7 +303,14 @@ var LT    = (CFG.raiderio && CFG.raiderio.liveTracking) || {};
    72px en schuift het over dat kopje heen -- het heeft een eigen ondergrond,
    dus je leest dan '>> R'. Zonder .com begint het op 100px en past het. Wil
    je hier iets langers neerzetten, meet dan opnieuw. */
-var SRC_LABEL = { raiderio: 'raider.io', warcraftlogs: 'warcraftlogs' };
+var SRC_LABEL = { raiderio: 'raider.io', warcraftlogs: 'warcraftlogs',
+                  /* ?demo=1 verzint alles: de characters, de boss, de pulls
+                     en de tijd. Daar hoort geen echte dienst bij te staan --
+                     dat is een bronvermelding voor cijfers die ze nooit
+                     geleverd hebben, en het doet alsof de kaart maar één bron
+                     kent. 'warcraftlogs' neerzetten zou dezelfde fout naar de
+                     andere kant zijn. */
+                  demo: 'demo' };
 var LMODE = RIO || (LT.enabled === false ? 'off' : (LT.mode || 'widget'));
 
 function widgetUrl(){
@@ -525,7 +535,14 @@ function pushEvent(e){
    DEMO
    ===================================================================== */
 function demo(){
+  /* De characterkaart hieronder is géén demo: loadChars() pollt ook met
+     ?demo=1 (alleen loadLive slaat over), dus daar staan echte characters van
+     Raider.IO en hoort hun naam erboven te blijven staan. Deze verzonnen twee
+     zijn alleen de terugval zolang hun API nog niet geantwoord heeft -- en
+     dan, en alleen dan, klopt 'demo'. Komt het echte antwoord later alsnog
+     binnen, dan zet loadChars() het label terug. */
   if(!chars.length){
+    var cs = U.$('#charSrc'); if(cs) cs.textContent = 'demo';
     showChars([
       { name:'Shiftheal', realm:'Ragnaros', klass:'Priest', spec:'Holy',
         guild:'', color:'#FFFFFF', thumb:'',
@@ -551,6 +568,7 @@ function demo(){
                {pct:52.08},{pct:43.89},{pct:44.87},{pct:0,kill:true}];
   function stand(n, best, dead){
     paintBoss({
+      source:'demo',
       raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
       bossName:'The Lost Explorers', bossImg:'', summary:'2/8 Mythic',
       defeated:dead, pullCount:n, bestPct:best, bestPhase:'P3',
