@@ -1,0 +1,130 @@
+<meta charset="utf-8">
+<title>Bronvergelijking: Raider.IO vs Warcraft Logs</title>
+<!-- Geen overlaypagina maar een werkbank. Zet hem naast je stream open
+     tijdens een raidavond en je ziet per poll wat beide bronnen zeggen en
+     welke js/progress.js zou kiezen. Zo hoef je niet op de kaart zelf te
+     ontdekken dat er iets niet klopt.
+
+     Token meegeven met ?wcl=<token>, net als bij de andere pagina's. -->
+<link rel="stylesheet" href="css/tokens.css">
+<style>
+  body{margin:0;background:var(--ink-900);color:var(--paper);
+       font-family:var(--f-display);padding:32px 28px 48px}
+  h1{font-size:26px;font-weight:600;letter-spacing:-.02em;margin:0 0 4px}
+  .sub{color:var(--ink-300);font-size:14px;margin-bottom:26px}
+  .sub code{font-family:var(--f-mono);color:var(--paper-dim)}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+       gap:18px;margin-bottom:22px}
+  .box{background:var(--ink-800);border:1px solid var(--ink-700);padding:20px 22px}
+  .box h2{font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+          color:var(--ink-300);margin:0 0 14px;font-weight:600}
+  .box.win{border-color:var(--jade)}
+  .box.win h2{color:var(--jade)}
+  .box.dead{opacity:.45}
+  dl{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;margin:0;
+     font-size:15px;align-items:baseline}
+  dt{color:var(--ink-400);font-size:12px;letter-spacing:.08em;
+     text-transform:uppercase}
+  dd{margin:0;font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+     color:var(--paper)}
+  dd.dim{color:var(--ink-400)}
+  .verdict{background:var(--ink-850);border-left:3px solid var(--jade);
+           padding:16px 20px;font-size:15px;line-height:1.55}
+  .verdict b{font-family:var(--f-mono);color:var(--jade)}
+  .diff{color:var(--gold)}
+  .log{margin-top:26px;font-family:var(--f-mono);font-size:12px;
+       color:var(--ink-400);line-height:1.7;white-space:pre-wrap}
+</style>
+
+<h1>Raider.IO vs Warcraft Logs</h1>
+<p class="sub">Elke 30 seconden opnieuw. Afwijkende velden staan <span class="diff">goud</span>.
+   Token via <code>?wcl=&lt;token&gt;</code>.</p>
+
+<div class="row">
+  <div class="box" id="boxR"><h2>raider.io</h2><dl id="dlR"></dl></div>
+  <div class="box" id="boxW"><h2>warcraftlogs</h2><dl id="dlW"></dl></div>
+</div>
+<div class="verdict" id="verdict">wachten op de eerste poll…</div>
+<div class="log" id="log"></div>
+
+<script src="config.default.js"></script>
+<script src="config.js"></script>
+<script src="js/util.js"></script>
+<script src="js/rio-live.js"></script>
+<script src="js/wcl.js"></script>
+<script src="js/progress.js"></script>
+<script>
+(function(){
+  'use strict';
+  var U = window.U;
+  var FIELDS = ['bossName','pullCount','bestPct','phase','defeated','summary','updated'];
+
+  function fmt(k, v){
+    if(v == null || v === '') return '—';
+    if(k === 'updated') return new Date(v).toLocaleTimeString();
+    if(k === 'bestPct') return Number(v).toFixed(2) + '%';
+    if(k === 'defeated') return v ? 'ja' : 'nee';
+    return String(v);
+  }
+
+  /* Vergelijken op de waarde zoals hij getoond wordt: anders staat 4.25 vs
+     4.250001 als een verschil in beeld terwijl je hetzelfde ziet. */
+  function paint(dl, rec, other){
+    dl.innerHTML = '';
+    if(!rec){
+      dl.innerHTML = '<dt>status</dt><dd class="dim">geen antwoord</dd>';
+      return;
+    }
+    FIELDS.forEach(function(k){
+      var mine = fmt(k, rec[k]);
+      var dt = document.createElement('dt'); dt.textContent = k;
+      var dd = document.createElement('dd'); dd.textContent = mine;
+      if(other && fmt(k, other[k]) !== mine) dd.classList.add('diff');
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+  }
+
+  var log = document.getElementById('log'), lines = [];
+  function note(s){
+    lines.unshift(new Date().toLocaleTimeString() + '  ' + s);
+    log.textContent = lines.slice(0, 12).join('\n');
+  }
+
+  function tick(){
+    /* Allebei los ophalen, zodat je ook ziet wat de verliezer zei -- dat is
+       het hele punt van deze pagina. Progress.pick() krijgt daarna dezelfde
+       twee records, dus het oordeel hier is het oordeel dat de kaart velt. */
+    Promise.all([
+      window.RioLive.load().catch(function(e){ note('raider.io faalde: ' + e.message); return null; }),
+      window.WCL.available()
+        ? window.WCL.load().catch(function(e){ note('wcl faalde: ' + e.message); return null; })
+        : Promise.resolve(null)
+    ]).then(function(r){
+      var rio = r[0], wcl = r[1];
+      paint(document.getElementById('dlR'), rio, wcl);
+      paint(document.getElementById('dlW'), wcl, rio);
+
+      var got = window.Progress.pick(wcl, rio);
+      var boxR = document.getElementById('boxR'), boxW = document.getElementById('boxW');
+      boxR.className = 'box' + (rio ? '' : ' dead') + (got && got.rec === rio ? ' win' : '');
+      boxW.className = 'box' + (wcl ? '' : ' dead') + (got && got.rec === wcl ? ' win' : '');
+
+      var v = document.getElementById('verdict');
+      if(!got){ v.innerHTML = 'Geen van beide antwoordde — de kaart valt terug op de bewaarde stand.'; return; }
+      var lead = (wcl && rio) ? Math.round(((wcl.updated||0) - (rio.updated||0)) / 1000) : null;
+      v.innerHTML = 'De kaart toont <b>' + got.rec.source + '</b> (' + got.why + ')' +
+        (lead === null ? '' :
+         ', wcl ligt ' + (lead >= 0 ? lead + 's vóór' : (-lead) + 's achter')) + '.';
+
+      if(wcl && rio && wcl.pullCount !== rio.pullCount)
+        note('pulls verschillen: wcl ' + wcl.pullCount + ' vs rio ' + rio.pullCount);
+      if(wcl && rio && !!wcl.defeated !== !!rio.defeated)
+        note('kill verschilt: wcl ' + wcl.defeated + ' vs rio ' + rio.defeated);
+    });
+  }
+
+  if(!window.WCL.available())
+    note('geen wcl-token of gilde-id — alleen raider.io. Geef ?wcl=<token> mee.');
+  U.poll(tick, 30);
+})();
+</script>

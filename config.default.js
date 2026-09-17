@@ -96,6 +96,17 @@ window.OVERLAY_CONFIG = {
       // hoort alleen jij het niet en je kijkers wel -- of omgekeerd.
       soundVolume: 0.6,
 
+      // Welke bron de kaart vult: 'auto' laat js/progress.js kiezen tussen
+      // Raider.IO en Warcraft Logs, 'raiderio' of 'warcraftlogs' zetten hem
+      // vast. Auto kiest de verste stand -- Raider.IO leidt zijn
+      // live-tracking af van dezelfde logs als WCL, dus hij kan achterlopen
+      // maar niet vooruit, en dan wint WCL vanzelf.
+      source     : 'auto',
+      // Hoeveel een bron vóór moet liggen voor de kaart overstapt. Zonder
+      // drempel wipt hij heen en weer tussen twee bronnen die elkaar om
+      // beurten een paar seconden verslaan.
+      switchAfterSeconds: 60,
+
       raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'
 
       // latest | normal | heroic | mythic. 'latest' betekent bij Raider.IO
@@ -135,6 +146,32 @@ window.OVERLAY_CONFIG = {
     // In widget-modus krijgt de raidkaart geen tijd: die iframe ververst
     // zichzelf op een ander domein, dus wat daar in staat weten we niet.
     showUpdated   : true,
+  },
+
+  // ---- warcraft logs (tweede bron voor de raidkaart) ----------------
+  // Zet liveTracking.source op 'auto' of 'warcraftlogs' om hem te gebruiken.
+  //
+  // Het token komt NIET uit dit bestand maar uit ?wcl=<token> op je browser
+  // source, net als het StreamElements-token. En het is een *token*, geen
+  // client secret: dat secret mint tokens, leeft 360 dagen, en hoort op je
+  // eigen machine te blijven -- niet in een pagina die iedereen kan openen.
+  //
+  // Een token maken: client aanmaken op warcraftlogs.com/api/clients (laat
+  // 'Public Client' uit), dan
+  //   curl -u "<client id>:<secret>" -d grant_type=client_credentials \
+  //        https://www.warcraftlogs.com/oauth/token
+  warcraftlogs: {
+    // Het getal uit de URL van je gildepagina op warcraftlogs.com.
+    guildId    : 797151,
+    guildName  : 'Kelderklasse',
+    // De zone van de huidige tier. Op te vragen met worldData{zones{id name}}.
+    zoneId     : 53,
+    zoneName   : 'The Venomous Abyss',
+    difficulty : 'mythic',        // mythic | heroic | normal
+    // Hoeveel raidavonden terug gekeken wordt voor de pullteller. Die telt
+    // over avonden heen, dus te weinig verslagen = te lage stand.
+    reportLimit: 25,
+    token      : '',
   },
 
   // ---- doelen -------------------------------------------------------
