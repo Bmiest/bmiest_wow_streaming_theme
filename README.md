@@ -177,15 +177,21 @@ stream settings. The encoder dropdown still reads H.264, because OBS' plain
 Twitch profile only offers H.264 -- you cannot pick HEVC there by hand.
 Enhanced Broadcasting does it for you.
 
-Twitch Inspector for the broadcast of 8 September 2026, 23:54:52 - 00:01:57,
-shows four simultaneous video encodes:
+Twitch Inspector for the broadcast of 16 September 2026, 19:52:09 - 23:04:18,
+shows three simultaneous video encodes:
 
 | Track | Codec | Resolution | FPS | Bitrate |
 |---|---|---|---|---|
-| landscape #1 | H.265/HEVC | 2560x1440 | 60.03 | 9,033 Kbps |
-| landscape #2 | H.264/AVC | 1920x1080 | 60.03 | 7,523 Kbps |
-| landscape #3 | H.264/AVC | 1280x720 | 60.03 | 3,519 Kbps |
-| landscape #4 | H.264/AVC | 640x360 | 30.02 | 505 Kbps |
+| landscape #1 | H.265/HEVC | 2560x1440 | 59.95 | 8,983 Kbps |
+| landscape #2 | H.264/AVC | 1920x1080 | 59.97 | 7,495 Kbps |
+| landscape #3 | H.264/AVC | 640x360 | 29.98 | 504 Kbps |
+
+It used to be four. **Maximum Video Tracks** is capped at 3 here, and the rung
+that dropped out is the **1280x720 at 3,519 Kbps** that sat in the middle on
+8 September. That saves about 3.5 Mbps upstream, and it costs the rung most
+viewers actually sit on: someone who cannot hold 1080p now falls straight to
+360p at half a megabit, with nothing in between. Put it back to 4 if that
+matters more than the bandwidth.
 
 Audio is AAC at 48 kHz, once for the live stream and once for the Twitch VOD.
 The two top tracks line up with the targets Twitch publishes for Enhanced
@@ -201,18 +207,20 @@ RX 6950 XT has been able to encode HEVC since it launched in 2022; what was
 missing was Twitch accepting it, and Enhanced Broadcasting is that path. No
 hardware upgrade unlocked this.
 
-**All four encodes happen on your PC.** Added up that is roughly 20.6 Mbps of
+**Every encode happens on your PC.** Added up that is roughly 17.0 Mbps of
 video going upstream, plus audio and overhead, rather than the 8 Mbps under
-Output. If that is too much for your connection, cap it under **Stream >
-Maximum Streaming Bandwidth** and limit the number of simultaneous encodes with
-**Maximum Video Tracks**. Both are on automatic by default.
+Output — and it was 20.6 Mbps while the 720p track was still in there. If that
+is too much for your connection, cap it under **Stream > Maximum Streaming
+Bandwidth** and limit the number of simultaneous encodes with **Maximum Video
+Tracks**. Both are on automatic by default; this stream runs the latter at 3.
 
-**The bottom rungs are why this overlay looks the way it does.** The 720p track
-gets 3.5 Mbps and the 360p one gets 505 Kbps, and the overlay is scaled into
-both of them. Flat fills, no gradients and no full-width motion cost the encoder
-almost nothing at any rung; a gradient across 2560px costs it every frame, and
-banding shows up on the low rungs first. The design rules in section 5 and
-section 7 exist for that reason, and Enhanced Broadcasting does not retire them.
+**The bottom rung is why this overlay looks the way it does.** The 360p track
+gets 504 Kbps, and the whole overlay is scaled into it. Flat fills, no gradients
+and no full-width motion cost the encoder almost nothing at any rung; a gradient
+across 2560px costs it every frame, and banding shows up on the low rung first.
+The design rules in section 5 and section 7 exist for that reason, and neither
+Enhanced Broadcasting nor dropping a track retires them — that bottom number is
+the same 504 Kbps it always was.
 
 > If a raid pull still looks blocky, 1440p48 or a 1920x1080 canvas is the knob
 > that pays the most. Raising the manual bitrate does nothing while Enhanced
@@ -483,7 +491,7 @@ The wig is drawn, in `js/ribbon.js`, and there are three reasons for that rather
 than a photo. A seller's product shot is someone else's material and does not
 belong in a repository that is MIT. A cut-out on white fights an overlay made of
 flat tints. And a photographic gradient across a light object is the first thing
-to band at 505 Kbps. Your own photo is a different matter:
+to band at 504 Kbps. Your own photo is a different matter:
 
 ```js
 goals: { subs: { image: 'media/reward.jpg' } }
