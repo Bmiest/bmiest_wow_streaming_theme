@@ -57,7 +57,7 @@ window.OVERLAY_CONFIG = {
       { realm: 'twisting-nether', name: 'Bhikhu'    },  // cross-realm lid van Kelderklasse
       { realm: 'ragnaros',        name: 'Beo'       },  // arms warrior
       { realm: 'ragnaros',        name: 'Beos'      },  // prot paladin
-      { realm: 'ragnaros',        name: 'Beoh'      },  // resto druid
+      { realm: 'ragnaros',        name: 'Beoh'      },  // druid
     ],
     guild: { realm: 'draenor', name: 'Kelderklasse' },
     raidSlug      : '',    // '' = automatisch de nieuwste raid

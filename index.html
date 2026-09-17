@@ -337,6 +337,32 @@
     </p>
   </section>
 
+  <!-- De bronkeuze, met de opname erin. Hier staan bewust geen verzonnen
+       cijfers: dit is een echte meting met de datum erbij, en juist daarom is
+       dit de plek om die functie te laten zien. In de onderbalk kan het niet
+       -- die kaart is 340px en 'demo · warcraftlogs' past er niet in, en een
+       echte bronnaam boven verzonnen cijfers is een vermelding voor iets wat
+       die dienst nooit geleverd heeft. -->
+  <section class="screens">
+    <h2>Two sources for the raid card</h2>
+    <p class="hero__note" style="margin:0 0 22px">
+      Raider.IO derives its live tracking from the same uploaded logs Warcraft
+      Logs keeps, so it can lag but never lead. The card now reads both and
+      shows whichever is further along, naming the one it used. Below is a real
+      reading, not a mock-up: Raider.IO still had the boss alive at 19 pulls
+      while its own progress line already counted the kill.
+    </p>
+    <div class="board">
+      <iframe src="compare.html?demo=1" title="Raid source comparison"
+              scrolling="no" loading="lazy"></iframe>
+    </div>
+    <p class="hero__note">
+      Open <a href="compare.html">compare.html</a> with a Warcraft Logs token
+      during a raid and it does this live, every 30 seconds, with the verdict
+      coming from the same code the card uses.
+    </p>
+  </section>
+
   <!-- Kanaalgraphics: de PNG's uit graphics/, gerenderd uit graphics.html -->
   <section class="screens">
     <h2>Channel graphics</h2>
