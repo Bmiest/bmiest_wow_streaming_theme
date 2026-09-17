@@ -16,3 +16,6 @@ obs-collection.server.json
 # is; zie media/NOTICE.txt. Een foto van je eigen wig mag hier natuurlijk wel
 # uit.
 media/reward.*
+
+# Werkmap van de serena-tooling, geen onderdeel van het thema.
+.serena/
