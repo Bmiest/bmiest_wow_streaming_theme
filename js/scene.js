@@ -360,7 +360,7 @@ if(MODE === 'brb'){
 }
 
 /* scene.html?demo=1 -- vult de supporterskaart zodat je kan uitlijnen */
-if(/[?&]demo=1/.test(location.search)){
+if(U.flag('demo')){
   [['follow','joesswow','follows',''],
    ['sub','vassham','sub','T2 · 14 mo'],
    ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){

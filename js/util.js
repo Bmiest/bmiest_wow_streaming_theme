@@ -146,11 +146,22 @@ function pollAligned(fn, seconds){
   run();
 }
 
+/* Een ja/nee-vlag uit de URL: ?demo=1, ?health=1. Diezelfde regex stond op
+   vijf plekken los in de bestanden, en dan drijven ze uit elkaar zodra er één
+   verandert -- deze is wat strenger dan de kopieën die hij vervangt, want die
+   sloegen ook aan op ?demo=10.
+
+   Voor een vlag met een waarde erachter (?test=, ?mode=, ?rot=, ?wcl=) is dit
+   niets: die lezen hun eigen patroon, want ze willen die waarde hebben. */
+function flag(name){
+  return new RegExp('[?&]' + name + '=1(?:&|$)').test(location.search);
+}
+
 /* Statusregeltje rechtsboven. Dit is een diagnosehulpje, geen onderdeel van
    je stream -- een rode "offline" in beeld is erger dan het probleem dat hij
    meldt. Daarom alleen zichtbaar met ?health=1 in de URL. */
 var health = {}, notes = {};
-var SHOW_HEALTH = /[?&]health=1/.test(location.search);
+var SHOW_HEALTH = flag('health');
 
 /* Naast 'reageert niet' kan een bron ook iets melden terwijl hij wel werkt --
    Raider.IO levert bijvoorbeeld een antwoord dat dagen oud is. Geef dat mee
@@ -175,6 +186,6 @@ window.U = {
   CFG:CFG, CLASS_COLORS:CLASS_COLORS,
   $:$, el:el, esc:esc, num:num, hhmm:hhmm, countTo:countTo, slug:slug,
   getJSON:getJSON, getText:getText, poll:poll, pollAligned:pollAligned,
-  setHealth:setHealth
+  setHealth:setHealth, flag:flag
 };
 })();

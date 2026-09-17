@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG;
-var DEMO = /[?&]demo=1/.test(location.search);
+var DEMO = U.flag('demo');
 var RIO  = (location.search.match(/[?&]rio=([a-z]+)/) || [])[1];   // testoverride
 
 if(DEMO){

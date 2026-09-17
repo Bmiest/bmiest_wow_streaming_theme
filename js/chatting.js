@@ -4,7 +4,7 @@
 'use strict';
 var U = window.U, CFG = U.CFG, R = window.Ribbon;
 var SC = CFG.scenes || {};
-var DEMO = /[?&]demo=1/.test(location.search);
+var DEMO = U.flag('demo');
 if(DEMO) document.body.classList.add('demo');
 
 (function(){

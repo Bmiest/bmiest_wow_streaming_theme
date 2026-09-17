@@ -91,7 +91,7 @@
     });
   }
 
-  var DEMO = /[?&]demo=1/.test(location.search);
+  var DEMO = U.flag('demo');
 
   /* Deze pagina houdt dezelfde stand bij als de kaart en geeft hem mee aan
      pick(). Anders kan ze het ene geval waar de drempel voor bestaat niet

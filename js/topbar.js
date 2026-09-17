@@ -4,7 +4,7 @@
 'use strict';
 var U = window.U, CFG = U.CFG;
 var TB   = CFG.topbar || {};
-var DEMO = /[?&]demo=1/.test(location.search);
+var DEMO = U.flag('demo');
 
 (function(){
   var stage = document.getElementById('stage');
