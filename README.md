@@ -186,12 +186,36 @@ shows three simultaneous video encodes:
 | landscape #2 | H.264/AVC | 1920x1080 | 59.97 | 7,495 Kbps |
 | landscape #3 | H.264/AVC | 640x360 | 29.98 | 504 Kbps |
 
-It used to be four. **Maximum Video Tracks** is capped at 3 here, and the rung
-that dropped out is the **1280x720 at 3,519 Kbps** that sat in the middle on
-8 September. That saves about 3.5 Mbps upstream, and it costs the rung most
-viewers actually sit on: someone who cannot hold 1080p now falls straight to
-360p at half a megabit, with nothing in between. Put it back to 4 if that
-matters more than the bandwidth.
+It used to be four. **Maximum Video Tracks** is capped at 3 here because four
+dropped a lot of frames, and the rung that fell away is the **1280x720 at
+3,519 Kbps** that sat in the middle on 8 September.
+
+That is the expensive one to lose and the useful one to lose. Expensive,
+because at four tracks three of them ran at 60fps -- 1440p HEVC, 1080p and
+720p -- and taking one of those out is the largest single saving on the
+encoder there is. Useful, because 720p at 3.5 Mbps is the rung most viewers
+actually sit on, and without it anyone who cannot hold 1080p falls straight to
+360p at half a megabit.
+
+**Three runs stable**, so that is where it stays. Inspector shows the
+16 September raid as stable for its three hours bar two five-second blips
+around 21:12, with the configuration check clean.
+
+If you ever want that middle rung back, the thing to know first is *which*
+counter was climbing at four, because they point at different knobs:
+
+| OBS counter | what ran out | the knob |
+|---|---|---|
+| Skipped (encoding lag) | GPU could not finish the renditions in time | fewer tracks, or a lower top rung: 1440p48 or a 1920x1080 canvas |
+| Dropped (network) | upstream could not carry ~20.6 Mbps | **Maximum Streaming Bandwidth**, not the track count |
+| Lagged (rendering) | OBS could not composite in time | neither of those; the canvas or the game |
+
+The bandwidth cap is the gentler instrument of the two Twitch gives you: it
+sets a ceiling and lets Twitch pick a ladder that fits under it, rather than
+you removing a track by hand and finding out afterwards which one it was. If
+the frames were dropping rather than skipping, that is the one to try -- it may
+well keep 720p and trim the top instead. Three stable tracks beat four with
+frames on the floor either way, so this is a nice-to-have and not a fix.
 
 Audio is AAC at 48 kHz, once for the live stream and once for the Twitch VOD.
 The two top tracks line up with the targets Twitch publishes for Enhanced
