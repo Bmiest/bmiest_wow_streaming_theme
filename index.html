@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ultrawide streaming theme for WoW</title>
-<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens and a stinger. World of Warcraft data from Raider.IO. Hosted, nothing to install.">
+<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens and a stinger. World of Warcraft data from Raider.IO and Warcraft Logs. Hosted, nothing to install.">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/index.css">
@@ -255,6 +255,18 @@
         without a token; paste yours on the end in OBS.
       </p>
 
+      <p class="hint">
+        <b>Warcraft Logs rides along the same way</b>, as <code>?wcl=…</code> on
+        the bottom bar and the alerts. It is optional — without it the raid card
+        runs on Raider.IO alone, exactly as before. With it, the two are compared
+        every poll and the card shows whichever is further along, which is the
+        one that knows about the kill you just got. What goes in that URL is an
+        <i>access token</i>, good for a year; the client secret that mints it
+        stays off this site entirely. <a href="compare.html">compare.html</a>
+        puts both sources side by side with the verdict underneath, which is the
+        page to open if the numbers ever look wrong.
+      </p>
+
     </div></div>
   </section>
 
@@ -378,18 +390,24 @@
       <div class="rcard"><div class="rcard__in">
         <dl class="facts">
           <dt>Chat</dt><dd>Twitch IRC over websocket, anonymous</dd>
-          <dt>Characters, raid progress</dt>
+          <dt>Characters</dt>
           <dd><a href="https://raider.io" rel="noopener">Raider.IO</a>, public API</dd>
+          <dt>Raid progress</dt>
+          <dd><a href="https://raider.io" rel="noopener">Raider.IO</a> and
+              <a href="https://www.warcraftlogs.com" rel="noopener">Warcraft Logs</a>,
+              whichever is further along — the card says which one it used</dd>
           <dt>Viewers, followers, uptime, title</dt><dd>DecAPI</dd>
           <dt>The sub goal</dt><dd>StreamElements' goal counter, or DecAPI for your real active count</dd>
           <dt>Follows, subs, bits, tips, raids</dt><dd>StreamElements, socket + REST</dd>
         </dl>
         <p class="hint">
-          The parts fail independently, on purpose. If Raider.IO drops out only
-          that card goes empty; if the StreamElements socket drops out the
-          labels keep working over the REST call. Add <code>?health=1</code> to
-          a URL to see what is not responding. That is off by default, because a
-          red warning on screen is worse than the problem it reports.
+          The parts fail independently, on purpose. If the StreamElements
+          socket drops out the labels keep working over the REST call, and the
+          raid card has two sources plus a memory of the last good answer — so
+          one of them going down no longer empties it. Add
+          <code>?health=1</code> to a URL to see what is not responding and
+          which source won. That is off by default, because a red warning on
+          screen is worse than the problem it reports.
         </p>
       </div></div>
     </div>
@@ -444,6 +462,8 @@
     <a href="stinger.webm">stinger.webm</a>
     <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme">Repo on GitHub</a>
     <a href="https://raider.io" rel="noopener">Character and raid data by Raider.IO</a>
+    <a href="https://www.warcraftlogs.com" rel="noopener">Raid progress by Warcraft Logs</a>
+    <a href="compare.html">compare.html — both raid sources side by side</a>
   </footer>
 
 </div>

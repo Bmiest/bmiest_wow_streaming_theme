@@ -537,7 +537,7 @@ the OBS transform.
 Split on purpose: SE delivers the events and the labels, DecAPI the totals. That
 way your follower count does not disappear when your SE session hiccups.
 
-### Crediting Raider.IO
+### Crediting Raider.IO and Warcraft Logs
 
 Their API is free for this, and it comes with one condition. From the terms on
 <https://raider.io/api>:
@@ -569,6 +569,24 @@ earlier version called `/bossprogress` and `/bosspulls`, picked out of the
 network calls behind their own widget. Those answer identically, byte for byte,
 but they are not published, and "beyond the published endpoints" is the line
 their terms draw.
+
+**The raid card can run on Warcraft Logs instead**, and then the tag says so.
+It is not decoration: the label names whoever actually filled that card on that
+poll, and the timestamp beside it is that source's own time, not ours. Anything
+else would credit the wrong service and hide why the numbers changed. The same
+tag rides in the corner of the full-screen alerts, which now run on the same
+picker.
+
+On the card it reads `warcraftlogs` and not `warcraftlogs.com`, and that is
+measured rather than felt. The raid card is 340px wide, the `raid` caption runs
+to 86px, and the source pill hangs off the right with its own background. With
+`warcraftlogs.com · 22:47 · 11h ago` the pill starts at 72px and paints straight
+over the caption, leaving you reading `>> R`. Without the `.com` it starts at
+100px and clears. The alerts have a whole screen, so there it keeps the domain.
+
+Warcraft Logs is the upstream of both: Raider.IO's live tracking is derived from
+the same uploaded logs. That is why the picker exists at all, and why it never
+runs the other way round.
 
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
 are limited per minute, and this overlay makes a handful every 30 seconds. If
@@ -608,7 +626,7 @@ card. The difference is the whole point. When their parsing falls behind on a
 busy evening, the polls here keep succeeding and the card just keeps saying the
 same thing; a clock of our own fetch would tick along happily and tell you
 nothing. Once a card falls behind — fifteen minutes for a pull, twelve hours
-for a crawl — the age comes with it (`22:41 · 38m late`) and the stamp turns
+for a crawl — the age comes with it (`22:41 · 38m ago`) and the stamp turns
 gold. Not red: nothing is broken, Raider.IO is simply not caught up. Those two
 thresholds are far apart on purpose, because live tracking is supposed to keep
 pace with the raid while a character crawl a few hours old is just Raider.IO's

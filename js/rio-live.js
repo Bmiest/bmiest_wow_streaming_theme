@@ -157,12 +157,28 @@ function currentRaid(){
    begint hij opnieuw, anders leest de lagere pullcount van een verse boss als
    een verbetering. */
 function watcher(){
-  var seen = { boss:null, pulls:null, best:null, down:false };
+  var seen = { src:null, boss:null, pulls:null, best:null, down:false, stale:false };
   return function(L){
     if(!L) return { fresh:false, better:false, down:false };
     var n = L.pullCount || 0;
-    if(L.bossName !== seen.boss){
-      seen = { boss:L.bossName, pulls:n, best:L.bestPct, down:!!L.defeated };
+    var src = L.source || 'raiderio';
+    /* Opnieuw ijken, en deze ronde niets melden, zodra we niet meer met
+       hetzelfde meten als vorige keer:
+
+       - andere boss   -- de lagere pullcount van een verse boss is geen
+                          vooruitgang;
+       - andere bron   -- Raider.IO stond op 19 pulls en geen kill terwijl
+                          WCL 21 en de kill had. Zonder deze regel knalt er
+                          een 'boss down' over je beeld op het moment dat de
+                          kaart overstapt, voor een kill van elf minuten
+                          geleden;
+       - uit geheugen  -- tijdens een storing staat er een bewaarde stand, en
+                          als de bron terugkomt is het verschil daarmee geen
+                          nieuws maar een inhaalslag. Daarom ook opnieuw ijken
+                          op de eerste echte stand ná een geheugenstand. */
+    if(L.bossName !== seen.boss || src !== seen.src || L.stale || seen.stale){
+      seen = { src:src, boss:L.bossName, pulls:n, best:L.bestPct,
+               down:!!L.defeated, stale:!!L.stale };
       return { fresh:false, better:false, down:false };
     }
     var out = {

@@ -231,7 +231,12 @@ function renderRaid(e){
   /* Bron in de hoek. Deze melding draait op Raider.IO's live-tracking en
      staat hier los van de onderbalk in beeld, dus de vermelding hoort ook
      hier. Klein en gedempt: het is een bronregel, niet het nieuws. */
-  node.appendChild(U.el('div','raid__src','raider.io'));
+  /* Dezelfde vermelding als op de kaart, en om dezelfde reden: wie deze
+     cijfers leverde. js/progress.js kan per poll van bron wisselen. */
+  node.appendChild(U.el('div','raid__src',
+    e.src === 'warcraftlogs' ? 'warcraftlogs.com' : 'raider.io'));
+  /* Hier mag .com wel: de melding vult je scherm, dus daar is ruimte zat.
+     Op de raidkaart niet -- zie SRC_LABEL in js/banner.js. */
   return node;
 }
 
@@ -316,6 +321,7 @@ window.SE.start(push);
       kill : kill,
       boss : L.bossName || '',
       art  : L.bossImg || '',
+      src  : L.source || 'raiderio',
       where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
               L.summary].filter(Boolean).join('  \u00b7  '),
       stats: stats,
@@ -327,7 +333,7 @@ window.SE.start(push);
   /* Zelfde gedeelde klok als de onderbalk: anders vuurt deze melding tot een
      halve minuut na het ribbonnetje in de raidkaart. */
   U.pollAligned(function(){
-    return window.RioLive.load().then(function(L){
+    return window.Progress.load().then(function(L){
       if(!L) return;
       var ev = watch(L);
       if(ev.down)                                  fire(L, ev);
@@ -376,11 +382,16 @@ if(TEST){
      Eén losse aanroep die niets ophoudt: komt het antwoord binnen terwijl er
      al een melding staat, dan pakt de volgende ronde hem op. Faalt hij, dan
      is de melding wat hij hiervoor was. */
-  if(window.RioLive){
-    window.RioLive.load().then(function(L){
-      if(!L || !L.bossImg) return;
+  if(window.Progress){
+    window.Progress.load().then(function(L){
+      if(!L) return;
       demo.forEach(function(e){
-        if(e.kind === 'progress') e.art = L.bossImg;
+        if(e.kind !== 'progress') return;
+        if(L.bossImg) e.art = L.bossImg;
+        /* Ook de bronnaam meenemen, want die hangt aan het plaatje: staat er
+           art van de bron die nu wint, dan hoort daar diezelfde vermelding
+           bij. De cijfers in de demo blijven verzonnen. */
+        e.src = L.source || 'raiderio';
       });
     }).catch(function(){});
   }

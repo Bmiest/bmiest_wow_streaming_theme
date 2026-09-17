@@ -42,7 +42,8 @@
     <!-- 3 ─ boss progress van de guild ---------------------------------->
     <div class="rcard-wrap card--boss">
       <span class="rcard__cap" data-icon="raid">raid</span>
-      <span class="rcard__src">raider.io<b class="rcard__at" id="bossAt"></b></span>
+      <!-- De bronnaam wisselt mee met wie de kaart vulde: zie js/progress.js -->
+      <span class="rcard__src"><span id="bossSrc">raider.io</span><b class="rcard__at" id="bossAt"></b></span>
       <div class="rcard"><div class="rcard__in">
 
         <div class="rio" id="rioWidget" style="display:none">
@@ -131,6 +132,8 @@
 <script src="js/camevent.js"></script>
 <script src="js/raiderio.js"></script>
 <script src="js/rio-live.js"></script>
+<script src="js/wcl.js"></script>
+<script src="js/progress.js"></script>
 <script src="js/chat.js"></script>
 <script src="js/streamelements.js"></script>
 <script src="js/banner.js"></script>

@@ -301,7 +301,7 @@ window.OVERLAY_CONFIG = {
       bullets: [
         'served from GitHub Pages',
         'MIT licensed, fork it',
-        'raid data from Raider.IO',
+        'raid data from Raider.IO and Warcraft Logs',
       ],
       // Staat ook als klikdoel onder de panelknop bij Twitch; hier staat
       // hij in beeld, want een PNG is niet aan te klikken.

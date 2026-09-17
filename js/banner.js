@@ -77,7 +77,10 @@ function stamp(sel, when, lateAfterMin){
   }
   var min  = Math.round((Date.now() - t) / 60000);
   var late = min >= lateAfterMin;
-  n.textContent = U.hhmm(t) + (late ? '  \u00b7  ' + lateness(min) + ' late' : '');
+  /* "ago" en niet "late": de gegevens zijn oud omdat de raid gisteravond was,
+     niet omdat er iemand achterloopt. De kleur zegt al dat je ernaar moet
+     kijken; het woord hoeft er geen verwijt bij te doen. */
+  n.textContent = U.hhmm(t) + (late ? '  \u00b7  ' + lateness(min) + ' ago' : '');
   n.classList.toggle('is-late', late);
 }
 
@@ -191,7 +194,7 @@ function showPage(p){
        ging pas mis toen er alts bij kwamen: Raider.IO crawlt een character
        als iemand zijn profiel opvraagt, en bij een character dat al twee jaar
        stilligt gebeurt dat nooit. Over de hele lijst gerekend stond er
-       daardoor "863d late" in goud boven een kaart met twee characters die
+       daardoor "863d ago" in goud boven een kaart met twee characters die
        vanmiddag nog gecrawld waren.
 
        Twaalf uur, ruim boven de grens van crawlNote hieronder. Die regel is
@@ -289,6 +292,15 @@ function loadChars(){
    BOSS PROGRESS  --  Raider.IO widget of eigen weergave
    ===================================================================== */
 var LT    = (CFG.raiderio && CFG.raiderio.liveTracking) || {};
+/* Zoals de bron zichzelf noemt, in dezelfde kleine letter als raider.io.
+
+   Bewust zonder .com erachter, en dat is gemeten en niet gevoel: de raidkaart
+   is 340px breed, het kopje 'raid' loopt tot 86px en het bronpilletje hangt
+   rechts. Met 'warcraftlogs.com · 22:47 · 11h ago' begint dat pilletje op
+   72px en schuift het over dat kopje heen -- het heeft een eigen ondergrond,
+   dus je leest dan '>> R'. Zonder .com begint het op 100px en past het. Wil
+   je hier iets langers neerzetten, meet dan opnieuw. */
+var SRC_LABEL = { raiderio: 'raider.io', warcraftlogs: 'warcraftlogs' };
 var LMODE = RIO || (LT.enabled === false ? 'off' : (LT.mode || 'widget'));
 
 function widgetUrl(){
@@ -366,6 +378,12 @@ function paintBoss(L){
      tussendoor mag. Daarboven zit je wel te raiden terwijl de kaart
      stilstaat, en dat is het geval dat je wil zien. */
   stamp('#bossAt', L.updated, 15);
+  /* Het bronlabel hoort te zeggen wie deze kaart gevuld heeft, niet wie hem
+     meestal vult. Beide diensten willen genoemd worden, en als de kaart op
+     WCL draait terwijl er raider.io boven staat klopt de vermelding niet --
+     los van dat je dan niet ziet waarom er ineens andere cijfers staan. */
+  var src = U.$('#bossSrc');
+  if(src) src.textContent = SRC_LABEL[L.source] || SRC_LABEL.raiderio;
   var ev = bossDiff(L);
   U.$('#raidName').textContent =
     [L.raidName, cap(L.difficulty)].filter(Boolean).join('  ·  ');
@@ -435,8 +453,8 @@ function paintBoss(L){
 /* Faalt stil: ongedocumenteerde endpoints, dus als Raider.IO ze verandert
    blijft alleen dit blok leeg en loopt de rest door. */
 function loadLive(){
-  if(!window.RioLive) return Promise.resolve();
-  return window.RioLive.load().then(function(L){
+  if(!window.Progress) return Promise.resolve();
+  return window.Progress.load().then(function(L){
     paintBoss(L);
     U.setHealth('rio-live', true, 'gepolld ' + U.hhmm());
   }).catch(function(e){
