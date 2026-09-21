@@ -9,7 +9,28 @@
        WCL        21 pulls, kill
        Raider.IO  19 pulls, geen kill   (terwijl zijn eigen regel al 4/8 zei)
 
-   ---- de keuze -------------------------------------------------------
+   ---- wie er standaard wint ------------------------------------------
+   Warcraft Logs, zodra hij antwoordt. Dat is `source` op
+   'warcraftlogs-first', en het is een keuze uit de praktijk: Raider.IO leidt
+   zijn live-tracking af van dezelfde logs, dus hij kan per definitie niet
+   vooruit lopen -- en in september 2026 liep hij er vaak genoeg achter of lag
+   hij er helemaal uit. Een bron die alleen maar kan achterlopen is geen bron
+   om op te wachten.
+
+   Raider.IO blijft wel meedraaien, en dat is het verschil met 'warcraftlogs'
+   (die pint hem vast en haalt de ander niet eens op):
+
+   - valt WCL weg, dan vult Raider.IO de kaart alsnog;
+   - het bossportret en de voortgangsregel (4/8 Mythic) komen hoe dan ook van
+     hem, want die heeft WCL niet -- zie borrow() hieronder.
+
+   Bijvangst voor de melding over je beeld: die kijkt naar het *verschil*
+   tussen twee polls, en de watcher in js/rio-live.js ijkt opnieuw zodra de
+   bron wisselt -- die ene poll meldt dan niets. Met een vaste winnaar wisselt
+   er niets meer, dus een nieuwe beste poging kan niet meer wegvallen omdat de
+   kaart net overstapte.
+
+   ---- de keuze in 'auto' ---------------------------------------------
    De verste stand wint, op tijdstempel. Niet "WCL altijd als hij antwoordt":
    het tellen van pulls-over-avonden-heen doen we zelf in js/wcl.js, en een
    fout daarin zou dan stilletjes op je stream staan. Zo houden de twee
@@ -37,7 +58,7 @@
 'use strict';
 var U   = window.U;
 var LT  = (U.CFG.raiderio && U.CFG.raiderio.liveTracking) || {};
-var SRC = LT.source || 'auto';            // auto | raiderio | warcraftlogs
+var SRC = LT.source || 'warcraftlogs-first';   // en verder: auto | raiderio | warcraftlogs
 var LEAD = (LT.switchAfterSeconds != null ? LT.switchAfterSeconds : 60) * 1000;
 var KEY = 'overlay.progress.last';
 
@@ -89,10 +110,16 @@ function borrow(win, rio){
    De sleutels in `why` zijn codes en geen zinnen: de kaart en die pagina
    schrijven er hun eigen tekst bij, en zo lekt er geen Nederlands een Engels
    scherm op. */
-function pick(wcl, rio, held){
+function pick(wcl, rio, held, mode){
   if(wcl && !rio) return { rec: wcl, why: 'only' };
   if(rio && !wcl) return { rec: rio, why: 'only' };
   if(!wcl && !rio) return null;
+
+  /* Vaste winnaar. Bewust onder de drie gevallen hierboven: antwoordt WCL
+     niet, dan valt de kaart op Raider.IO terug in plaats van leeg te lopen.
+     `mode` komt mee zodat compare.html hetzelfde oordeel velt als de kaart --
+     dezelfde reden als `held` hierboven. */
+  if((mode || SRC) === 'warcraftlogs-first') return { rec: wcl, why: 'preferred' };
 
   /* Geen tijdstempel is geen mening. Raider.IO levert er geen zodra bosspulls
      wegvalt (die mag falen) en er nog geen pull loopt -- dat betekent "ik weet
@@ -115,9 +142,11 @@ function pick(wcl, rio, held){
 }
 
 function load(){
-  var wantW = (SRC === 'auto' || SRC === 'warcraftlogs') &&
-              window.WCL && window.WCL.available();
-  var wantR = (SRC === 'auto' || SRC === 'raiderio') && window.RioLive;
+  /* Alleen 'raiderio' zet WCL uit, en alleen 'warcraftlogs' zet Raider.IO
+     uit. 'warcraftlogs-first' haalt ze dus allebei op: de een wint altijd, de
+     ander levert het portret, de voortgangsregel en de terugval. */
+  var wantW = SRC !== 'raiderio'     && window.WCL && window.WCL.available();
+  var wantR = SRC !== 'warcraftlogs' && window.RioLive;
 
   return Promise.all([
     wantW ? tryLoad(window.WCL.load)     : Promise.resolve(null),

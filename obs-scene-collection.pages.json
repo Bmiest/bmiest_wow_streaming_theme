@@ -92,7 +92,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html?jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html?jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 1072,
         "fps_custom": true,
@@ -126,7 +126,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 120,
         "fps_custom": true,
@@ -160,7 +160,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html?jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html?jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 248,
         "fps_custom": true,
@@ -194,7 +194,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/chatting.html?jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/chatting.html?jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 1440,
         "fps_custom": true,
@@ -228,7 +228,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=starting&jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=starting&jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 1440,
         "fps_custom": true,
@@ -262,7 +262,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=brb&jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=brb&jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 1440,
         "fps_custom": true,
@@ -296,7 +296,7 @@
       "versioned_id": "browser_source",
       "settings": {
         "is_local_file": false,
-        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=ending&jwt=__JWT__",
+        "url": "https://bmiest.github.io/bmiest_wow_streaming_theme/scene.html?mode=ending&jwt=__JWT__&wcl=__WCL__",
         "width": 2560,
         "height": 1440,
         "fps_custom": true,

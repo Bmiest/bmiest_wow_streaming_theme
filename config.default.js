@@ -96,15 +96,25 @@ window.OVERLAY_CONFIG = {
       // hoort alleen jij het niet en je kijkers wel -- of omgekeerd.
       soundVolume: 0.6,
 
-      // Welke bron de kaart vult: 'auto' laat js/progress.js kiezen tussen
-      // Raider.IO en Warcraft Logs, 'raiderio' of 'warcraftlogs' zetten hem
-      // vast. Auto kiest de verste stand -- Raider.IO leidt zijn
-      // live-tracking af van dezelfde logs als WCL, dus hij kan achterlopen
-      // maar niet vooruit, en dan wint WCL vanzelf.
-      source     : 'auto',
-      // Hoeveel een bron vóór moet liggen voor de kaart overstapt. Zonder
-      // drempel wipt hij heen en weer tussen twee bronnen die elkaar om
-      // beurten een paar seconden verslaan.
+      // Welke bron de kaart en de meldingen vullen:
+      //
+      //   'warcraftlogs-first' = WCL wint zodra hij antwoordt, Raider.IO is
+      //                          de terugval. Hij draait wel mee, want het
+      //                          bossportret en de voortgangsregel (4/8
+      //                          Mythic) komen alleen van hem.
+      //   'auto'               = de verste stand wint, op tijdstempel, met
+      //                          switchAfterSeconds als drempel.
+      //   'raiderio'           = vast op Raider.IO, WCL wordt niet opgehaald.
+      //   'warcraftlogs'       = vast op WCL, Raider.IO wordt niet opgehaald
+      //                          -- dus ook geen portret en geen 4/8-regel.
+      //
+      // WCL voorop omdat Raider.IO zijn live-tracking uit dezelfde logs
+      // afleidt: hij kan per definitie niet vóórlopen, alleen achter. Zie de
+      // kop van js/progress.js.
+      source     : 'warcraftlogs-first',
+      // Hoeveel een bron vóór moet liggen voor de kaart overstapt. Alleen
+      // voor 'auto': zonder drempel wipt hij heen en weer tussen twee bronnen
+      // die elkaar om beurten een paar seconden verslaan.
       switchAfterSeconds: 60,
 
       raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'

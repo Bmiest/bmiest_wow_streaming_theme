@@ -77,6 +77,16 @@ function gql(vars){
   });
 }
 
+/* 'P3', of 'INT' in een tussenfase, en niets bij een boss zonder fases
+   (lastPhase is dan 0, en "P0" is geen fase). Dezelfde vorm als phase_label
+   uit Raider.IO's pulls, en dat is de bedoeling: js/banner.js en js/alerts.js
+   lezen `pull.phase` zonder te weten welke bron eronder zat, dus stond hier
+   het kale getal, dan zette de schermvullende melding "3" neer waar bij
+   Raider.IO "P3" staat. */
+function phaseLabel(n, interm){
+  return n ? (interm ? 'INT' : 'P' + n) : '';
+}
+
 /* Alle fights van de tier op één tijdlijn. WCL geeft fight.startTime als
    milliseconden binnen het verslag, dus pas opgeteld bij report.startTime is
    het een tijdstip waarop je kan sorteren en vergelijken. */
@@ -89,8 +99,7 @@ function timeline(reports){
         name     : f.name,
         kill     : !!f.kill,
         pct      : f.bossPercentage,
-        phase    : f.lastPhase,
-        interm   : !!f.lastPhaseIsIntermission,
+        phase    : phaseLabel(f.lastPhase, f.lastPhaseIsIntermission),
         running  : !!f.inProgress,
         at       : r.startTime + f.startTime,
         ended    : r.startTime + f.endTime,
@@ -124,9 +133,12 @@ function load(){
     for(var i = 0; i < same.length; i++){ if(same[i].kill){ first = i; break; } }
     var upto  = first >= 0 ? same.slice(0, first + 1) : same;
 
-    var best = null;
+    /* De fase van de beste poging komt mee, want de kaart zet hem achter het
+       percentage ("best of 43 pulls · P2") en de melding als eigen tegel.
+       Zonder dit veld bleef dat leeg zodra WCL de kaart vulde. */
+    var best = null, bestPhase = '';
     upto.forEach(function(f){
-      if(f.pct != null && (best === null || f.pct < best)) best = f.pct;
+      if(f.pct != null && (best === null || f.pct < best)){ best = f.pct; bestPhase = f.phase; }
     });
 
     var last = upto[upto.length - 1];
@@ -140,10 +152,8 @@ function load(){
       encounter : cur.enc,
       pullCount : upto.length,
       bestPct   : best,
-      /* lastPhase is 0 bij een boss zonder fases; dan liever niets tonen dan
-         "P0". Een intermission krijgt een eigen label, want "P3" terwijl je
-         in de tussenfase staat klopt niet. */
-      phase     : last && last.phase ? (last.interm ? 'INT' : 'P' + last.phase) : '',
+      bestPhase : bestPhase,
+      phase     : last ? last.phase : '',
       defeated  : first >= 0,
       running   : !!(last && last.running),
       updated   : last ? last.ended : null,

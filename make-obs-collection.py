@@ -30,6 +30,11 @@ ap.add_argument('--jwt', default=None,
                 help='StreamElements JWT; wordt aan elke browser-URL gehangen. '
                      'Alleen zinvol bij een gehoste site. Het resultaat bevat dan '
                      'je token -- deel dat bestand niet.')
+ap.add_argument('--wcl', default=None,
+                help='Warcraft Logs-token; wordt net als --jwt aan elke browser-URL '
+                     'gehangen. Zonder dit vallen de raidkaart en de schermvullende '
+                     'meldingen stil terug op Raider.IO. Het is het *token*, niet het '
+                     'client secret.')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
@@ -117,10 +122,19 @@ def browser(name, path, w, h):
             'shutdown': False, 'restart_when_active': False,
             'reroute_audio': False,
         })
+    # Tokens gaan mee op *elke* pagina, niet alleen op die waar je het effect
+    # ziet. config.js staat in .gitignore en geeft op een gehoste site een 404,
+    # dus de URL is de enige plek waar ze aankomen -- en alerts.html kiest zijn
+    # bron los van de onderbalk. Een alerts.html zonder ?wcl= valt daardoor
+    # stil terug op Raider.IO terwijl de balk ernaast gewoon Warcraft Logs
+    # toont, en dat is precies het soort verschil dat je op stream niet ziet.
+    url = BASE + '/' + path
+    for key, tok in (('jwt', a.jwt), ('wcl', a.wcl)):
+        if tok:
+            url += ('&' if '?' in url else '?') + key + '=' + tok
     return src(name, 'browser_source', {
         'is_local_file': False,
-        'url': BASE + '/' + path + (
-            ('&' if '?' in path else '?') + 'jwt=' + a.jwt if a.jwt else ''),
+        'url': url,
         'width': w, 'height': h,
         'fps_custom': True, 'fps': 30,
         'shutdown': False, 'restart_when_active': False,

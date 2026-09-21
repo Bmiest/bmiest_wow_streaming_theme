@@ -114,7 +114,7 @@ Or generate it yourself:
 ```bash
 ./make-obs-collection.py \
   --base-url https://bmiest.github.io/bmiest_wow_streaming_theme \
-  --os windows --jwt '__JWT__' --stinger '__STINGER__'
+  --os windows --jwt '__JWT__' --wcl '__WCL__' --stinger '__STINGER__'
 ```
 
 Open the file in a text editor and replace:
@@ -122,6 +122,14 @@ Open the file in a text editor and replace:
 | Placeholder | With |
 |---|---|
 | `__JWT__` | your StreamElements JWT |
+| `__WCL__` | your Warcraft Logs token (the token, never the client secret) |
+
+Both go on *every* source URL, including the ones where you cannot see them
+working. `config.js` is gitignored and 404s on a hosted site, so the URL is the
+only place a token arrives, and `alerts.html` picks its raid source
+independently of the bottom bar: leave `?wcl=` off that one source and the
+full-screen alerts fall back to Raider.IO while the bar beside them still reads
+`warcraftlogs`. Nothing on screen says so.
 
 That is all. The stinger is deliberately **not** in there: it would put a path
 full of backslashes into the JSON, and that is the one place where editing by
@@ -602,8 +610,8 @@ network calls behind their own widget. Those answer identically, byte for byte,
 but they are not published, and "beyond the published endpoints" is the line
 their terms draw.
 
-**The raid card can run on Warcraft Logs instead**, and then the tag says so.
-It is not decoration: the label names whoever actually filled that card on that
+**The raid card runs on Warcraft Logs**, and the tag says so. It is not
+decoration: the label names whoever actually filled that card on that
 poll, and the timestamp beside it is that source's own time, not ours. Anything
 else would credit the wrong service and hide why the numbers changed. The same
 tag rides in the corner of the full-screen alerts, which now run on the same
@@ -619,6 +627,28 @@ over the caption, leaving you reading `>> R`. Without the `.com` it starts at
 Warcraft Logs is the upstream of both: Raider.IO's live tracking is derived from
 the same uploaded logs. That is why the picker exists at all, and why it never
 runs the other way round.
+
+**Warcraft Logs goes first.** `liveTracking.source` ships as
+`warcraftlogs-first`: whenever Warcraft Logs answers, it fills the card, and
+Raider.IO is the fallback for when it does not. That follows from the paragraph
+above -- a source that can only ever lag is not one to wait for. Raider.IO
+still polls alongside it, because the boss portrait behind the full-screen
+alert and the `4/8 Mythic` progress line exist nowhere else.
+
+There is a second effect worth knowing about. The alerts watch the *difference*
+between two polls, and the watcher recalibrates -- reporting nothing that round
+-- whenever the source underneath it changes, so that switching over cannot
+fire `BOSS DOWN` for a kill from eleven minutes ago. On `auto` that also
+swallowed a new best that happened to land on a switch, and during progression
+the two sources trade places around every pull: Raider.IO stamps a pull the
+moment it starts, Warcraft Logs only once the segment is uploaded. With a fixed
+winner there is no switch to land on.
+
+Set `source` to `auto` for the old behaviour (furthest reading wins, with
+`switchAfterSeconds` as the threshold), or pin it to `raiderio` or
+`warcraftlogs`. Pinning to `warcraftlogs` does not fetch Raider.IO at all, so
+the portrait and the progress line go with it -- `warcraftlogs-first` is the
+one that keeps them.
 
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
 are limited per minute, and this overlay makes a handful every 30 seconds. If
@@ -1437,6 +1467,15 @@ Two things to check, in this order:
 2. **Does the alert itself work?** `alerts.html?test=1` cycles through every
    type: follower, sub, bits, raid, tip. If you see those and real events never
    arrive, the problem is in the token or the socket, not in the rendering.
+3. **Is the Alerts source on top?** OBS routes a browser source's audio no
+   matter where it sits in the stack, so a game capture above it gives you the
+   chime with nothing to see. The generated collection puts Alerts last in the
+   list, which is topmost; a scene edited by hand can drift.
+
+For the raid alerts specifically, add `?wcl=<token>` to that source too, and
+check `?health=1` reads `progress: warcraftlogs` rather than `raiderio` --
+without the token the page still works, it just quietly runs on the slower
+source.
 
 And turn StreamElements' own alert overlay off if you use this one, or every
 follow shows up twice.
