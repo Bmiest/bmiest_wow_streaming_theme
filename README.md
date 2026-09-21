@@ -659,7 +659,7 @@ the portrait and the progress line go with it -- `warcraftlogs-first` is the
 one that keeps them.
 
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
-are limited per minute, and this overlay makes a handful every 30 seconds. If
+are limited per minute, and this overlay makes a handful every 20 seconds. If
 you ever do get an HTTP 429, the response carries a `Retry-After` header and
 their docs ask you to honour it rather than retry on a fixed interval. This
 overlay does not read that header; it polls on a fixed schedule and a failed
@@ -1096,7 +1096,9 @@ own boss-progress widget makes; I derived them from the network requests on
   goes empty: `js/rio-live.js` fails quietly and the rest of the banner keeps
   running.
 - CORS is open (the server mirrors your Origin) and the responses carry
-  `cache-control: max-age=10`, so polling is cheap. Every 30 s by default.
+  `cache-control: max-age=10`, so polling is cheap. Every 20 s by default, and
+  while Warcraft Logs is filling the card only `boss-progress` is fetched --
+  `boss-pulls` is skipped until Raider.IO actually has to fill it.
 - Turn it off with `liveTracking.enabled: false` in `config.js`.
 - `mode: 'native'` is the default, because the widget iframe comes from another
   domain and therefore cannot be brought into the house style. If you do want

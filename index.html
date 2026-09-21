@@ -257,10 +257,11 @@
 
       <p class="hint">
         <b>Warcraft Logs rides along the same way</b>, as <code>?wcl=…</code> on
-        the bottom bar and the alerts. It is optional — without it the raid card
-        runs on Raider.IO alone, exactly as before. With it, the two are compared
-        every poll and the card shows whichever is further along, which is the
-        one that knows about the kill you just got. What goes in that URL is an
+        every source. It is optional — without it the raid card runs on
+        Raider.IO alone, exactly as before. With it, Warcraft Logs fills the
+        card whenever it answers and Raider.IO becomes the fallback, because it
+        derives its live tracking from the same logs and so can lag but never
+        lead. It is the one that knows about the kill you just got. What goes in that URL is an
         <i>access token</i>, good for a year; the client secret that mints it
         stays off this site entirely. <a href="compare.html">compare.html</a>
         puts both sources side by side with the verdict underneath, which is the
@@ -360,7 +361,7 @@
     </div>
     <p class="hero__note">
       Open <a href="compare.html">compare.html</a> with a Warcraft Logs token
-      during a raid and it does this live, every 30 seconds, with the verdict
+      during a raid and it does this live, every 20 seconds, with the verdict
       coming from the same code the card uses.
     </p>
   </section>
@@ -423,7 +424,7 @@
           <dt>Raid progress</dt>
           <dd><a href="https://raider.io" rel="noopener">Raider.IO</a> and
               <a href="https://www.warcraftlogs.com" rel="noopener">Warcraft Logs</a>,
-              whichever is further along — the card says which one it used</dd>
+              Warcraft Logs first — the card says which one it used</dd>
           <dt>Viewers, followers, uptime, title</dt><dd>DecAPI</dd>
           <dt>The sub goal</dt><dd>StreamElements' goal counter, or DecAPI for your real active count</dd>
           <dt>Follows, subs, bits, tips, raids</dt><dd>StreamElements, socket + REST</dd>
