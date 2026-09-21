@@ -19,11 +19,33 @@
 
    ---- wat we eruit halen ---------------------------------------------
    Een verslag per raidavond, met de fights erin. Eén query levert alles:
-   reports(guildID, zoneID) met fights(difficulty) eronder. Kostte gemeten
-   8 punten van de 3600 per uur, dus pollen op dezelfde klok als de rest kan
-   ruim.
+   reports(guildID, zoneID) met fights(difficulty) eronder.
 
-   Let op twee dingen die in de cijfers zitten:
+   ---- wat het kost ---------------------------------------------------
+   Niet "ruim", zoals hier eerst stond. Gemeten op 21 september 2026 via
+   rateLimitData, met de query die deze bron echt verstuurt:
+
+       reportLimit 25 -> 14 punten     reportLimit 8 -> 9 punten
+       reportLimit 10 -> 11 punten     reportLimit 6 -> 7 punten
+
+   De limiet is 3600 punten per uur, en er pollen *twee* pagina's los van
+   elkaar (banner.html en alerts.html). Op reportLimit 25 en elke 30 seconden
+   is dat 240 queries per uur = 3360 punten, oftewel 93% van je uurbudget --
+   compare.html openzetten tijdens een raid duwt je eroverheen. Dat cijfer van
+   8 punten hierboven klopte in september nog wel; het loopt op naarmate er
+   verslagen bijkomen, dus het is geen getal om op te vertrouwen.
+
+   Vandaar reportLimit 6: zes raidavonden terug is ruim genoeg voor de
+   pullteller van één boss, en het halveert de prijs. Wil je verder terug, zet
+   hem hoger en reken het na -- pollSeconds staat op 20, dus 360 queries per
+   uur, en 3600 / 360 = 10 punten is je plafond per query.
+
+   Er is nog een knop als je die ooit nodig hebt: `fights` neemt ook een
+   encounterID, dus filteren op de huidige boss in plaats van de hele tier
+   ophalen. Dat kost een extra ronde om te weten welke boss dat is, dus het is
+   hier niet gedaan.
+
+   Let op drie dingen die in de cijfers zitten:
 
    1. "pulls to kill" loopt over avonden heen, niet over één verslag. WCL's
       eigen tegel zei 21 voor Vashnik terwijl er 7 in het verslag van die
@@ -31,7 +53,16 @@
       en met de eerste kill -- daarna niet meer, anders telt een reclear van
       volgende week gewoon door.
 
-   2. De voortgangssamenvatting (4/8) halen we hier **niet** uit. WCL zet
+   2. Het percentage is `fightPercentage` en niet `bossPercentage`. Dat is
+      dezelfde val die js/rio-live.js beschrijft: bossPercentage is
+      fase-relatief, dus een pull die P3 haalde staat daar lager op dan een
+      pull die in P1 sneuvelde, en dan rangschik je je beste pogingen
+      verkeerd. fightPercentage telt de hele fight, net als Raider.IO's
+      overall_percent -- en juist omdat de twee bronnen elkaar afwisselen
+      moeten ze hetzelfde meten, anders verspringt de betekenis van het getal
+      op je stream zonder dat er iets te zien is.
+
+   3. De voortgangssamenvatting (4/8) halen we hier **niet** uit. WCL zet
       Nymrissa Wavecaller in de encounterlijst van zone 53 terwijl dat een
       losse raid is, dus tellen op deze gegevens geeft 5/8 waar iedereen 4/8
       toont. Die regel blijft van Raider.IO komen; zie js/progress.js. */
@@ -56,7 +87,7 @@ var QUERY =
     'reportData{reports(guildID:$g,zoneID:$z,limit:$n){data{' +
       'code startTime ' +
       'fights(difficulty:$d){' +
-        'id name encounterID kill bossPercentage fightPercentage ' +
+        'name encounterID kill bossPercentage fightPercentage ' +
         'lastPhase lastPhaseIsIntermission startTime endTime inProgress' +
       '}' +
     '}}}' +
@@ -98,8 +129,22 @@ function timeline(reports){
         enc      : f.encounterID,
         name     : f.name,
         kill     : !!f.kill,
-        pct      : f.bossPercentage,
+        /* fightPercentage, met bossPercentage als vangnet: zie punt 2 in de
+           kop. Ze zijn gelijk op een boss van één fase -- op Sszorak stond
+           elke pull van 20 september op precies hetzelfde getal -- dus het
+           verschil zie je pas op een boss met fases, en dan zie je het meteen
+           verkeerd. */
+        pct      : f.fightPercentage != null ? f.fightPercentage : f.bossPercentage,
         phase    : phaseLabel(f.lastPhase, f.lastPhaseIsIntermission),
+        /* De duur van de poging. js/alerts.js zet hem als eigen tegel in de
+           schermvullende melding en las hem tot nu toe alleen uit Raider.IO's
+           pulls, dus toen WCL de hoofdbron werd verdween die tegel stilletjes.
+           Hier is hij gratis: start en eind staan er allebei al.
+
+           Het aantal doden komt niet mee. ReportFight heeft geen veld
+           daarvoor -- dat zijn losse events, een query per fight -- en dat is
+           die tegel niet waard. */
+        seconds  : Math.round((f.endTime - f.startTime) / 1000),
         running  : !!f.inProgress,
         at       : r.startTime + f.startTime,
         ended    : r.startTime + f.endTime,
@@ -136,11 +181,22 @@ function load(){
     /* De fase van de beste poging komt mee, want de kaart zet hem achter het
        percentage ("best of 43 pulls · P2") en de melding als eigen tegel.
        Zonder dit veld bleef dat leeg zodra WCL de kaart vulde. */
+    /* Kills tellen niet mee, net als in js/rio-live.js. WCL zet een kill op
+       bossPercentage 0.01 (nagerekend op alle tien de kills in de verslagen
+       van deze tier), dus zonder die uitzondering zakt de beste poging na een
+       kill naar 0.01% met de fase van de kill erbij -- en dan meldt
+       compare.html een verschil tussen de bronnen dat alleen maar een
+       verschil in definitie is. */
     var best = null, bestPhase = '';
     upto.forEach(function(f){
-      if(f.pct != null && (best === null || f.pct < best)){ best = f.pct; bestPhase = f.phase; }
+      if(!f.kill && f.pct != null && (best === null || f.pct < best)){
+        best = f.pct; bestPhase = f.phase;
+      }
     });
 
+    /* `upto` kan niet leeg zijn: all.length is hierboven gecontroleerd, cur
+       zit per definitie in same, en upto is same of een slice die tot en met
+       cur loopt. Vandaar geen `last &&` meer hieronder. */
     var last = upto[upto.length - 1];
 
     return {
@@ -153,10 +209,10 @@ function load(){
       pullCount : upto.length,
       bestPct   : best,
       bestPhase : bestPhase,
-      phase     : last ? last.phase : '',
+      phase     : last.phase,
       defeated  : first >= 0,
-      running   : !!(last && last.running),
-      updated   : last ? last.ended : null,
+      running   : last.running,
+      updated   : last.ended,
       pulls     : upto,
       /* Bewust geen summary: zie de kop van dit bestand. */
       summary   : ''

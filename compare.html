@@ -57,7 +57,11 @@
 (function(){
   'use strict';
   var U = window.U;
-  var FIELDS = ['bossName','pullCount','bestPct','phase','defeated','summary','updated'];
+  /* bestPhase staat erbij omdat de twee bronnen hem onder verschillende
+     regels vullen -- Raider.IO laat hem vallen zodra hij niet bij zijn eigen
+     bestPercent hoort -- en hij landt via js/alerts.js in de schermvullende
+     melding. Een veld dat in beeld komt hoort op de vergelijkpagina. */
+  var FIELDS = ['bossName','pullCount','bestPct','bestPhase','phase','defeated','summary','updated'];
 
   function fmt(k, v){
     if(v == null || v === '') return '—';
@@ -102,6 +106,7 @@
 
   var WHY = {
     'preferred' : 'the preferred source, and it answered',
+    'pinned'    : 'pinned in the config',
     'ahead'     : 'furthest along',
     'held'      : 'held, lead below the threshold',
     'only'      : 'only source answering',
@@ -115,10 +120,17 @@
      niemand het voor de stand van vandaag aanziet. */
   var SAMPLE = {
     rio: { source:'raiderio', bossName:'Vashnik the Malignant', pullCount:19,
-           bestPct:4.25, phase:'', defeated:false, summary:'4/8 Mythic',
+           bestPct:4.25, bestPhase:'', phase:'', defeated:false,
+           summary:'4/8 Mythic',
            updated: Date.parse('2026-09-16T20:36:28Z') },
+    /* bestPct stond hier op 0.01: dat was de kill, die toen nog als beste
+       poging meetelde. Nagemeten in de verslagen van die tier is de beste
+       niet-geslaagde pull 4,24% -- vlak naast Raider.IO's 4,25, en dat is ook
+       het eerlijke beeld: over de beste poging waren ze het zo goed als eens,
+       over de kill niet. Vashnik heeft geen fases (lastPhase 0), vandaar geen
+       bestPhase aan beide kanten. */
     wcl: { source:'warcraftlogs', bossName:'Vashnik the Malignant', pullCount:21,
-           bestPct:0.01, phase:'', defeated:true, summary:'',
+           bestPct:4.24, bestPhase:'', phase:'', defeated:true, summary:'',
            updated: Date.parse('2026-09-16T20:47:54Z') }
   };
 

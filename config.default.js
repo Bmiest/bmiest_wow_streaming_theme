@@ -126,7 +126,14 @@ window.OVERLAY_CONFIG = {
       // hoofdtier, dezelfde die de characterkaart toont.
       difficulty : 'mythic',
       period     : 'until_kill',    // until_kill | week
-      pollSeconds: 30,              // alleen voor mode 'native'
+      // Elke 20 seconden, en dat getal hangt aan het puntenbudget van
+      // Warcraft Logs (3600 per uur). Er pollen twee pagina's los van elkaar,
+      // dus 20s = 360 queries per uur, en met reportLimit 6 op 7 punten is
+      // dat 2520 -- 70% van je budget, met ruimte om compare.html open te
+      // zetten. Op 30 seconden mét reportLimit 25 zat je op 93%. Zie de kop
+      // van js/wcl.js voor de meting; sneller pollen kan alleen als je de
+      // prijs per query eerst omlaag brengt.
+      pollSeconds: 20,              // alleen voor mode 'native'
 
       // Leeg = automatisch opgebouwd uit region/realm/guild hierboven.
       // Vul in als je de widget-instellingen op raider.io zelf wil kiezen.
@@ -158,8 +165,9 @@ window.OVERLAY_CONFIG = {
     showUpdated   : true,
   },
 
-  // ---- warcraft logs (tweede bron voor de raidkaart) ----------------
-  // Zet liveTracking.source op 'auto' of 'warcraftlogs' om hem te gebruiken.
+  // ---- warcraft logs (hoofdbron voor de raidkaart) ------------------
+  // Staat aan zolang liveTracking.source op 'warcraftlogs-first' (standaard),
+  // 'auto' of 'warcraftlogs' staat -- alleen 'raiderio' zet hem uit.
   //
   // Het token komt NIET uit dit bestand maar uit ?wcl=<token> op je browser
   // source, net als het StreamElements-token. En het is een *token*, geen
@@ -179,8 +187,12 @@ window.OVERLAY_CONFIG = {
     zoneName   : 'The Venomous Abyss',
     difficulty : 'mythic',        // mythic | heroic | normal
     // Hoeveel raidavonden terug gekeken wordt voor de pullteller. Die telt
-    // over avonden heen, dus te weinig verslagen = te lage stand.
-    reportLimit: 25,
+    // over avonden heen, dus te weinig verslagen = te lage stand -- maar het
+    // is ook de prijs per query: 25 kost 14 punten, 6 kost er 7, en je hebt er
+    // 3600 per uur. Zes avonden is ruim voor de progressie op één boss (op 20
+    // september stonden alle 43 pulls op Sszorak in één avond). Zet hem hoger
+    // als jullie langer op een boss zitten, en reken pollSeconds dan na.
+    reportLimit: 6,
     token      : '',
   },
 

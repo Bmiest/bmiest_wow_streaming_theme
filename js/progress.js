@@ -26,9 +26,19 @@
 
    Bijvangst voor de melding over je beeld: die kijkt naar het *verschil*
    tussen twee polls, en de watcher in js/rio-live.js ijkt opnieuw zodra de
-   bron wisselt -- die ene poll meldt dan niets. Met een vaste winnaar wisselt
-   er niets meer, dus een nieuwe beste poging kan niet meer wegvallen omdat de
-   kaart net overstapte.
+   bron wisselt -- die ene poll meldt dan niets. Tijdens progressie wisselden
+   de twee zowat elke pull van plek (Raider.IO stempelt een pull als hij
+   begint, WCL pas als het segment geüpload is), en dat heen en weer is hier
+   weg.
+
+   Hier stond eerst dat er daarmee "niets meer te wisselen valt". Dat klopt
+   niet, en het is het soort zin dat een gat afdekt: valt WCL één poll uit,
+   dan levert pick() hieronder Raider.IO ('only'), wisselt de bron alsnog, en
+   op de poll erna terug. Twee keer opnieuw ijken, en een kill of een nieuwe
+   beste poging die daartussen valt komt nooit in beeld. De echte oplossing
+   zit in watcher(): die zou per bron een stand moeten bijhouden in plaats van
+   bij elke wissel te vergeten wat hij wist. Zolang dat er niet is, is dit een
+   bekend gat en geen opgelost probleem.
 
    ---- de keuze in 'auto' ---------------------------------------------
    De verste stand wint, op tijdstempel. Niet "WCL altijd als hij antwoordt":
@@ -58,7 +68,15 @@
 'use strict';
 var U   = window.U;
 var LT  = (U.CFG.raiderio && U.CFG.raiderio.liveTracking) || {};
-var SRC = LT.source || 'warcraftlogs-first';   // en verder: auto | raiderio | warcraftlogs
+var MODES = { 'warcraftlogs-first':1, 'auto':1, 'raiderio':1, 'warcraftlogs':1 };
+var SRC = LT.source || 'warcraftlogs-first';
+/* Een waarde die we niet kennen is een typefout, en die hoort zichtbaar te
+   zijn. Toen de keuze hieronder nog met == 'auto' werkte viel zo'n typefout
+   vanzelf op (dan stond er 'no source'), maar met de huidige tests glijdt hij
+   er stilletjes doorheen en draait de kaart als 'auto'. Vandaar: terugvallen
+   op de standaard, en het onder ?health=1 melden. */
+var BAD = !MODES[SRC];
+if(BAD) SRC = 'warcraftlogs-first';
 var LEAD = (LT.switchAfterSeconds != null ? LT.switchAfterSeconds : 60) * 1000;
 var KEY = 'overlay.progress.last';
 
@@ -111,15 +129,23 @@ function borrow(win, rio){
    schrijven er hun eigen tekst bij, en zo lekt er geen Nederlands een Engels
    scherm op. */
 function pick(wcl, rio, held, mode){
+  var m = mode || SRC;
+
+  /* Vastgepind: dan telt de ander niet mee, ook niet als hij als enige
+     antwoordt. load() haalt hem in die stand niet eens op -- maar compare.html
+     haalt allebei de bronnen zelf op, en zonder deze twee regels meldde die
+     pagina 'warcraftlogs' terwijl de kaart op Raider.IO vastzat. Precies de
+     leugen die hij moet vangen. */
+  if(m === 'raiderio')     return rio ? { rec: rio, why: 'pinned' } : null;
+  if(m === 'warcraftlogs') return wcl ? { rec: wcl, why: 'pinned' } : null;
+
   if(wcl && !rio) return { rec: wcl, why: 'only' };
   if(rio && !wcl) return { rec: rio, why: 'only' };
   if(!wcl && !rio) return null;
 
-  /* Vaste winnaar. Bewust onder de drie gevallen hierboven: antwoordt WCL
-     niet, dan valt de kaart op Raider.IO terug in plaats van leeg te lopen.
-     `mode` komt mee zodat compare.html hetzelfde oordeel velt als de kaart --
-     dezelfde reden als `held` hierboven. */
-  if((mode || SRC) === 'warcraftlogs-first') return { rec: wcl, why: 'preferred' };
+  /* Vaste winnaar. Bewust onder de gevallen hierboven: antwoordt WCL niet,
+     dan valt de kaart op Raider.IO terug in plaats van leeg te lopen. */
+  if(m === 'warcraftlogs-first') return { rec: wcl, why: 'preferred' };
 
   /* Geen tijdstempel is geen mening. Raider.IO levert er geen zodra bosspulls
      wegvalt (die mag falen) en er nog geen pull loopt -- dat betekent "ik weet
@@ -148,36 +174,59 @@ function load(){
   var wantW = SRC !== 'raiderio'     && window.WCL && window.WCL.available();
   var wantR = SRC !== 'warcraftlogs' && window.RioLive;
 
+  /* Zolang WCL de kaart hoort te vullen heeft Raider.IO alleen nog het
+     portret en de voortgangsregel te leveren, en die staan in boss-progress.
+     Dan hoeft zijn tweede endpoint niet mee. */
+  var light = wantW && SRC === 'warcraftlogs-first';
+
   return Promise.all([
-    wantW ? tryLoad(window.WCL.load)     : Promise.resolve(null),
-    wantR ? tryLoad(window.RioLive.load) : Promise.resolve(null)
+    wantW ? tryLoad(function(){ return window.WCL.load(); }) : Promise.resolve(null),
+    wantR ? tryLoad(function(){ return window.RioLive.load({ light: light }); })
+          : Promise.resolve(null)
   ]).then(function(res){
     var wcl = res[0], rio = res[1];
-    var got = pick(wcl, rio, held);
 
-    if(!got){
-      /* Niets binnen. De laatste stand dan maar, met een vlag erop. */
-      var c = cacheGet();
-      U.setHealth('progress', false, c ? 'using remembered reading' : 'no source');
-      if(!c) return null;
-      var old = c.rec;
-      old.stale = true;
-      old.staleSince = c.at;
-      return old;
-    }
+    /* WCL antwoordde niet, dus Raider.IO moet de kaart tóch vullen -- en dan
+       hebben we zijn pulls alsnog nodig voor de staafjes en de duur. Eén extra
+       verzoek, alleen op het faalpad. Mislukt ook dat, dan gaan we verder met
+       de lichte stand: minder in beeld is beter dan een lege kaart. */
+    if(!wcl && rio && rio.light)
+      return tryLoad(function(){ return window.RioLive.load(); })
+        .then(function(full){ return finish(wcl, full || rio); });
 
-    var rec = got.rec;
-    rec.stale = false;
-    borrow(rec, rio);
-    held = rec.source;
-
-    /* Deze regel staat achter ?health=1 op je stream, dus Engels net als de
-       rest van wat in beeld komt. */
-    U.setHealth('progress', true,
-      rec.source + (wcl && rio ? ' (' + got.why + ')' : ''));
-    cacheSet(rec);
-    return rec;
+    return finish(wcl, rio);
   });
+}
+
+/* De keuze vellen en opbergen. Zat eerst in load()'s .then; het staat nu los
+   omdat er twee wegen naartoe lopen -- de gewone, en die waarop Raider.IO
+   alsnog volledig opgehaald moest worden. */
+function finish(wcl, rio){
+  var got = pick(wcl, rio, held);
+
+  if(!got){
+    /* Niets binnen. De laatste stand dan maar, met een vlag erop. */
+    var c = cacheGet();
+    U.setHealth('progress', false, c ? 'using remembered reading' : 'no source');
+    if(!c) return null;
+    var old = c.rec;
+    old.stale = true;
+    old.staleSince = c.at;
+    return old;
+  }
+
+  var rec = got.rec;
+  rec.stale = false;
+  borrow(rec, rio);
+  held = rec.source;
+
+  /* Deze regel staat achter ?health=1 op je stream, dus Engels net als de
+     rest van wat in beeld komt. */
+  U.setHealth('progress', true,
+    rec.source + (wcl && rio ? ' (' + got.why + ')' : '') +
+    (BAD ? ' \u00b7 unknown source setting, using the default' : ''));
+  cacheSet(rec);
+  return rec;
 }
 
 window.Progress = { load: load, pick: pick };

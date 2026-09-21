@@ -641,8 +641,16 @@ between two polls, and the watcher recalibrates -- reporting nothing that round
 fire `BOSS DOWN` for a kill from eleven minutes ago. On `auto` that also
 swallowed a new best that happened to land on a switch, and during progression
 the two sources trade places around every pull: Raider.IO stamps a pull the
-moment it starts, Warcraft Logs only once the segment is uploaded. With a fixed
-winner there is no switch to land on.
+moment it starts, Warcraft Logs only once the segment is uploaded. That
+per-pull churn is gone.
+
+What is *not* gone, and an earlier version of this paragraph wrongly claimed
+was: a single failed Warcraft Logs poll still hands the card to Raider.IO as
+the only source answering, which is a source change like any other, and the
+poll after that hands it back. Two recalibrations, and a kill landing between
+them never reaches your screen. The fix belongs in the watcher -- it should
+keep a reading per source instead of forgetting what it knew on every swap --
+and until that exists this is a known hole rather than a solved problem.
 
 Set `source` to `auto` for the old behaviour (furthest reading wins, with
 `switchAfterSeconds` as the threshold), or pin it to `raiderio` or
@@ -672,13 +680,38 @@ the oldest crawl among the characters in the card (`raider.io: 45u oud`) once it
 is over two hours old, so you can see at a glance whether you are on stage with
 stale numbers.
 
-**The raid card, every 30 seconds.** This is the one that moves on a raid night.
-`liveTracking.pollSeconds` polls the two live-tracking endpoints, and their
-responses carry `cache-control: max-age=10`, so they really are near live: the
-pull count climbs, the best percentage drops, and on a kill the block flips to
-"pulls to the kill" in jade, all within half a minute. In `widget` mode the
-iframe carries `refresh=60` instead and Raider.IO refreshes its own widget every
-60 s.
+**The raid card, every 20 seconds.** This is the one that moves on a raid
+night. `liveTracking.pollSeconds` drives it: the pull count climbs, the best
+percentage drops, and on a kill the block flips to "pulls to the kill" in jade,
+all within twenty seconds. In `widget` mode the iframe carries `refresh=60`
+instead and Raider.IO refreshes its own widget every 60 s.
+
+That interval is set by Warcraft Logs' points budget, not by taste, and it is
+worth knowing the arithmetic before you lower it. Their limit is 3600 points an
+hour. Measured through `rateLimitData` on 21 September 2026, with the query
+this overlay actually sends:
+
+| `reportLimit` | points per query |
+|---|---|
+| 25 | 14 |
+| 10 | 11 |
+| 8 | 9 |
+| 6 | 7 |
+
+**Two pages poll independently** -- `banner.html` and `alerts.html` each keep
+their own reading, by design -- so the hourly count is double what one page
+suggests. At the old settings (30 s, `reportLimit` 25) that came to 240 queries
+an hour, 3360 points, **93% of the budget**: opening `compare.html` during a
+raid would have pushed it over, and the code comment claiming 8 points a query
+was a year-old measurement that had quietly grown with the report archive. At
+20 s with `reportLimit` 6 it is 360 queries, 2520 points, 70%, with room to
+spare. Raider.IO is unaffected either way -- its responses carry
+`cache-control: max-age=10`, so anything above ten seconds is honest polling.
+
+To go faster you have to make a query cheaper first, not just shorten the
+interval. `reportLimit` is the blunt lever; `fights` also accepts an
+`encounterID`, which would fetch only the boss you are on, at the cost of a
+round trip to find out which boss that is.
 
 **What the cards say about all this.** Both Raider.IO cards carry the freshness
 of their own data in the source label on the top right: `raider.io · 22:41`.

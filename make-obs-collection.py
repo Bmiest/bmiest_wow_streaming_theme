@@ -34,7 +34,8 @@ ap.add_argument('--wcl', default=None,
                 help='Warcraft Logs-token; wordt net als --jwt aan elke browser-URL '
                      'gehangen. Zonder dit vallen de raidkaart en de schermvullende '
                      'meldingen stil terug op Raider.IO. Het is het *token*, niet het '
-                     'client secret.')
+                     'client secret -- en het resultaat bevat het dan, dus deel dat '
+                     'bestand niet.')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
@@ -268,8 +269,18 @@ if a.install:
 
 print('geschreven: %s' % a.out)
 print('  basis     : %s' % BASE)
-if a.jwt:
+if a.jwt and not a.local_files:
     print('  jwt       : meegegeven in de URLs -- deel dit bestand niet')
+if a.wcl and not a.local_files:
+    print('  wcl       : meegegeven in de URLs -- deel dit bestand niet')
+if a.local_files and (a.jwt or a.wcl):
+    # local_file slikt geen querystring, dus de tokens zijn nergens heen
+    # gegaan. Stil weglaten is hier het ergste antwoord: de pagina's draaien,
+    # ze doen alleen minder, en dat zie je op stream niet.
+    print()
+    print('  LET OP: --local-files gebruikt local_file zonder querystring, dus')
+    print('          --jwt/--wcl zijn NIET meegekomen. Zet ze in config.js, of')
+    print('          draai via serve.sh met --base-url.')
 print('  stinger   : %s' % STING)
 print()
 print('  transitiepunt: %d ms (halve duur van de stinger)' % TP)

@@ -41,13 +41,24 @@ function activeTier(p){
   return {key:'n', label:'N', killed:p.normalBossesKilled || 0};
 }
 
-function load(){
+/* `opts.light` laat boss-pulls liggen. Dat is er voor de stand waarin
+   Warcraft Logs de kaart vult en Raider.IO alleen nog het bossportret en de
+   voortgangsregel levert: die staan allebei in boss-progress, dus de tweede
+   call werd elke poll opgehaald en meteen weggegooid. Twee pagina's maal drie
+   polls per minuut is zes verzoeken die niemand leest, tegen een publieke API
+   waarvan deze repo de voorwaarden serieus neemt.
+
+   Wat je in deze stand niet krijgt: de pulls zelf (dus geen staafjes en geen
+   duur per poging) en de fase bij de beste poging. js/progress.js haalt hem
+   daarom alsnog volledig op zodra Raider.IO de kaart tóch moet vullen. */
+function load(opts){
   if(LT.enabled === false) return Promise.resolve(null);
-  var q = params();
+  var q = params(), light = !!(opts && opts.light);
 
   return Promise.all([
     U.getJSON(BASE + '/guild/boss-progress?' + q, 9000),
-    U.getJSON(BASE + '/guild/boss-pulls?'    + q, 9000).catch(function(){ return null; })
+    light ? Promise.resolve(null)
+          : U.getJSON(BASE + '/guild/boss-pulls?' + q, 9000).catch(function(){ return null; })
   ]).then(function(r){
     var d = r[0], pr = d.overallProgress || {};
     if(d.error) throw new Error(d.error);
@@ -105,6 +116,10 @@ function load(){
       /* Zelfde veld als js/wcl.js zet. js/progress.js vult hem anders alsnog
          in, maar dan weet compare.html het niet en staat er 'undefined'. */
       source    : 'raiderio',
+      /* Staat erbij zodat een lichte stand niet als een volle wordt gelezen:
+         pulls is dan leeg omdat we er niet om vroegen, niet omdat er geen
+         pogingen zijn. */
+      light     : light,
       guild     : d.guild ? d.guild.name : '',
       raidName  : d.raid  ? d.raid.name  : '',
       raidSlug  : d.raid  ? d.raid.slug  : '',
