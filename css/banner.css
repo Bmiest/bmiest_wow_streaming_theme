@@ -235,11 +235,11 @@ body.demo .cam__hint{display:grid}
 @keyframes bossHit{0%{filter:brightness(2.3)}100%{filter:none}}
 
 /* Melding bij een poging erbij, een nieuwe beste of een kill: schuift over de
-   kaart omhoog, houdt een paar seconden aan en zakt weer weg. Boven de kaart
-   uitkomen kan niet, de bron is 248px hoog.
+   kaart omhoog, blijft liveTracking.flashSeconds staan en zakt weer weg.
+   Boven de kaart uitkomen kan niet, de bron is 248px hoog.
 
-   Een gewone poging krijgt dezelfde vorm met een gedempte kop en een kortere
-   standtijd (js/banner.js zet --acc en de timer). Alleen een nieuwe beste en
+   Een gewone poging krijgt dezelfde vorm met een gedempte kop (js/banner.js
+   zet --acc en de timer). Alleen een nieuwe beste en
    een kill komen ook over je gameplay; een wipe elke twee minuten hoort niet
    over het beeld. */
 .boss__flash{

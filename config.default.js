@@ -135,6 +135,14 @@ window.OVERLAY_CONFIG = {
       // prijs per query eerst omlaag brengt.
       pollSeconds: 20,              // alleen voor mode 'native'
 
+      // Hoe lang het ribbonnetje (last try, new best, boss down) over de
+      // raidkaart blijft staan. Het schuift over het grote getal en de
+      // staafjes, dus zolang het er staat zie je die niet -- wel wat de
+      // laatste poging deed, en dat is waar het tijdens het teruglopen over
+      // gaat. Stond op 3,2 s voor een wipe en 5,2 s voor de rest: te kort om
+      // op stream te lezen.
+      flashSeconds: 20,
+
       // Leeg = automatisch opgebouwd uit region/realm/guild hierboven.
       // Vul in als je de widget-instellingen op raider.io zelf wil kiezen.
       widgetUrl  : '',

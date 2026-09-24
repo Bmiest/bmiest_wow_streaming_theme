@@ -1115,12 +1115,16 @@ count, the best percentage and whether the boss is down:
 - a new pull makes the newest bar in the sparkline grow in and the big number
   flash once. The rest of the series stays still, because animating the whole
   row on every poll is motion without news. It also slides a small `last try`
-  ribbon up with the percentage that pull died at, in grey and held for 3.2
-  seconds;
+  ribbon up with the percentage that pull died at, in grey;
 - a new best attempt (a *lower* percentage: that is boss HP still standing)
-  slides a `new best` ribbon up over the card, which holds for five seconds and
-  drops away, the same way the event bar moves over your camera's name plate;
+  slides a `new best` ribbon up over the card, the same way the event bar moves
+  over your camera's name plate;
 - a kill does the same with `boss down` and the pull count.
+
+Each ribbon holds for `liveTracking.flashSeconds` (20) and then drops away. It
+covers the big number and the sparkline while it is up, so lower it if you
+would rather see those sooner. A new ribbon replaces the one showing, so a long
+hold never hides the next pull.
 
 Only one ribbon shows at a time, and a kill outranks a new best, which outranks
 a plain pull. That order matters when two pulls land inside one poll window: a
@@ -1137,10 +1141,10 @@ covers the whole gameplay zone:
 
 - a **kill** always fires one: `boss down`, the boss name large, the raid and
   difficulty under it, and the numbers of that pull -- pulls to kill, the
-  phase, how long the fight ran and how many people died. Jade, held for 8.4
+  phase, how long the fight ran and how many people died. Jade, held for 11
   seconds.
 - a **new best** fires the same shape in gold with the percentage that was
-  still standing, held for 5.6 seconds.
+  still standing, held for 8 seconds.
 
 A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
@@ -1181,8 +1185,8 @@ pixels actually costs you bitrate every frame.
 A kill also gets **fireworks**: ten bursts across the upper half, each a rising
 streak and then a ring of sparks that flies out and falls. Jade, white and gold,
 182 sparks in total, the last of them fading at 6.4 seconds. That is why a kill
-holds for 8.4 seconds and a new best for 5.6: fireworks first, then two seconds
-of quiet to read the numbers. A new best gets none, because if a wipe gets
+holds for 11 seconds and a new best for 8: fireworks first, then four and a
+half seconds of quiet to read the numbers. A new best gets none, because if a wipe gets
 fireworks they mean nothing on a kill.
 
 The bursts are 420 to 520ms apart and a cloud lives 1.25 to 1.7 seconds, so

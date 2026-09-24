@@ -137,8 +137,9 @@ var SHOTS = [
   { x:87,   y:33, d:4380, n:18, r:310, c:'var(--jade)'  }
 ];
 /* Tien inslagen, 182 vonken, de laatste dooft op 6,4 s. Daarom houdt de kill
-   8,4 s aan in plaats van 7,6: eerst vuurwerk, dan nog twee seconden rust om
-   de cijfers te lezen.
+   11 s aan: eerst vuurwerk, dan nog ruim vier seconden rust om de cijfers te
+   lezen. Het stond op 8,4 s, met twee seconden rust, en dat was op stream net
+   te kort om de pullcount en de duur allebei te lezen.
 
    De tussenruimte is 420 tot 520 ms en een wolk leeft 1,25 tot 1,7 s, dus er
    hangen er drie tot vier tegelijk in de lucht. Dat is de hele truc: met een
@@ -325,8 +326,8 @@ window.SE.start(push);
       where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
               L.summary].filter(Boolean).join('  \u00b7  '),
       stats: stats,
-      /* Langer dan een nieuwe beste, want hier loopt vuurwerk tot 5,6 s. */
-      hold : kill ? 8400 : 5600
+      /* Langer dan een nieuwe beste, want hier loopt eerst vuurwerk. */
+      hold : kill ? 11000 : 8000
     });
   }
 
@@ -354,11 +355,11 @@ if(TEST){
     {kind:'progress', src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  2/8 Mythic',
      stats:[['43.89%','boss hp left'],['7','pulls'],['P3','phase'],
-            ['4:12','duration'],['18','deaths']], hold:5600},
+            ['4:12','duration'],['18','deaths']], hold:8000},
     {kind:'progress', kill:true, src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
      stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
-     hold:8400}
+     hold:11000}
   ];
   /* kill en best zitten allebei in 'progress', dus die hebben een eigen
      filter. Voor de rest is het type zelf genoeg: ?test=sub zet meteen de

@@ -358,15 +358,21 @@ function bossFlash(capText, val, minor){
   if(!host) return;
   host.innerHTML = '';
   var r = window.Ribbon.make('raid', capText, val);
-  /* Een poging erbij is klein nieuws: zelfde vorm, maar een gedempte kop en
-     korter in beeld. Kreeg een wipe dezelfde jade balk als een kill, dan zegt
-     die kleur niets meer. */
+  /* Een poging erbij is klein nieuws: zelfde vorm, maar een gedempte kop.
+     Kreeg een wipe dezelfde jade balk als een kill, dan zegt die kleur niets
+     meer.
+
+     Even lang in beeld als een kill, en dat was eerst niet zo (3,2 tegen
+     5,2 s). Zo kort was hij weg voor je hem kon lezen. De kleur maakt het
+     verschil al; een kortere standtijd erbovenop maakte alleen de melding
+     onleesbaar die het vaakst komt. Een nieuwe melding vervangt deze meteen,
+     dus een lange standtijd houdt niets tegen. */
   if(minor) r.style.setProperty('--acc', 'var(--ink-300)');
   host.appendChild(r);
   host.classList.remove('on'); void host.offsetWidth; host.classList.add('on');
   clearTimeout(flashTimer);
   flashTimer = setTimeout(function(){ host.classList.remove('on'); },
-                          minor ? 3200 : 5200);
+                          (LT.flashSeconds || 20) * 1000);
 }
 
 /* De poging die er net bij kwam. Bij een kill en een nieuwe beste hangt de
