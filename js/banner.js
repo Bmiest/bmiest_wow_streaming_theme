@@ -381,7 +381,11 @@ function bossFlash(capText, val, minor){
 function lastTry(L){
   var all = L.pulls || [], p = all[all.length - 1];
   if(!p) return U.num(L.pullCount || 0) + ' pulls';
-  return p.pct.toFixed(2) + '%' + (p.phase ? '  \u00b7  ' + p.phase : '');
+  return tryLine(p);
+}
+function tryLine(p){
+  var pct = p.pct != null ? p.pct.toFixed(2) + '%' : '';
+  return [pct, p.phase].filter(Boolean).join('  \u00b7  ');
 }
 
 function paintBoss(L){
@@ -446,6 +450,10 @@ function paintBoss(L){
   if(ev.down)        bossFlash('boss down', U.num(L.pullCount || 0) + ' pulls');
   else if(ev.better) bossFlash('new best', L.bestPct.toFixed(2) + '%');
   else if(ev.fresh)  bossFlash('last try', lastTry(L), true);
+  /* Een wipe tijdens een reclear: wel het ribbonnetje, maar geen flits op het
+     grote getal en geen nieuw staafje, want de cijfers van een boss die al
+     ligt veranderen niet. */
+  else if(ev.farm)   bossFlash('last try', tryLine(L.farmLast), true);
 
   var sp = U.$('#bossSpark');
   sp.innerHTML = '';

@@ -194,12 +194,11 @@ window.OVERLAY_CONFIG = {
     zoneId     : 53,
     zoneName   : 'The Venomous Abyss',
     difficulty : 'mythic',        // mythic | heroic | normal
-    // Hoeveel raidavonden terug gekeken wordt voor de pullteller. Die telt
-    // over avonden heen, dus te weinig verslagen = te lage stand -- maar het
-    // is ook de prijs per query: 25 kost 14 punten, 6 kost er 7, en je hebt er
-    // 3600 per uur. Zes avonden is ruim voor de progressie op één boss (op 20
-    // september stonden alle 43 pulls op Sszorak in één avond). Zet hem hoger
-    // als jullie langer op een boss zitten, en reken pollSeconds dan na.
+    // Hoeveel verslagen elke poll ophaalt. De pullteller hangt er niet aan:
+    // die komt uit de hele tier, die elke pagina bij het laden één keer
+    // ophaalt (zie history() in js/wcl.js). Dit is wat de kaart heeft als dat
+    // mislukt -- en het is de prijs per poll: 25 kost 14 punten, 6 kost er 7,
+    // en je hebt er 3600 per uur. Zet je hem hoger, reken pollSeconds na.
     reportLimit: 6,
     token      : '',
   },

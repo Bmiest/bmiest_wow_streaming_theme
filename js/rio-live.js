@@ -175,10 +175,11 @@ function currentRaid(){
    begint hij opnieuw, anders leest de lagere pullcount van een verse boss als
    een verbetering. */
 function watcher(){
-  var seen = { src:null, boss:null, pulls:null, best:null, down:false, stale:false };
+  var seen = { src:null, boss:null, pulls:null, best:null, down:false, stale:false,
+               farm:0, at:null };
   return function(L){
-    if(!L) return { fresh:false, better:false, down:false };
-    var n = L.pullCount || 0;
+    if(!L) return { fresh:false, better:false, down:false, farm:false };
+    var n = L.pullCount || 0, f = L.farmCount || 0;
     var src = L.source || 'raiderio';
     /* Opnieuw ijken, en deze ronde niets melden, zodra we niet meer met
        hetzelfde meten als vorige keer:
@@ -195,16 +196,31 @@ function watcher(){
                           nieuws maar een inhaalslag. Daarom ook opnieuw ijken
                           op de eerste echte stand ná een geheugenstand. */
     if(L.bossName !== seen.boss || src !== seen.src || L.stale || seen.stale){
+      /* Eén uitzondering, en alleen voor een andere boss: een wipe op een
+         farmboss die de kaart net hierheen bracht. Dat is de wipe die het
+         vaakst voorkomt -- één keer mis, dan ligt hij -- en zonder deze regel
+         kwam juist die nooit in beeld. Hij telt alleen als hij nieuwer is dan
+         de vorige stand van dezelfde bron, zodat het opstarten van OBS of een
+         bronwissel geen wipe van gisteren meldt. */
+      var moved = src === seen.src && !L.stale && !seen.stale &&
+                  seen.at != null && L.updated > seen.at &&
+                  !!L.farmLast && !L.farmLast.kill && L.farmLast.ended === L.updated;
       seen = { src:src, boss:L.bossName, pulls:n, best:L.bestPct,
-               down:!!L.defeated, stale:!!L.stale };
-      return { fresh:false, better:false, down:false };
+               down:!!L.defeated, stale:!!L.stale, farm:f, at:L.updated };
+      return { fresh:false, better:false, down:false, farm:moved };
     }
     var out = {
       fresh : seen.pulls != null && n > seen.pulls,
       /* Een lager percentage is beter: dat is boss-HP dat nog overstond. */
       better: seen.best != null && L.bestPct != null && L.bestPct < seen.best,
-      down  : seen.pulls != null && !!L.defeated && !seen.down
+      down  : seen.pulls != null && !!L.defeated && !seen.down,
+      /* Een wipe op een boss die al lag. Alleen js/wcl.js zet farmCount;
+         farmpulls veranderen geen cijfer, dus zonder dit veld zag de kaart
+         ze helemaal niet. Een farmkill is geen nieuws en telt hier niet. */
+      farm  : f > seen.farm && !!L.farmLast && !L.farmLast.kill
     };
+    seen.farm  = f;
+    seen.at    = L.updated;
     seen.pulls = n;
     if(L.bestPct != null) seen.best = L.bestPct;
     seen.down = !!L.defeated;

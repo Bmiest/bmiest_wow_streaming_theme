@@ -658,24 +658,25 @@ Set `source` to `auto` for the old behaviour (furthest reading wins, with
 the portrait and the progress line go with it -- `warcraftlogs-first` is the
 one that keeps them.
 
-**A reclear does not move the card.** The card shows the boss of the last pull
-that still means something: a pull *after* that boss's first kill is farm, and
-farm leaves the card on your progression boss until you pull a new one. It used
-to follow the last pull, and on 23 September that put Nek'zali and then The
-Lost Explorers on screen for twenty minutes, both `down`, before the card got
-back to Sszorak. The same line bounds the pull count: pulls to the first kill,
-never the reclears after it.
+**A reclear moves the card, but not its numbers.** The card shows the boss of
+the last pull, farm or not. A boss you already killed shows its real record:
+`down`, pulls to its first kill, the bars of that progression. Pulls after the
+first kill are farm. They change nothing on the card and fire no `BOSS DOWN` or
+`new best`, but a farm wipe still slides the grey `last try` ribbon up with how
+far that pull got, including the wipe that moved the card there. During a
+reclear the portrait and the `4/8 Mythic` line drop off, because Raider.IO
+stays on your progression boss and the card only borrows those two when both
+sources name the same boss.
 
-"First kill" has to mean the real one, and the six reports the card polls do
-not reach back far enough for that -- on 24 September they started on the 9th,
-while Nek'zali first died on the 6th. So each page asks Warcraft Logs once, on
-load, for every kill in the tier, and folds the kills it sees afterwards into
-that list, so a page OBS keeps open for days does not go stale. Without it, a
-reclear after a few weeks off that wiped once before the kill would read as
-progression and fire a real `BOSS DOWN` over your gameplay. If that query
-fails, the card works from the six reports alone and tries again five minutes
-later. If everything in those reports is farm -- the tier is done -- Warcraft
-Logs has no pull count to give, and the card falls back to Raider.IO.
+"First kill" has to be the real one, and the six reports the card polls do not
+reach back far enough for that -- on 24 September they started on the 9th,
+while Nek'zali first died on the 6th, and The Lost Explorers read as 7 pulls to
+kill where the tier says 8. So each page fetches every pull of the tier once,
+on load, and folds each poll into it, so a page OBS keeps open for days does
+not go stale. Without it, a reclear after a few weeks off that wiped once
+before the kill would read as progression and fire a real `BOSS DOWN` over your
+gameplay. If that fetch fails, the card works from the polls alone and tries
+again five minutes later.
 
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
 are limited per minute, and this overlay makes a handful every 20 seconds. If
@@ -732,9 +733,11 @@ interval. `reportLimit` is the blunt lever; `fights` also accepts an
 `encounterID`, which would fetch only the boss you are on, at the cost of a
 round trip to find out which boss that is.
 
-On top of the polls, each page fetches the tier's kill history once when it
-loads (see above): 16 points on 24 September, with 14 reports in the zone. It
-grows with the tier, but it is one query at start-up, not hundreds an hour.
+On top of the polls, each page fetches the whole tier once when it loads (see
+above), 40 reports a page: 15 points a page on 24 September, with 14 reports in
+the zone. A page of 100 is refused outright (`Max query complexity should be
+50000 but got 100301`). It is a page or two per tier at start-up, not hundreds
+of queries an hour.
 
 **What the cards say about all this.** Both Raider.IO cards carry the freshness
 of their own data in the source label on the top right: `raider.io · 22:41`.
@@ -1138,7 +1141,8 @@ count, the best percentage and whether the boss is down:
 - a new pull makes the newest bar in the sparkline grow in and the big number
   flash once. The rest of the series stays still, because animating the whole
   row on every poll is motion without news. It also slides a small `last try`
-  ribbon up with the percentage that pull died at, in grey;
+  ribbon up with the percentage that pull died at, in grey. A wipe on a boss
+  you already killed gets the same ribbon and nothing else;
 - a new best attempt (a *lower* percentage: that is boss HP still standing)
   slides a `new best` ribbon up over the card, the same way the event bar moves
   over your camera's name plate;

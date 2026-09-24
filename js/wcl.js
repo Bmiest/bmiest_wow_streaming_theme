@@ -35,15 +35,17 @@
    8 punten hierboven klopte in september nog wel; het loopt op naarmate er
    verslagen bijkomen, dus het is geen getal om op te vertrouwen.
 
-   Vandaar reportLimit 6: zes raidavonden terug is ruim genoeg voor de
-   pullteller van één boss, en het halveert de prijs. Wil je verder terug, zet
-   hem hoger en reken het na -- pollSeconds staat op 20, dus 360 queries per
+   Vandaar reportLimit 6, en het halveert de prijs. De pullteller hangt er
+   niet meer aan -- die komt uit de hele tier, zie history() -- maar zes
+   verslagen is wat de kaart heeft als die geschiedenis niet binnenkomt. Zet
+   je hem hoger, reken het na: pollSeconds staat op 20, dus 360 queries per
    uur, en 3600 / 360 = 10 punten is je plafond per query.
 
-   Daarbovenop komt één keer per pagina de kill-geschiedenis van de hele tier
-   (zie history()): 16 punten op 24 september, met 14 verslagen in de zone.
-   Dat groeit mee met de tier, maar het is één query bij het opstarten en
-   geen honderden per uur, dus het past ruim in wat de polls overlaten.
+   Daarbovenop haalt elke pagina bij het laden één keer de hele tier op (zie
+   history()): 15 punten per 40 verslagen, gemeten op 24 september met 14
+   verslagen in de zone. Dat is een pagina of twee per tier, bij het opstarten
+   en niet honderden keren per uur, dus het past ruim in wat de polls
+   overlaten.
 
    Er is nog een knop als je die ooit nodig hebt: `fights` neemt ook een
    encounterID, dus filteren op de huidige boss in plaats van de hele tier
@@ -54,9 +56,9 @@
 
    1. "pulls to kill" loopt over avonden heen, niet over één verslag. WCL's
       eigen tegel zei 21 voor Vashnik terwijl er 7 in het verslag van die
-      avond stonden. We tellen dus door alle verslagen van de tier heen, tot
-      en met de eerste kill -- daarna niet meer, anders telt een reclear van
-      volgende week gewoon door.
+      avond stonden. We tellen dus door alle verslagen van de tier heen (zie
+      history()), tot en met de eerste kill -- daarna niet meer, anders telt
+      een reclear van volgende week gewoon door.
 
    2. Het percentage is `fightPercentage` en niet `bossPercentage`. Dat is
       dezelfde val die js/rio-live.js beschrijft: bossPercentage is
@@ -87,24 +89,17 @@ var DIFF = { mythic: 5, heroic: 4, normal: 3 };
 
 function available(){ return !!(TOKEN && CFG.guildId && CFG.zoneId); }
 
+/* Eén query voor de poll en voor de geschiedenis, dus ook één vorm van
+   gegevens -- anders kan je ze niet samenvoegen. De poll vraagt pagina 1 met
+   reportLimit verslagen, history() bladert door de hele tier. */
 var QUERY =
-  'query($g:Int!,$z:Int!,$d:Int!,$n:Int!){' +
-    'reportData{reports(guildID:$g,zoneID:$z,limit:$n){data{' +
+  'query($g:Int!,$z:Int!,$d:Int!,$n:Int!,$p:Int!){' +
+    'reportData{reports(guildID:$g,zoneID:$z,limit:$n,page:$p){has_more_pages data{' +
       'code startTime ' +
       'fights(difficulty:$d){' +
         'name encounterID kill bossPercentage fightPercentage ' +
         'lastPhase lastPhaseIsIntermission startTime endTime inProgress' +
       '}' +
-    '}}}' +
-  '}';
-
-/* Alleen de kills, maar dan over de hele tier: 100 is het maximum per pagina
-   en een tier haalt dat niet (op 24 september stonden er 14 verslagen in zone
-   53, terug tot 19 augustus). Zie history() hieronder. */
-var HISTORY =
-  'query($g:Int!,$z:Int!,$d:Int!){' +
-    'reportData{reports(guildID:$g,zoneID:$z,limit:100){data{' +
-      'startTime fights(difficulty:$d,killType:Kills){encounterID startTime}' +
     '}}}' +
   '}';
 
@@ -171,48 +166,63 @@ function timeline(reports){
   return out;
 }
 
-/* Wanneer elke boss voor het eerst lag, over de hele tier: encounterID ->
-   tijdstip, op dezelfde klok als timeline().
+/* Elke pull van de tier die deze pagina kent, op verslag + starttijd.
 
-   Het venster van reportLimit verslagen is daar te kort voor. Op 24 september
-   begon het op 9 september, terwijl Nek'zali op 6 september voor het eerst
-   lag -- dus las zijn kill van 16 september, één pull op farm, als de eerste.
-   Dat liep goed af omdat het één pull was. Had die reclear eerst een wipe
-   gehad, dan stond Nek'zali als progressie op de kaart en kwam er bij de kill
-   een BOSS DOWN over je beeld.
+   Het venster van reportLimit verslagen is te kort om te weten wanneer een
+   boss voor het eerst lag. Op 24 september begon het op 9 september, terwijl
+   Nek'zali op 6 september voor het eerst lag -- dus las zijn farmkill van 16
+   september als de eerste. Had die reclear eerst een wipe gehad, dan stond
+   Nek'zali als progressie op de kaart en kwam er bij de kill een BOSS DOWN over
+   je beeld. En een farmboss op de kaart heeft zijn echte pullcount nodig: het
+   venster zei 7 voor The Lost Explorers, de tier zegt 8.
 
-   Eén keer per pagina, niet per poll: gemeten op 24 september kost hij 16
-   punten, en dat loopt op met het aantal verslagen in de tier. OBS houdt de
+   Dus haalt history() bij het laden één keer de hele tier op, en vouwt elke
+   poll zijn venster erin. Wat een poll binnenhaalt wint: een pull die nog liep
+   toen de geschiedenis kwam, is in de poll erna afgelopen. OBS houdt de
    browser sources geladen zolang het draait (shutdown en restart_when_active
-   staan uit, zie make-obs-collection.py), dus dat is één keer per pagina per
-   keer dat je OBS opstart. Wat daarna voor het eerst sneuvelt komt uit het
-   venster, en load() vouwt dat hierin terug -- anders veroudert de
-   geschiedenis als OBS dagen openstaat en valt een kill van vorige week
-   alsnog tussen wal en schip.
+   staan uit, zie make-obs-collection.py), dus dit groeit mee zolang OBS
+   openstaat en veroudert niet.
 
-   Mislukt hij, dan werkt load() met het venster alleen, zoals voorheen, en
-   probeert het na vijf minuten opnieuw. Niet elke poll: lag hij eruit op een
-   429, dan maakt elke poll dat erger. */
-var known = null, asking = null, failedAt = 0;
-var RETRY = 5 * 60 * 1000;
+   40 verslagen per pagina, want bij 100 weigert WCL de query: "Max query
+   complexity should be 50000 but got 100301" -- met deze velden weegt een
+   verslag er zo'n 1000. Gemeten op 24 september kost een pagina van 40 15
+   punten, en er stonden 14 verslagen in de tier. Meer dan vijf pagina's (200
+   verslagen) haalt een tier niet; die grens is er zodat een fout in
+   has_more_pages geen eindeloze lus wordt.
 
-function history(vars){
-  if(known) return Promise.resolve(known);
+   Mislukt hij, dan werkt load() met wat de polls binnenhalen, zoals voorheen,
+   en probeert het na vijf minuten opnieuw. Niet elke poll: lag hij eruit op
+   een 429, dan maakt elke poll dat erger. */
+var seen = {}, loaded = false, asking = null, failedAt = 0;
+var RETRY = 5 * 60 * 1000, PAGE = 40, MAX_PAGES = 5;
+
+function keep(list, fresh){
+  list.forEach(function(f){
+    var k = f.code + ':' + f.at;
+    if(fresh || !seen[k]) seen[k] = f;
+  });
+}
+
+function history(g, z, d){
+  if(loaded) return Promise.resolve(true);
   if(asking) return asking;
-  if(failedAt && Date.now() - failedAt < RETRY) return Promise.resolve(null);
-  asking = gql(HISTORY, vars).then(function(d){
-    var map = {};
-    (((d.reportData || {}).reports || {}).data || []).forEach(function(r){
-      (r.fights || []).forEach(function(f){
-        var t = r.startTime + f.startTime;
-        if(map[f.encounterID] == null || t < map[f.encounterID]) map[f.encounterID] = t;
-      });
+  if(failedAt && Date.now() - failedAt < RETRY) return Promise.resolve(false);
+
+  var got = [];
+  function page(p){
+    return gql(QUERY, { g: g, z: z, d: d, n: PAGE, p: p }).then(function(res){
+      var r = (res.reportData || {}).reports || {};
+      got = got.concat(timeline(r.data));
+      if(r.has_more_pages && p < MAX_PAGES) return page(p + 1);
     });
-    known = map;
-    return known;
+  }
+  asking = page(1).then(function(){
+    keep(got, false);
+    loaded = true;
+    return true;
   }).catch(function(){
     failedAt = Date.now();
-    return null;
+    return false;
   }).then(function(v){ asking = null; return v; });
   return asking;
 }
@@ -222,48 +232,35 @@ function load(){
   var g = +CFG.guildId, z = +CFG.zoneId, diff = DIFF[(CFG.difficulty || 'mythic')] || 5;
 
   return Promise.all([
-    gql(QUERY, { g: g, z: z, d: diff, n: CFG.reportLimit || 25 }),
-    history({ g: g, z: z, d: diff })
+    gql(QUERY, { g: g, z: z, d: diff, n: CFG.reportLimit || 25, p: 1 }),
+    history(g, z, diff)
   ]).then(function(res){
-    var all = timeline(((res[0].reportData || {}).reports || {}).data);
+    keep(timeline(((res[0].reportData || {}).reports || {}).data), true);
+    var all = Object.keys(seen).map(function(k){ return seen[k]; });
     if(!all.length) return null;
+    all.sort(function(a,b){ return a.at - b.at; });
 
-    /* De eerste kill per boss: uit de geschiedenis, en uit het venster voor
-       wat er sinds het ophalen daarvan lag. De vroegste wint. */
-    var hist = res[1], first = {};
-    function note(enc, t){ if(first[enc] == null || t < first[enc]) first[enc] = t; }
-    if(hist) Object.keys(hist).forEach(function(k){ note(k, hist[k]); });
-    all.forEach(function(f){ if(f.kill) note(f.enc, f.at); });
-    if(hist) Object.keys(first).forEach(function(k){ hist[k] = first[k]; });
+    /* De boss waar je nu op zit is die van de laatste pull -- ook tijdens een
+       reclear, en ook na een kill, want dan hoort de kaart die kill te laten
+       zien, net zoals de melding dat doet.
 
-    /* De boss waar je nu op zit is die van de laatste pull die nog iets
-       betekent. Niet de laatste ongekillde: na een kill hoort de kaart die
-       kill te laten zien, net zoals de melding dat doet.
+       Een dag lang bleef de kaart tijdens een reclear op de laatste
+       progressieboss staan, omdat hij op 23 september twintig minuten lang
+       eerst Nek'zali en dan The Lost Explorers liet zien. Dat meebewegen was
+       het probleem niet: de boss waar je op zit hoort op de kaart. Wat niet
+       mag, is dat een farmpull de cijfers van die boss verandert. */
+    var cur  = all[all.length - 1];
+    var same = all.filter(function(f){ return f.enc === cur.enc; });
 
-       Maar ook niet gewoon de laatste pull, want dan volgt de kaart je
-       reclear. Hier stond eerst all[all.length - 1], en op 23 september
-       stond er zo twintig minuten lang eerst Nek'zali en dan The Lost
-       Explorers in beeld, allebei "defeated", voor de kaart bij Sszorak
-       uitkwam. Een pull ná de eerste kill van zijn boss is farm, en die
-       verschuift de kaart niet: hij blijft op de laatste progressieboss
-       staan tot je een nieuwe pullt.
-
-       Dezelfde grens telt de pulls: tot en met de eerste kill. Zonder die
-       grens telt elke reclear er vrolijk bij op en staat er over een maand
-       60 pulls boven een boss die je in 21 hebt gelegd. */
-    var prog = all.filter(function(f){
-      return first[f.enc] == null || f.at <= first[f.enc];
-    });
-
-    /* Alles in het venster is farm: de tier ligt, of er waren reportLimit
-       verslagen lang alleen reclears. Dan weet deze bron niet hoeveel pulls
-       de laatste boss kostte, want die vallen buiten het venster. null laat
-       js/progress.js op Raider.IO terugvallen, en die houdt de pulls tot de
-       kill zelf bij. */
-    if(!prog.length) return null;
-
-    var cur  = prog[prog.length - 1];
-    var upto = prog.filter(function(f){ return f.enc === cur.enc; });
+    /* Tellen tot en met de eerste kill. Zonder die grens telt elke reclear
+       er vrolijk bij op en staat er over een maand 60 pulls boven een boss
+       die je in 21 hebt gelegd. Alles daarna is farm: het verandert de
+       pullcount niet, de beste poging niet en "down" niet, dus er komt geen
+       BOSS DOWN of new best uit. */
+    var first = -1;
+    for(var i = 0; i < same.length; i++){ if(same[i].kill){ first = i; break; } }
+    var upto = first >= 0 ? same.slice(0, first + 1) : same;
+    var farm = first >= 0 ? same.slice(first + 1)    : [];
 
     /* De fase van de beste poging komt mee, want de kaart zet hem achter het
        percentage ("best of 43 pulls · P2") en de melding als eigen tegel.
@@ -281,8 +278,8 @@ function load(){
       }
     });
 
-    /* `upto` kan niet leeg zijn: cur komt uit prog en heeft zijn eigen
-       encounter, dus hij zit er zelf in -- als laatste. Vandaar geen
+    /* `upto` kan niet leeg zijn: all.length is hierboven gecontroleerd, cur
+       zit per definitie in same, en upto begint bij same[0]. Vandaar geen
        `last &&` hieronder. */
     var last = upto[upto.length - 1];
 
@@ -297,10 +294,18 @@ function load(){
       bestPct   : best,
       bestPhase : bestPhase,
       phase     : last.phase,
-      defeated  : last.kill,
-      running   : last.running,
-      updated   : last.ended,
+      defeated  : first >= 0,
+      running   : cur.running,
+      /* De nieuwste pull, ook als dat farm is. Dit is het stempeltje op de
+         kaart, en dat zegt of de kaart de raid bijhoudt: stond hier de kill
+         van drie weken terug, dan leek hij tijdens elke reclear vastgelopen. */
+      updated   : cur.ended,
       pulls     : upto,
+      /* Farm apart, zodat js/banner.js bij een wipe op een boss die al ligt
+         alsnog 'last try' kan laten zien zonder dat er een cijfer verschuift.
+         De watcher in js/rio-live.js kijkt naar farmCount. */
+      farmCount : farm.length,
+      farmLast  : farm.length ? farm[farm.length - 1] : null,
       /* Bewust geen summary: zie de kop van dit bestand. */
       summary   : ''
     };
