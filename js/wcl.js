@@ -40,6 +40,11 @@
    hem hoger en reken het na -- pollSeconds staat op 20, dus 360 queries per
    uur, en 3600 / 360 = 10 punten is je plafond per query.
 
+   Daarbovenop komt één keer per pagina de kill-geschiedenis van de hele tier
+   (zie history()): 16 punten op 24 september, met 14 verslagen in de zone.
+   Dat groeit mee met de tier, maar het is één query bij het opstarten en
+   geen honderden per uur, dus het past ruim in wat de polls overlaten.
+
    Er is nog een knop als je die ooit nodig hebt: `fights` neemt ook een
    encounterID, dus filteren op de huidige boss in plaats van de hele tier
    ophalen. Dat kost een extra ronde om te weten welke boss dat is, dus het is
@@ -93,12 +98,22 @@ var QUERY =
     '}}}' +
   '}';
 
-function gql(vars){
+/* Alleen de kills, maar dan over de hele tier: 100 is het maximum per pagina
+   en een tier haalt dat niet (op 24 september stonden er 14 verslagen in zone
+   53, terug tot 19 augustus). Zie history() hieronder. */
+var HISTORY =
+  'query($g:Int!,$z:Int!,$d:Int!){' +
+    'reportData{reports(guildID:$g,zoneID:$z,limit:100){data{' +
+      'startTime fights(difficulty:$d,killType:Kills){encounterID startTime}' +
+    '}}}' +
+  '}';
+
+function gql(query, vars){
   return fetch(API, {
     method : 'POST',
     headers: { 'Authorization': 'Bearer ' + TOKEN,
                'Content-Type' : 'application/json' },
-    body   : JSON.stringify({ query: QUERY, variables: vars })
+    body   : JSON.stringify({ query: query, variables: vars })
   }).then(function(r){
     if(!r.ok) throw new Error('wcl http ' + r.status);
     return r.json();
@@ -156,14 +171,70 @@ function timeline(reports){
   return out;
 }
 
+/* Wanneer elke boss voor het eerst lag, over de hele tier: encounterID ->
+   tijdstip, op dezelfde klok als timeline().
+
+   Het venster van reportLimit verslagen is daar te kort voor. Op 24 september
+   begon het op 9 september, terwijl Nek'zali op 6 september voor het eerst
+   lag -- dus las zijn kill van 16 september, één pull op farm, als de eerste.
+   Dat liep goed af omdat het één pull was. Had die reclear eerst een wipe
+   gehad, dan stond Nek'zali als progressie op de kaart en kwam er bij de kill
+   een BOSS DOWN over je beeld.
+
+   Eén keer per pagina, niet per poll: gemeten op 24 september kost hij 16
+   punten, en dat loopt op met het aantal verslagen in de tier. OBS houdt de
+   browser sources geladen zolang het draait (shutdown en restart_when_active
+   staan uit, zie make-obs-collection.py), dus dat is één keer per pagina per
+   keer dat je OBS opstart. Wat daarna voor het eerst sneuvelt komt uit het
+   venster, en load() vouwt dat hierin terug -- anders veroudert de
+   geschiedenis als OBS dagen openstaat en valt een kill van vorige week
+   alsnog tussen wal en schip.
+
+   Mislukt hij, dan werkt load() met het venster alleen, zoals voorheen, en
+   probeert het na vijf minuten opnieuw. Niet elke poll: lag hij eruit op een
+   429, dan maakt elke poll dat erger. */
+var known = null, asking = null, failedAt = 0;
+var RETRY = 5 * 60 * 1000;
+
+function history(vars){
+  if(known) return Promise.resolve(known);
+  if(asking) return asking;
+  if(failedAt && Date.now() - failedAt < RETRY) return Promise.resolve(null);
+  asking = gql(HISTORY, vars).then(function(d){
+    var map = {};
+    (((d.reportData || {}).reports || {}).data || []).forEach(function(r){
+      (r.fights || []).forEach(function(f){
+        var t = r.startTime + f.startTime;
+        if(map[f.encounterID] == null || t < map[f.encounterID]) map[f.encounterID] = t;
+      });
+    });
+    known = map;
+    return known;
+  }).catch(function(){
+    failedAt = Date.now();
+    return null;
+  }).then(function(v){ asking = null; return v; });
+  return asking;
+}
+
 function load(){
   if(!available()) return Promise.resolve(null);
-  var diff = DIFF[(CFG.difficulty || 'mythic')] || 5;
+  var g = +CFG.guildId, z = +CFG.zoneId, diff = DIFF[(CFG.difficulty || 'mythic')] || 5;
 
-  return gql({ g: +CFG.guildId, z: +CFG.zoneId, d: diff,
-               n: CFG.reportLimit || 25 }).then(function(d){
-    var all = timeline(((d.reportData || {}).reports || {}).data);
+  return Promise.all([
+    gql(QUERY, { g: g, z: z, d: diff, n: CFG.reportLimit || 25 }),
+    history({ g: g, z: z, d: diff })
+  ]).then(function(res){
+    var all = timeline(((res[0].reportData || {}).reports || {}).data);
     if(!all.length) return null;
+
+    /* De eerste kill per boss: uit de geschiedenis, en uit het venster voor
+       wat er sinds het ophalen daarvan lag. De vroegste wint. */
+    var hist = res[1], first = {};
+    function note(enc, t){ if(first[enc] == null || t < first[enc]) first[enc] = t; }
+    if(hist) Object.keys(hist).forEach(function(k){ note(k, hist[k]); });
+    all.forEach(function(f){ if(f.kill) note(f.enc, f.at); });
+    if(hist) Object.keys(first).forEach(function(k){ hist[k] = first[k]; });
 
     /* De boss waar je nu op zit is die van de laatste pull die nog iets
        betekent. Niet de laatste ongekillde: na een kill hoort de kaart die
@@ -173,29 +244,26 @@ function load(){
        reclear. Hier stond eerst all[all.length - 1], en op 23 september
        stond er zo twintig minuten lang eerst Nek'zali en dan The Lost
        Explorers in beeld, allebei "defeated", voor de kaart bij Sszorak
-       uitkwam. Een pull op een boss die in deze verslagen al eerder lag is
-       farm, en die verschuift de kaart niet: hij blijft op de laatste
-       progressieboss staan tot je een nieuwe pullt.
+       uitkwam. Een pull ná de eerste kill van zijn boss is farm, en die
+       verschuift de kaart niet: hij blijft op de laatste progressieboss
+       staan tot je een nieuwe pullt.
 
-       Eén gat: "eerder gelegen" betekent binnen reportLimit verslagen. Ligt
-       de vorige kill van een farmboss daarbuiten (na een pauze van een paar
-       weken), dan leest zijn eerste kill hier als een eerste kill, en volgt
-       de kaart hem één keer. Met een clear per week en zes verslagen gebeurt
-       dat niet. */
-    var down = {}, cur = null;
-    all.forEach(function(f){
-      if(down[f.enc]) return;
-      cur = f;
-      if(f.kill) down[f.enc] = true;
+       Dezelfde grens telt de pulls: tot en met de eerste kill. Zonder die
+       grens telt elke reclear er vrolijk bij op en staat er over een maand
+       60 pulls boven een boss die je in 21 hebt gelegd. */
+    var prog = all.filter(function(f){
+      return first[f.enc] == null || f.at <= first[f.enc];
     });
-    var same = all.filter(function(f){ return f.enc === cur.enc; });
 
-    /* Tellen tot en met de eerste kill. Zonder die grens telt elke reclear
-       er vrolijk bij op en staat er over een maand 60 pulls boven een boss
-       die je in 21 hebt gelegd. */
-    var first = -1;
-    for(var i = 0; i < same.length; i++){ if(same[i].kill){ first = i; break; } }
-    var upto  = first >= 0 ? same.slice(0, first + 1) : same;
+    /* Alles in het venster is farm: de tier ligt, of er waren reportLimit
+       verslagen lang alleen reclears. Dan weet deze bron niet hoeveel pulls
+       de laatste boss kostte, want die vallen buiten het venster. null laat
+       js/progress.js op Raider.IO terugvallen, en die houdt de pulls tot de
+       kill zelf bij. */
+    if(!prog.length) return null;
+
+    var cur  = prog[prog.length - 1];
+    var upto = prog.filter(function(f){ return f.enc === cur.enc; });
 
     /* De fase van de beste poging komt mee, want de kaart zet hem achter het
        percentage ("best of 43 pulls · P2") en de melding als eigen tegel.
@@ -213,9 +281,9 @@ function load(){
       }
     });
 
-    /* `upto` kan niet leeg zijn: all.length is hierboven gecontroleerd, cur
-       zit per definitie in same, en upto is same of een slice die tot en met
-       cur loopt. Vandaar geen `last &&` meer hieronder. */
+    /* `upto` kan niet leeg zijn: cur komt uit prog en heeft zijn eigen
+       encounter, dus hij zit er zelf in -- als laatste. Vandaar geen
+       `last &&` hieronder. */
     var last = upto[upto.length - 1];
 
     return {
@@ -229,7 +297,7 @@ function load(){
       bestPct   : best,
       bestPhase : bestPhase,
       phase     : last.phase,
-      defeated  : first >= 0,
+      defeated  : last.kill,
       running   : last.running,
       updated   : last.ended,
       pulls     : upto,

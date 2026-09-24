@@ -658,6 +658,25 @@ Set `source` to `auto` for the old behaviour (furthest reading wins, with
 the portrait and the progress line go with it -- `warcraftlogs-first` is the
 one that keeps them.
 
+**A reclear does not move the card.** The card shows the boss of the last pull
+that still means something: a pull *after* that boss's first kill is farm, and
+farm leaves the card on your progression boss until you pull a new one. It used
+to follow the last pull, and on 23 September that put Nek'zali and then The
+Lost Explorers on screen for twenty minutes, both `down`, before the card got
+back to Sszorak. The same line bounds the pull count: pulls to the first kill,
+never the reclears after it.
+
+"First kill" has to mean the real one, and the six reports the card polls do
+not reach back far enough for that -- on 24 September they started on the 9th,
+while Nek'zali first died on the 6th. So each page asks Warcraft Logs once, on
+load, for every kill in the tier, and folds the kills it sees afterwards into
+that list, so a page OBS keeps open for days does not go stale. Without it, a
+reclear after a few weeks off that wiped once before the kill would read as
+progression and fire a real `BOSS DOWN` over your gameplay. If that query
+fails, the card works from the six reports alone and tries again five minutes
+later. If everything in those reports is farm -- the tier is done -- Warcraft
+Logs has no pull count to give, and the card falls back to Raider.IO.
+
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
 are limited per minute, and this overlay makes a handful every 20 seconds. If
 you ever do get an HTTP 429, the response carries a `Retry-After` header and
@@ -712,6 +731,10 @@ To go faster you have to make a query cheaper first, not just shorten the
 interval. `reportLimit` is the blunt lever; `fights` also accepts an
 `encounterID`, which would fetch only the boss you are on, at the cost of a
 round trip to find out which boss that is.
+
+On top of the polls, each page fetches the tier's kill history once when it
+loads (see above): 16 points on 24 September, with 14 reports in the zone. It
+grows with the tier, but it is one query at start-up, not hundreds an hour.
 
 **What the cards say about all this.** Both Raider.IO cards carry the freshness
 of their own data in the source label on the top right: `raider.io · 22:41`.
