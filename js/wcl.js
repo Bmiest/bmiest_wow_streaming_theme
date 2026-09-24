@@ -165,10 +165,29 @@ function load(){
     var all = timeline(((d.reportData || {}).reports || {}).data);
     if(!all.length) return null;
 
-    /* De boss waar je nu op zit is die van de laatste pull. Niet de laatste
-       ongekillde: na een kill hoort de kaart die kill te laten zien, net
-       zoals de melding dat doet. */
-    var cur  = all[all.length - 1];
+    /* De boss waar je nu op zit is die van de laatste pull die nog iets
+       betekent. Niet de laatste ongekillde: na een kill hoort de kaart die
+       kill te laten zien, net zoals de melding dat doet.
+
+       Maar ook niet gewoon de laatste pull, want dan volgt de kaart je
+       reclear. Hier stond eerst all[all.length - 1], en op 23 september
+       stond er zo twintig minuten lang eerst Nek'zali en dan The Lost
+       Explorers in beeld, allebei "defeated", voor de kaart bij Sszorak
+       uitkwam. Een pull op een boss die in deze verslagen al eerder lag is
+       farm, en die verschuift de kaart niet: hij blijft op de laatste
+       progressieboss staan tot je een nieuwe pullt.
+
+       Eén gat: "eerder gelegen" betekent binnen reportLimit verslagen. Ligt
+       de vorige kill van een farmboss daarbuiten (na een pauze van een paar
+       weken), dan leest zijn eerste kill hier als een eerste kill, en volgt
+       de kaart hem één keer. Met een clear per week en zes verslagen gebeurt
+       dat niet. */
+    var down = {}, cur = null;
+    all.forEach(function(f){
+      if(down[f.enc]) return;
+      cur = f;
+      if(f.kill) down[f.enc] = true;
+    });
     var same = all.filter(function(f){ return f.enc === cur.enc; });
 
     /* Tellen tot en met de eerste kill. Zonder die grens telt elke reclear
