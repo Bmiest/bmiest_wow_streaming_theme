@@ -326,6 +326,7 @@ function reward(){
   return wrap;
 }
 
+var stage = document.getElementById('stage');
 var box   = document.getElementById('alertHost');
 var rbox  = document.getElementById('raidHost');
 var queue = [], busy = false;
@@ -415,10 +416,15 @@ function fwFlankX(rng, wide){
   return rng() < 0.5 ? fwRange(rng, 8, 34) : fwRange(rng, 66, 92);
 }
 
-function fwColor(rng, prev){
+/* palette is optioneel en valt terug op FW_COLORS -- de killshow roept dit
+   nooit met een derde argument aan, dus die blijft precies hetzelfde
+   getal uit rng() trekken als voorheen. De SE-shows verderop geven hun
+   eigen palet mee (het accent van die melding plus paper/gold). */
+function fwColor(rng, prev, palette){
+  palette = palette || FW_COLORS;
   var c;
-  do { c = FW_COLORS[(rng() * FW_COLORS.length) | 0]; }
-  while(c === prev && rng() < 0.7);
+  do { c = palette[(rng() * palette.length) | 0]; }
+  while(c === prev && palette.length > 1 && rng() < 0.7);
   return c;
 }
 
@@ -531,12 +537,137 @@ function buildShow(seed){
    ligt vast, dus het resultaat toch ook. */
 var SHOW = buildShow(FW_SEED);
 
+/* ---- vuurwerk bij een SE-melding (follow/sub/cheer/tip/raid) -----------
+   Kleinschalig: de kill blijft het grootste moment van de avond, zelfde
+   argument als "een nieuwe beste poging krijgt niets" hierboven. Het aantal
+   bursts per soort staat in CFG.alertFireworks (0 = uit).
+
+   Elke burst gaat binnen ~2,5s af en de laatste vonk is rond de 4s voorbij
+   -- ruim binnen de 5200ms die zo'n melding sowieso al aanhoudt, dus geen
+   eigen hold nodig. Kleiner dan de kill in straal (140-280 tegen 200-480)
+   en telling (12-24 tegen 12-31): dit moet een leuk extraatje zijn naast
+   een compacte melding, niet een tweede killshow.
+
+   Alleen ring/double/crackle; willow (lang leven, ~2,4s) mag bij sub en
+   raid. SE_WILLOW_CUTOFF duwt 'm terug naar ring/crackle als hij te laat
+   zou afgaan om zijn volle leven nog binnen de 4s te krijgen (330ms wachten
+   + 2410ms leven = 2740ms staart, en die moet nog vóór 4000ms voorbij zijn).
+
+   Plek: de SE-kolom staat boven-midden (#alertHost op top:52px, en een sub
+   of een bericht maakt 'm nog hoger of lager) -- bursts blijven daar
+   helemaal van weg: x 12-34% en 66-88%, y 10-32%, kant alternerend, nooit
+   in het midden (34-66%). Geen uitzondering zoals fwClampCenterBand bij de
+   killshow: die kolom staat er altijd, in tegenstelling tot de bossnaam die
+   alleen bij een raidmelding in beeld is, dus hoeft hier niets geklemd te
+   worden -- er wordt gewoon nooit in dat midden geloot. Dezelfde ≥12px-marge
+   als de killshow (fwClampMargin hergebruikt, ongewijzigd).
+
+   Kleur: het eigen accent van de melding (var(--acc), al gezet op de node
+   door render()) plus paper en gold in plaats van jade/paper/gold -- vijf
+   soorten met allemaal hun eigen tint (R.TINT), dus jade zou voor cheer of
+   tip niet kloppen.
+
+   Deterministisch per soort: een eigen seed afgeleid van FW_SEED en de naam
+   van de soort (seedForAlertShow), en dezelfde mulberry32 als de killshow.
+   Elke soort wordt precies één keer opgebouwd bij het laden van de pagina
+   (ALERT_SHOWS hieronder), niet per keer dat de melding komt.
+
+   Geen was achter deze meldingen: de vonken staan rechtstreeks op je
+   gameplay, en de kill-minimum van 9px las in een screenshot te dun tegen
+   drukke gameplay zonder die donkere achtergrond. b.szBoost telt er drie
+   pixels bovenop -- zie fwBuildBurst hierboven, dat blijft 0 voor de
+   killshow. */
+var SE_COLORS       = ['var(--acc)', 'var(--paper)', 'var(--gold)'];
+var SE_WILLOW_KINDS = { sub:1, raid:1 };
+var SE_WILLOW_CUTOFF = 1260;
+var SE_SPAN          = 1900;
+
+function seedForAlertShow(kind){
+  var h = 0;
+  for(var i = 0; i < kind.length; i++) h = (h * 31 + kind.charCodeAt(i)) | 0;
+  return FW_SEED ^ h;
+}
+
+function seFlankX(rng, left){
+  return left ? fwRange(rng, 12, 34) : fwRange(rng, 66, 88);
+}
+
+function seType(rng, allowWillow){
+  var r = rng();
+  if(allowWillow){
+    if(r < 0.40) return 'ring';
+    if(r < 0.68) return 'double';
+    if(r < 0.86) return 'willow';
+    return 'crackle';
+  }
+  if(r < 0.46) return 'ring';
+  if(r < 0.76) return 'double';
+  return 'crackle';
+}
+
+function buildAlertShow(seed, count, allowWillow){
+  if(!count) return [];
+  var rng = mulberry32(seed);
+  var bursts = [];
+  var prevColor = null;
+  var left = true;
+  var spacing = SE_SPAN / count;
+  for(var i = 0; i < count; i++){
+    var d = Math.round(i * spacing + rng() * spacing * 0.5);
+    var type = seType(rng, allowWillow);
+    if(type === 'willow' && d > SE_WILLOW_CUTOFF) type = (rng() < 0.5 ? 'ring' : 'crackle');
+    var c = fwColor(rng, prevColor, SE_COLORS); prevColor = c;
+    var b = {
+      d: d, x: seFlankX(rng, left), y: fwRange(rng, 10, 32), r: fwRange(rng, 140, 280),
+      type: type, c: c, szBoost: 3
+    };
+    left = !left;
+    if(type === 'ring'){
+      b.n = 12 + (rng() * 12 | 0);
+    } else if(type === 'double'){
+      b.n  = 9 + (rng() * 6 | 0);
+      b.n2 = 6 + (rng() * 5 | 0);
+      b.c2 = fwColor(rng, c, SE_COLORS);
+      b.r  = Math.min(b.r, 220); // dubbele ring blijft compact, zelfde reden als bij de kill
+    } else if(type === 'willow'){
+      b.n = 10 + (rng() * 5 | 0);
+      b.c = 'var(--gold)';
+    } else if(type === 'crackle'){
+      b.n = 14 + (rng() * 10 | 0);
+    }
+    fwClampMargin(b);
+    bursts.push(b);
+  }
+  return bursts;
+}
+
+/* Eén keer per soort opgebouwd, net als SHOW hierboven -- niet per melding. */
+var ALERT_SHOWS = {};
+['follow', 'sub', 'cheer', 'tip', 'raid'].forEach(function(kind){
+  var count = (CFG.alertFireworks && CFG.alertFireworks[kind]) || 0;
+  ALERT_SHOWS[kind] = buildAlertShow(seedForAlertShow(kind), count, !!SE_WILLOW_KINDS[kind]);
+});
+
+/* Hangt een eigen .fw-laag in #stage, los van de melding zelf: die is een
+   smalle flex-kolom met een eigen translateY-animatie, en vuurwerk daarin
+   zou meebewegen en -schalen met dat kolommetje. #stage is zelf al
+   position:absolute op de volle 2560x1072, dus .fw{inset:0} (css/alerts.css)
+   vult hem meteen -- vóór #alertHost in de DOM, dus erachter in beeld. */
+function seFireworks(kind, alertNode){
+  var bursts = ALERT_SHOWS[kind];
+  if(!bursts || !bursts.length) return;
+  var fw = scheduleFireworks(bursts, alertNode);
+  fw.style.setProperty('--acc', R.TINT[kind] || R.TINT.follow);
+  stage.insertBefore(fw, box);
+}
+
 /* Eén ring vonken, gedeeld door ring/double/willow (crackle heeft zijn eigen
    opbouw hieronder ivm de flikker-klasse). colorOverride zet --c rechtstreeks
    op de vonk in plaats van 'm te laten erven van .fw__b -- nodig voor de
    binnenste ring van een 'double', die een tweede kleur heeft. */
-function fwAddRing(wrap, sd, r, n, type, colorOverride){
+function fwAddRing(wrap, sd, r, n, type, colorOverride, sizeBoost){
   var L = FW_LIFE[type];
+  sizeBoost = sizeBoost || 0;
   for(var i = 0; i < n; i++){
     var a  = (i / n) * Math.PI * 2;
     /* Elke tweede vonk korter, anders is de ring een perfecte cirkel en dat
@@ -548,7 +679,7 @@ function fwAddRing(wrap, sd, r, n, type, colorOverride){
       '--tx:'   + Math.round(Math.cos(a) * rr)        + 'px;' +
       '--ty:'   + Math.round(Math.sin(a) * rr * FW_SQUASH) + 'px;' +
       '--drop:' + (L.dropBase + (i % 3) * L.dropStep) + 'px;' +
-      '--sz:'   + (i % 4 === 0 ? L.szBig : L.szSmall) + 'px;' +
+      '--sz:'   + ((i % 4 === 0 ? L.szBig : L.szSmall) + sizeBoost) + 'px;' +
       '--life:' + (L.base + (i % L.mod) * L.step)     + 'ms;' +
       '--sd:'   + sd                                  + 'ms';
     if(colorOverride) css += ';--c:' + colorOverride;
@@ -560,8 +691,9 @@ function fwAddRing(wrap, sd, r, n, type, colorOverride){
 
 /* Crackle heeft zijn eigen lus omdat de binnenste 'b' de fw__s--crk-klasse
    nodig heeft (css/alerts.css): de getrapte flikker naast de gewone val. */
-function fwAddCrackle(wrap, sd, r, n){
+function fwAddCrackle(wrap, sd, r, n, sizeBoost){
   var L = FW_LIFE.crackle;
+  sizeBoost = sizeBoost || 0;
   for(var i = 0; i < n; i++){
     var a  = (i / n) * Math.PI * 2;
     var rr = r * (0.55 + (i % 3) * 0.15);
@@ -570,7 +702,7 @@ function fwAddCrackle(wrap, sd, r, n){
       '--tx:'   + Math.round(Math.cos(a) * rr)        + 'px;' +
       '--ty:'   + Math.round(Math.sin(a) * rr * FW_SQUASH) + 'px;' +
       '--drop:' + (L.dropBase + (i % 3) * L.dropStep) + 'px;' +
-      '--sz:'   + (i % 4 === 0 ? L.szBig : L.szSmall) + 'px;' +
+      '--sz:'   + ((i % 4 === 0 ? L.szBig : L.szSmall) + sizeBoost) + 'px;' +
       '--life:' + (L.base + (i % L.mod) * L.step)     + 'ms;' +
       '--sd:'   + sd                                  + 'ms';
     var dot = document.createElement('b');
@@ -580,6 +712,11 @@ function fwAddCrackle(wrap, sd, r, n){
   }
 }
 
+/* b.szBoost is alleen gezet door buildAlertShow() hieronder (SE-vuurwerk,
+   zonder de donkere was van de kill onder zich, dus iets grotere stipjes om
+   niet weg te vallen tegen gameplay) -- de killshow zet dat veld nooit, dus
+   fwAddRing/fwAddCrackle krijgen daar altijd 0 en blijft dit exact het oude
+   gedrag. */
 function fwBuildBurst(b){
   var wrap = U.el('div', 'fw__b');
   wrap.style.cssText = 'left:' + b.x + '%;top:' + b.y + '%;--c:' + b.c;
@@ -596,16 +733,17 @@ function fwBuildBurst(b){
   trail.style.cssText = '--rise:430px;--d:0ms';
   wrap.appendChild(trail);
 
-  var sd = FW_SPARK_DELAY;
+  var sd    = FW_SPARK_DELAY;
+  var boost = b.szBoost || 0;
   if(b.type === 'ring'){
-    fwAddRing(wrap, sd, b.r, b.n, 'ring');
+    fwAddRing(wrap, sd, b.r, b.n, 'ring', null, boost);
   } else if(b.type === 'double'){
-    fwAddRing(wrap, sd, b.r,        b.n,  'double');
-    fwAddRing(wrap, sd, b.r * 0.45, b.n2, 'double2', b.c2);
+    fwAddRing(wrap, sd, b.r,        b.n,  'double', null, boost);
+    fwAddRing(wrap, sd, b.r * 0.45, b.n2, 'double2', b.c2, boost);
   } else if(b.type === 'willow'){
-    fwAddRing(wrap, sd, b.r, b.n, 'willow');
+    fwAddRing(wrap, sd, b.r, b.n, 'willow', null, boost);
   } else if(b.type === 'crackle'){
-    fwAddCrackle(wrap, sd, b.r, b.n);
+    fwAddCrackle(wrap, sd, b.r, b.n, boost);
   }
   return wrap;
 }
@@ -623,10 +761,15 @@ function fwBurstEnd(b){
    niets doen -- puur geheugen en style-recalc voor niets. Zo blijft het
    aantal levende vonken ruim onder de 350.
 
-   alertNode._fwStop wordt aangeroepen vanuit render()'s opruimcode zodra de
-   melding zelf de DOM verlaat: zonder dat zou een setTimeout best nog een
-   burst kunnen afvuren in een <div> die al weg is. */
-function fireworks(alertNode){
+   Gedeeld door de killshow en de kleinere shows bij een SE-melding
+   hieronder: alleen de bursts-tabel en waar de .fw-laag moet hangen
+   verschillen, de planning en opruim is voor allebei hetzelfde verhaal.
+   stopHost._fwStop wordt aangeroepen vanuit render()'s opruimcode zodra die
+   melding de DOM verlaat: zonder dat zou een setTimeout best nog een burst
+   kunnen afvuren in een <div> die al weg is -- en _fwStop() haalt de
+   .fw-laag zelf ook meteen van zijn ouder, want bij een SE-melding hangt
+   die los in #stage en niet als kind onder stopHost (zie seFireworks()). */
+function scheduleFireworks(bursts, stopHost){
   var fw = U.el('div', 'fw');
   var timers = [];
 
@@ -636,7 +779,7 @@ function fireworks(alertNode){
      nooit zichtbaar wordt is werk voor niets. */
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduced){
-    SHOW.forEach(function(b){
+    bursts.forEach(function(b){
       timers.push(setTimeout(function(){
         var node = fwBuildBurst(b);
         fw.appendChild(node);
@@ -647,12 +790,21 @@ function fireworks(alertNode){
     });
   }
 
-  alertNode._fwStop = function(){
+  stopHost._fwStop = function(){
     timers.forEach(function(id){ clearTimeout(id); });
     timers.length = 0;
+    if(fw.parentNode) fw.parentNode.removeChild(fw);
   };
 
   return fw;
+}
+
+/* De killmelding is zelf al een vlak dat het hele doek vult (.alert--raid),
+   dus zijn vuurwerk mag gewoon een kind zijn -- vandaar deze dunne wikkel
+   in plaats van renderRaid() rechtstreeks scheduleFireworks() te laten
+   aanroepen. */
+function fireworks(alertNode){
+  return scheduleFireworks(SHOW, alertNode);
 }
 
 function renderRaid(e){
@@ -845,6 +997,7 @@ function render(e){
     node.appendChild(R.make(e.kind, LABEL[e.kind] || e.kind, e.who));
     if(e.extra)   node.appendChild(U.el('div','alert__meta', e.extra));
     if(e.message) node.appendChild(U.el('div','alert__msg',  e.message));
+    seFireworks(e.kind, node);
   }
 
   /* Het geluid hangt aan de weergave en niet aan de detectie: zo klinkt het

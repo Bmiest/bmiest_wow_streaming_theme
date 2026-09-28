@@ -289,19 +289,22 @@ img.alert__wig{object-fit:contain}
   letter-spacing:.18em;text-transform:uppercase;
 }
 
-/* ---- vuurwerk bij een kill ------------------------------------------
-   Alleen hier. Een nieuwe beste poging krijgt het niet: als een wipe
-   vuurwerk krijgt, zegt het bij een kill niets meer. De opbouw, de tabel met
-   bursts en de planning (wanneer een burst zijn DOM krijgt en weer kwijtraakt)
-   staan in js/alerts.js -- hier staat alleen de vorm. Alles is voorbij rond
-   14,5 seconden, dus van de negentien seconden die de kill aanhoudt blijft er
-   ruim vier seconden rust over om de cijfers te lezen.
+/* ---- vuurwerk: kill-melding én SE-meldingen --------------------------
+   Dezelfde .fw-vorm voor de grote show bij een kill (hier ~19s, voorbij rond
+   14,5s) en de kleine bursts bij follow/sub/cheer/tip/raid (hier binnen 4s,
+   ruim binnen hun 5200ms) -- alleen bij een kill hangt .fw als kind in de
+   melding zelf, bij een SE-melding los in #stage. De opbouw, de tabel met
+   bursts en de planning (wanneer een burst zijn DOM krijgt en weer
+   kwijtraakt) staan in js/alerts.js -- hier staat alleen de vorm. Een
+   nieuwe beste poging krijgt zelf nog steeds niets: als een wipe al
+   vuurwerk kreeg, zegt het bij een kill niets meer.
 
    Ronde stipjes en geen verlopen: een gevulde cirkel is een plat vlak, en
    honderden van die dingen die een paar seconden bewegen is nog altijd minder
    werk voor de encoder dan één was die van kleur verschiet. Kleuren komen
-   uitsluitend uit de tokens (--jade, --paper, --gold uit css/tokens.css),
-   dus ook daar niets dat de encoder als nieuwe kleur moet coderen. */
+   uitsluitend uit tokens: --jade, --paper, --gold (css/tokens.css) bij een
+   kill, en var(--acc) plus --paper/--gold bij een SE-melding -- --acc is
+   zelf ook gewoon zo'n token, alleen per meldingssoort al ingevuld. */
 .fw{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .fw__b{position:absolute;width:0;height:0}
 

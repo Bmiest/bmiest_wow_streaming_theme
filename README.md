@@ -1284,7 +1284,14 @@ motion you can tune. A burst is only built just before it goes off and removed
 when its last spark fades, so the page never carries more than about 250 sparks
 at once instead of all 914 from the start.
 
-The wash behind it is flat and 72% opaque, so your gameplay stays faintly
+The five StreamElements alerts (follow, sub, cheer, tip, raid) get a small
+burst of the same fireworks, off to the sides of the alert column instead of
+across the whole frame: `alertFireworks` in config.default.js sets how many
+per kind, 0 turns one off. They are gone within about four seconds, well
+inside that alert's own 5.2-second hold, and stay smaller than a kill's --
+the kill is still the biggest moment of the night.
+
+The wash behind the raid alert is flat and 72% opaque, so your gameplay stays faintly
 visible and there is nothing to band. Duration and deaths come from the
 `bosspulls` endpoint, which carries them per pull; `RioLive.pullOf()` picks the
 pull the alert is about.

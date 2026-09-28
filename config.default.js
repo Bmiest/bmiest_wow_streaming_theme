@@ -253,6 +253,21 @@ window.OVERLAY_CONFIG = {
     cheer : '', tip: '', raid: ''
   },
 
+  // ---- vuurwerk bij een SE-melding ------------------------------------
+  // Dezelfde vonken als de killmelding (alerts.html), maar klein: een paar
+  // bursts naast de melding in plaats van een vlak vol. De kill blijft het
+  // grootste moment van de avond -- zelfde argument als "een nieuwe beste
+  // poging krijgt niets" -- dus deze tellers blijven ver onder de bursts
+  // van een kill.
+  //
+  // Sleutels: follow, sub, cheer, tip, raid. Waarde is het aantal bursts;
+  // 0 is geen vuurwerk. Follow staat lager dan de rest: bij een follow-trein
+  // (vlak na elkaar) krijgt elke follow zijn eigen show, en te veel bursts
+  // per stuk stapelt dan op tot chaos in plaats van een leuk extraatje.
+  alertFireworks: {
+    follow: 4, sub: 8, cheer: 6, tip: 6, raid: 10,
+  },
+
   // ---- doelen -------------------------------------------------------
   goals: {
     followers: 200,
