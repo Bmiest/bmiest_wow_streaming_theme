@@ -569,6 +569,7 @@ the OBS transform.
 |---|---|---|
 | Chat | Twitch IRC websocket (anonymous) | none |
 | Characters, raid progress | Raider.IO public API | none |
+| Boss renders on the kill alert | Blizzard render CDN, matched to each boss by `build-bossart.py` from wago.tools' DB2 exports | none |
 | Followers, viewers, uptime, title | DecAPI | none |
 | The sub goal | StreamElements `subscriber-goal`, or DecAPI `subcount` | JWT, or one login -- see section 3 |
 | Follows, subs, cheers, tips, raids | StreamElements realtime socket | JWT |
@@ -684,6 +685,27 @@ you ever do get an HTTP 429, the response carries a `Retry-After` header and
 their docs ask you to honour it rather than retry on a fixed interval. This
 overlay does not read that header; it polls on a fixed schedule and a failed
 call simply empties the block until the next one.
+
+### Boss renders from Blizzard
+
+The kill alert shows Blizzard's 600x600 full-body render of the boss on the
+flank -- both flanks for a two-boss fight. Raider.IO's portrait is 128x64, which
+is only good for the blurred colour wash behind the text. `build-bossart.py`
+looks up each boss's creature models in wago.tools' public DB2 exports, checks
+that Blizzard's render CDN has an image for each, and writes `js/bossart.js`.
+
+```bash
+./build-bossart.py 3004                  # MapID of the raid
+./build-bossart.py "The Venomous Abyss"  # or its name; several raids at once is fine
+```
+
+Run it again when a new raid tier starts, and commit the result: the file only
+holds the raids you pass in. No credentials needed -- both sources are public.
+The Encounter Journal does not say which creatures are the bosses and which are
+adds, so the script takes the first one, unless `LEADS` at the top of the script
+says the fight has two. Add new council fights there. A boss without a render
+(the CDN answers 403 for some models) gets the Raider.IO portrait, as before.
+To use your own image for a boss, set `liveTracking.bossArt` in your config.
 
 ### How often it updates
 
@@ -1284,11 +1306,19 @@ API in `js/chime.js`, not from a file, so there is nothing to host, nothing
 that can 404 and nothing to download with a release -- and you retune it by
 changing a number instead of editing audio.
 
-`liveTracking.soundVolume` sets the level; `0` turns it off. In OBS, tick
-**Control audio via OBS** on the alerts source, otherwise the sound never
-reaches your mix and your viewers hear nothing.
+On top of that, `alertSounds` in the config gives an alert a voice clip: a
+peon or orc line from World of Warcraft's own files. A kill gets "Work
+complete.", "For the Horde!" or "Victory or death!". A new best gets "Work,
+work!" and friends. Follows and subs get a line too. A list plays in shuffled
+order and gets through every clip before one repeats. A kill or best with a
+clip skips the chime; if the clip fails to load, the chime plays after all.
+The clips are Blizzard's, not MIT -- see `media/NOTICE.txt`, and swap them out
+if you fork this. Cheers, tips and raids stay silent unless you give them a
+clip.
 
-The StreamElements alerts stay silent, as before.
+`liveTracking.soundVolume` sets the level of both the chime and the clips; `0`
+turns it off. In OBS, tick **Control audio via OBS** on the alerts source,
+otherwise the sound never reaches your mix and your viewers hear nothing.
 
 ## 7. Scenes, Just Chatting and the transition
 

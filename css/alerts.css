@@ -87,8 +87,11 @@ img.alert__wig{object-fit:contain}
    kill. Dit is wat in de raidkaart niet kan: die bron is 248px hoog.
 
    De was erachter is vlak en half doorzichtig, dus je gameplay blijft er
-   vaag door zichtbaar en er valt niets te banden. Kort aanhouden: vijf en
-   een halve seconde voor een beste poging, ruim zeven voor een kill.
+   vaag door zichtbaar en er valt niets te banden. Kort aanhouden voor een
+   nieuwe beste poging: acht seconden. Een kill blijft negentien seconden
+   staan -- daar loopt eerst het vuurwerk (tot een kleine veertien seconden),
+   en dan nog ruim vier seconden rust om de cijfers te lezen. Zie de kop bij
+   .fw hieronder voor de opbouw van dat vuurwerk.
    ===================================================================== */
 #raidHost{position:absolute;inset:0;pointer-events:none}
 
@@ -136,7 +139,12 @@ img.alert__wig{object-fit:contain}
 
    Beide lagen horen in de DOM vóór .raid__mid, zodat de tekst erover valt.
    Ze staan er alleen als er een afbeelding is: js/alerts.js hangt ze niet op
-   bij een lege bossImg, en dan is de melding wat hij hiervoor was. */
+   bij een lege bossImg, en dan is de melding wat hij hiervoor was.
+
+   .raid__bust is de terugval voor als er geen render is (zie hieronder): dan
+   is dit precies wat er al stond, portret en al. Is er wel een render, dan
+   komt .raid__bust niet eens in de DOM -- js/alerts.js hangt dan .raid__render
+   op in plaats daarvan, en .raid__art blijft gewoon staan voor de was. */
 .raid__art,.raid__bust{
   position:absolute;z-index:0;pointer-events:none;
   background-repeat:no-repeat;mix-blend-mode:screen;
@@ -158,6 +166,80 @@ img.alert__wig{object-fit:contain}
           mask-image:linear-gradient(to left,#000 0%,#000 34%,transparent 96%);
 }
 
+/* ---- volle renders (js/bossart.js) ----------------------------------
+   600x600 renders van het volle model, op een egale rgb(24,24,24) grond.
+   Ze vervangen .raid__bust: één render tegen de rechterflank, twee tegen
+   allebei (tweebossgevechten). .raid__art blijft de was erachter en
+   gebruikt dan de eerste render als er geen Raider.IO-portret is.
+
+   `mix-blend-mode:screen` + `contrast()` stond hier eerder, met het idee dat
+   screen "zwart niet laat meetellen". Dat klopt binnen de pagina zelf, maar
+   niet voor wat er in OBS terechtkomt: een browser source is voor OBS een
+   textuur met een EIGEN alphakanaal, en een JPEG heeft er geen -- overal
+   ondoorzichtig. mix-blend-mode verandert alleen de kleur per pixel, niet de
+   alpha van het vak zelf, en dat vak bleef dus overal even ondoorzichtig als
+   de `opacity` hieronder zei: zwarte grond en boss door elkaar, allebei
+   even dekkend. Buiten dat vak lag een net iets ándere ondoorzichtigheid
+   (de was van de melding zelf) -- en dat verschil in alpha, niet in kleur,
+   was de harde rand die je op stream zag: een rechthoek, precies op de rand
+   van het element.
+
+   De oplossing zit daarom niet in CSS maar in js/alerts.js: keyArt() tekent
+   de render op een canvas en vult van de rand naar binnen alles weg dat op
+   de rgb(24,24,24)-grond lijkt, met een ECHT alphakanaal (canvas -> blob ->
+   object-URL). Wat hier binnenkomt heeft dus al gaten waar de grond zat;
+   deze laag hoeft alleen nog de vorm en de plek te regelen. Faalt het
+   wegkeren (geen CORS, decodeerfout), dan komt de rauwe render terug met
+   .raid__render--masked erbij: een ovaal masker in plaats van niets, want
+   een zichtbare rechthoek is nog altijd erger dan een zachte ovale rand om
+   een grond die niet weggekeerd kon worden.
+
+   940x940, vierkant: de renders zijn zelf vierkant en het model staat erin
+   gecentreerd, dus zo landt het midden van het figuur op een vaste afstand
+   van de rand in plaats van ergens in een rechthoek met een andere
+   verhouding. Onderaan verankerd (-30px, staat op de grond in het
+   origineel), -170px van de zijkant zodat dat midden op ~300px van de rand
+   van het doek uitkomt: dit is een kill, de boss mag groot in beeld komen.
+
+   Het masker dooft naar het midden uit, gespiegeld voor de linkerflank, en
+   staat verder van de rand dan bij de oude 563px-brede versie: bij een
+   lange bossnaam ("Nek'zali the Soulcoiler" op 132px) moet er ruimte
+   overblijven voor de tekst voordat het figuur weer vol ondoorzichtig
+   wordt, anders knalt de naam tegen een volle boss aan in plaats van
+   erover te lezen. */
+.raid__render{
+  position:absolute;z-index:0;bottom:-30px;width:940px;height:940px;
+  pointer-events:none;background-repeat:no-repeat;background-size:contain;
+  background-position:bottom;opacity:1;
+  animation:raidRenderIn 700ms var(--ease) 220ms both;
+}
+.raid__render--left{
+  left:-170px;--slide:-60px;
+  -webkit-mask-image:linear-gradient(to right,#000 0px,#000 300px,transparent 680px);
+          mask-image:linear-gradient(to right,#000 0px,#000 300px,transparent 680px);
+}
+.raid__render--right{
+  right:-170px;--slide:60px;
+  -webkit-mask-image:linear-gradient(to left,#000 0px,#000 300px,transparent 680px);
+          mask-image:linear-gradient(to left,#000 0px,#000 300px,transparent 680px);
+}
+/* Alleen als keyArt() zelf niet lukte: de grond staat er dan nog steeds op,
+   dus liever een zachte ovale rand eromheen dan de harde rechthoek die de
+   rest van deze sectie net oplost. Zelfde class-specificiteit als hierboven,
+   dus wint gewoon doordat deze regel er later in het bestand staat -- geen
+   twee maskers tegelijk optellen voor iets dat de uitzondering is. */
+.raid__render--masked{
+  -webkit-mask-image:radial-gradient(ellipse 62% 58% at 50% 60%,#000 0%,#000 55%,transparent 100%);
+          mask-image:radial-gradient(ellipse 62% 58% at 50% 60%,#000 0%,#000 55%,transparent 100%);
+}
+/* Schuift van buiten het doek naar zijn plek, iets na de was (die opkomt via
+   de opacity-animatie op .alert--raid zelf, vanaf 0ms; dit start 220ms later
+   zodat de figuur duidelijk ná de achtergrond komt aanzetten). */
+@keyframes raidRenderIn{
+  from{opacity:0;transform:translateX(var(--slide))}
+  to  {opacity:1;transform:none}
+}
+
 /* De was komt op, de inhoud komt eronder vandaan. Twee bewegingen die bij
    elkaar horen, niet vijf losse. */
 .raid__mid{position:relative;z-index:1;text-align:center;padding:0 120px;
@@ -172,6 +254,15 @@ img.alert__wig{object-fit:contain}
 .raid__boss{
   margin-top:22px;font-size:132px;font-weight:600;line-height:1.02;
   letter-spacing:-.035em;color:var(--paper);
+}
+/* Alleen bij een kill (js/alerts.js zet 'm er dan pas bij): wie 'm neerlegde.
+   Zelfde haakjes als de raidkaart (‹gildenaam›, zie js/banner.js), en
+   dezelfde kleur als de rest van het kill-accent. Komt 180ms na de bossnaam
+   op -- vandaar de eigen (kortere) raidRise in plaats van meeliften op
+   .raid__mid, dat al bij 0ms begint. */
+.raid__guild{
+  margin-top:10px;font-size:56px;font-weight:600;color:var(--acc);
+  animation:raidRise 420ms var(--ease) 180ms both;
 }
 .raid__where{
   margin-top:18px;font-size:24px;font-weight:600;color:var(--ink-300);
@@ -200,13 +291,17 @@ img.alert__wig{object-fit:contain}
 
 /* ---- vuurwerk bij een kill ------------------------------------------
    Alleen hier. Een nieuwe beste poging krijgt het niet: als een wipe
-   vuurwerk krijgt, zegt het bij een kill niets meer. Alles is voorbij na
-   ongeveer drie seconden, dus de rest van de zeven en een halve seconde kan
-   je rustig de cijfers lezen.
+   vuurwerk krijgt, zegt het bij een kill niets meer. De opbouw, de tabel met
+   bursts en de planning (wanneer een burst zijn DOM krijgt en weer kwijtraakt)
+   staan in js/alerts.js -- hier staat alleen de vorm. Alles is voorbij rond
+   14,5 seconden, dus van de negentien seconden die de kill aanhoudt blijft er
+   ruim vier seconden rust over om de cijfers te lezen.
 
-   Ronde stipjes en geen verlopen: een gevulde cirkel van 3px is een plat
-   vlak, en zestig van die dingen die twee seconden bewegen is minder werk
-   voor de encoder dan één was die van kleur verschiet. */
+   Ronde stipjes en geen verlopen: een gevulde cirkel is een plat vlak, en
+   honderden van die dingen die een paar seconden bewegen is nog altijd minder
+   werk voor de encoder dan één was die van kleur verschiet. Kleuren komen
+   uitsluitend uit de tokens (--jade, --paper, --gold uit css/tokens.css),
+   dus ook daar niets dat de encoder als nieuwe kleur moet coderen. */
 .fw{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .fw__b{position:absolute;width:0;height:0}
 
@@ -246,11 +341,38 @@ img.alert__wig{object-fit:contain}
 }
 @keyframes fwFall{from{transform:translateY(0)}to{transform:translateY(var(--drop))}}
 
+/* ---- crackle/glitter: vonken die knipperen in plaats van vloeiend uitdoven
+   Zelfde tweelaagse opbouw als hierboven (buiten vliegt, binnen valt), maar
+   de binnenste laag krijgt een tweede animatie erbij: een harde, getrapte
+   opacity naast de val. `steps()` in plaats van een vloeiende easing is
+   precies het verschil tussen "dooft uit" en "knippert" -- en twee
+   animaties op dezelfde 'b' kunnen naast elkaar, want fwFall raakt alleen
+   transform en fwFlicker alleen opacity.
+
+   Specificiteit moet hoger dan .fw__s b (anders verliest de tweede animatie
+   het gewoon van de gewone val), vandaar de klasse erbij in de selector in
+   plaats van los. */
+.fw__s b.fw__s--crk{
+  animation:
+    fwFall    var(--life) cubic-bezier(.45,0,.85,.55) var(--sd) both,
+    fwFlicker 90ms         steps(2,jump-none)          var(--sd) infinite;
+}
+@keyframes fwFlicker{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---- dubbele ring: een tweede, kleinere ring in een tweede kleur op
+   dezelfde burst. Geen eigen klasse nodig -- js/alerts.js zet gewoon een
+   tweede --c rechtstreeks op die vonken, en die wint van de --c die op
+   .fw__b staat omdat inline style zwaarder weegt dan een geërfde waarde. */
+
 @media (prefers-reduced-motion:reduce){
   .alert,.alert.in,.alert.out{animation:none;opacity:1;transform:none}
   .alert.in .rib__acc{animation:none}
-  .alert--raid,.alert--raid.in,.alert--raid.out,.raid__mid{animation:none;opacity:1}
-  /* Vuurwerk is puur beweging. Stilstaand is het zestig stippen over je
-     gameplay, dus dan liever niets. */
+  .alert--raid,.alert--raid.in,.alert--raid.out,.raid__mid,
+  .raid__guild{animation:none;opacity:1}
+  /* Geen schuif, alleen meteen zichtbaar -- net als de rest hierboven. */
+  .raid__render{animation:none;opacity:1}
+  /* Vuurwerk is puur beweging. Stilstaand zijn het honderden stippen over je
+     gameplay, dus dan liever niets: js/alerts.js plant in dat geval sowieso
+     niets in, en dit vangt de rest af. */
   .fw{display:none}
 }

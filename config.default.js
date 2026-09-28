@@ -90,8 +90,18 @@ window.OVERLAY_CONFIG = {
       //   'off'  = geen
       alerts     : 'both',
 
-      // Volume van het belletje bij die melding, 0 is stil. Het geluid komt
-      // uit de Web Audio API (js/chime.js), dus er is geen bestand bij.
+      // Eigen bossplaatje, naast (en vóór) js/bossart.js. Sleutel is een
+      // DungeonEncounterID (als string of getal) of de exacte bossnaam in
+      // kleine letters; waarde is één URL of een lijst van ten hoogste twee
+      // (tweebossgevechten). Alleen https:// of een relatief pad wordt
+      // gebruikt -- zie isArtUrl() in js/alerts.js. Leeg laten gebruikt
+      // gewoon wat js/bossart.js voor die boss heeft.
+      //   bossArt: { '3421': 'media/vexhul.jpg',
+      //              'the twin fangs': ['media/vexhul.jpg', 'media/ithraz.jpg'] },
+      bossArt    : {},
+
+      // Volume van elk meldingsgeluid: de klok uit js/chime.js en de clips
+      // uit alertSounds (onderaan dit bestand). 0 is stil.
       // Zet in OBS op de alerts-bron 'Control audio via OBS' aan, anders
       // hoort alleen jij het niet en je kijkers wel -- of omgekeerd.
       soundVolume: 0.6,
@@ -201,6 +211,46 @@ window.OVERLAY_CONFIG = {
     // en je hebt er 3600 per uur. Zet je hem hoger, reken pollSeconds na.
     reportLimit: 6,
     token      : '',
+  },
+
+  // ---- geluid per melding --------------------------------------------
+  // Zonder clip piept een raidmelding de klok uit js/chime.js (kill/best) en
+  // zeggen de andere meldingen niets. Een clip hier vervangt de klok, of
+  // geeft een melding die stil was een stem.
+  //
+  // Sleutels: kill, best, follow, sub, cheer, tip, raid. Waarde is '' (de
+  // klok of stilte), één pad/URL, of een lijst. Een lijst speelt geschud af,
+  // en elke clip komt één keer voorbij voor er iets herhaalt -- zie
+  // nextSound() in js/alerts.js. Volume: liveTracking.soundVolume.
+  //
+  // De clips hieronder zijn peon- en orcregels uit de spelbestanden van
+  // World of Warcraft, dus Blizzards materiaal en niet MIT; welk bestand
+  // waar vandaan komt staat in media/NOTICE.txt. Fork je dit thema, zet dan
+  // je eigen clips in media/sounds/ of maak deze leeg. .ogg is het veilige
+  // formaat: OBS' ingebouwde Chromium speelt dat altijd af, .mp3 en .m4a
+  // hangen van de build af.
+  //
+  // Lukt afspelen niet (bestand weg, verkeerd formaat), dan valt kill en
+  // best terug op de klok; de rest blijft stil, zoals voorheen. Alleen
+  // https:// of een relatief pad, dezelfde regel als bossArt hierboven.
+  alertSounds: {
+    // Wat de peon zegt als het gebouw af is, en twee strijdkreten.
+    kill  : ['media/sounds/work-complete.ogg',
+             'media/sounds/for-the-horde.ogg',
+             'media/sounds/victory-or-death.ogg'],
+    // Nog niet dood, wel verder dan ooit: terug aan het werk.
+    best  : ['media/sounds/work-work.ogg',
+             'media/sounds/something-need-doing.ogg',
+             'media/sounds/ill-try.ogg',
+             'media/sounds/okie-dokie.ogg'],
+    // Een nieuwe peon meldt zich.
+    follow: ['media/sounds/ready-to-work.ogg',
+             'media/sounds/what-you-want.ogg',
+             'media/sounds/not-that-kind-of-orc.ogg'],
+    sub   : ['media/sounds/be-happy-to.ogg',
+             'media/sounds/i-can-do-that.ogg',
+             'media/sounds/dabu.ogg'],
+    cheer : '', tip: '', raid: ''
   },
 
   // ---- doelen -------------------------------------------------------
