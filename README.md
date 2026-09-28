@@ -1188,10 +1188,10 @@ The card itself cannot rise *above* its own edges: that source is 248px tall
 and OBS clips it there. The full-screen version lives in `alerts.html`, which
 covers the whole gameplay zone:
 
-- a **kill** always fires one: `boss down`, the boss name large, the raid and
-  difficulty under it, and the numbers of that pull -- pulls to kill, the
-  phase, how long the fight ran and how many people died. Jade, held for 11
-  seconds.
+- a **kill** always fires one: `boss down`, the boss name large, your guild
+  under it (‹Kelderklasse›, the same brackets as the raid card), the raid and
+  difficulty, and the numbers of that pull -- pulls to kill, the phase, how
+  long the fight ran and how many people died. Jade, held for 19 seconds.
 - a **new best** fires the same shape in gold with the percentage that was
   still standing, held for 8 seconds.
 
@@ -1199,25 +1199,34 @@ A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
 gameplay.
 
-**The boss is behind it**, the same picture as the corner of the raid card in
-the bottom bar -- `boss.portraitUrl` from Raider.IO's live tracking. Getting it
-onto a full-screen alert took a different treatment than the corner, for two
-reasons.
+**The boss is on it**, twice over.
 
-Those portraits are **128x64**. Across 2560 pixels that is a twenty-fold blow-up,
-so it is used as colour and not as a picture: `.raid__art` is the whole field,
-blurred to a haze in the boss's own colours, sitting behind the name. And the
-portrait is a bust on a **black** field while the alert lies over your gameplay
-under a 72% wash — composited normally that black is indistinguishable from the
-wash, which is exactly what the first attempt looked like on a busy frame.
-`mix-blend-mode: screen` solves both: black contributes nothing, so only the
-boss lights up and the rest stays the wash.
+Behind the name is a haze in the boss's own colours: `.raid__art`, the whole
+field, made from the same picture as the corner of the raid card --
+`boss.portraitUrl` from Raider.IO's live tracking. That portrait is **128x64**,
+a twenty-fold blow-up across 2560 pixels, so it is used as colour and not as a
+picture.
 
-`.raid__bust` is the same portrait unblurred, against the right flank. Not
-bottom-centre, where it ran straight through the row of numbers, and not behind
-the name, where it fought the 132px type: the flank is where this theme already
-puts figures, and `.raid__mid` keeps 120px clear there. Both layers only exist
-when Raider.IO gave a picture -- without one the alert is what it was before.
+On the flanks stands the boss itself: Blizzard's own **600x600 render** of the
+model, 940 pixels tall, one on the right or one on each side for a two-boss
+fight like The Twin Fangs. Not bottom-centre, where it would run through the row
+of numbers, and not behind the name, where it would fight the 132px type: the
+flank is where this theme already puts figures. Which render belongs to which
+boss comes from `js/bossart.js`, which `build-bossart.py` writes -- see
+[Boss renders from Blizzard](#boss-renders-from-blizzard).
+
+Those renders are a model on a flat dark grey field, and the obvious fix for
+that -- `mix-blend-mode: screen`, so the grey counts for nothing -- does not
+work in OBS. OBS lays the browser source over your gameplay as a texture, so the
+gameplay is never inside the page, and screen can only blend with the wash.
+The grey then turns into an opaque dark box with a hard top edge. So the page
+cuts the grey out itself: it draws the render on a canvas and flood-fills the
+background from the border, which keeps dark armour inside the model solid.
+Blizzard's CDN sends `Access-Control-Allow-Origin: *`, which is what lets a
+canvas read those pixels. That happens while the page polls, before any kill,
+so the cut-out is ready when the alert fires. If it fails, the render comes in
+raw under an oval mask, so there is still no hard edge; without a render, the
+portrait stands on the right flank, as before.
 
 The `?test=` path borrows the art from the boss the guild is actually on, in a
 single call that holds nothing up. A made-up picture would be a lie and a
@@ -1227,42 +1236,53 @@ against.
 
 This is the one place in the theme with a gradient in it, against the rule in
 [the shape: ribbons](#the-shape-ribbons). It earns the exception by being
-still: it fades in, sits there for eight seconds and goes. The bars break that
+still: it fades in, sits there for the length of the alert and goes. The bars break that
 rule by being on screen the whole stream, which is where a soft wash over 2560
 pixels actually costs you bitrate every frame.
 
-A kill also gets **fireworks**: ten bursts across the upper half, each a rising
-streak and then a ring of sparks that flies out and falls. Jade, white and gold,
-182 sparks in total, the last of them fading at 6.4 seconds. That is why a kill
-holds for 11 seconds and a new best for 8: fireworks first, then four and a
-half seconds of quiet to read the numbers. A new best gets none, because if a wipe gets
-fireworks they mean nothing on a kill.
+A kill also gets **fireworks**: 46 bursts and 914 sparks in jade, white and
+gold, in three acts. A build-up of about one burst every 420ms until 3.5
+seconds; the main show until 10.5 seconds, a burst every 260ms or so, which
+keeps six to eight clouds in the air at once; and a finale across the full
+width from 10.8 to 12.6 seconds with the biggest rings of the night. The last
+spark fades at 14.5 seconds. That is why a kill holds for 19 seconds and a new
+best for 8: fireworks first, then four and a half seconds of quiet to read the
+numbers. A new best gets none, because if a wipe gets fireworks they mean
+nothing on a kill.
 
-The bursts are 420 to 520ms apart and a cloud lives 1.25 to 1.7 seconds, so
-three or four of them hang in the air at once. That is the whole trick. Spaced
-further apart than they live, you see one cloud at a time and it reads as less
-fireworks rather than more, which is exactly what the first six-burst version
-looked like. The gaps are not all equal either, because a metronome reads
-mechanical.
+The overlap is the whole trick. Spaced further apart than they live, you see
+one cloud at a time and it reads as less fireworks rather than more, which is
+exactly what the first six-burst version looked like. The gaps are not all
+equal either, because a metronome reads mechanical.
 
-Two nested elements per spark: the outer one flies out radially on an ease-out,
-the inner one falls on an ease-in. One element cannot carry two `transform`
-animations and nested transforms multiply, so that gives a parabola instead of
-a straight line, which is the difference between fireworks and an asterisk.
+Four kinds of burst: a plain ring, a double ring with a smaller one in a second
+colour inside it, a gold willow that lives 2.4 seconds and hangs down, and a
+crackle whose small sparks flicker instead of fading. Each spark is two nested
+elements: the outer one flies out radially on an ease-out, the inner one falls
+on an ease-in. One element cannot carry two `transform` animations and nested
+transforms multiply, so that gives a parabola instead of a straight line, which
+is the difference between fireworks and an asterisk.
 
 The sizes are in canvas pixels, and that canvas is 2560 wide. The first version
 had 3px dots and a 210px radius, which is invisible next to a 132px boss name;
-they are 9 to 15px across rings of 230 to 430 now. The heavy rings sit on the
-flanks and the small ones high in the middle, because the boss name is in the
-middle and ten full rings over that text is a mess. The flanks were the empty
-part of the frame anyway.
+the sparks are 9 to 15px now. The heavy rings sit on the flanks and only small
+ones go high in the middle, because the boss name is in the middle and a full
+ring over that text is a mess.
 
 Every ring stays inside the frame. Horizontally, x in canvas pixels minus the
 radius has to clear zero; vertically, y minus 0.82 times the radius, because the
 y component of each spark is squashed so the cloud is wider than it is tall.
-Checked on all ten: the tightest margin is 12 pixels. Earlier versions clipped
-the top sparks, and a spark cut off on the edge reads as a bug and not as
-framing.
+Earlier versions clipped the top sparks, and a spark cut off on the edge reads
+as a bug and not as framing.
+
+Ten bursts could be placed and checked by hand; 46 cannot, so the table is now
+computed. A seeded generator (`mulberry32`, fixed seed) places them and the code
+enforces the rules: the frame margin, which comes out at 12 pixels at its
+tightest, and small rings only in the middle band. The same seed gives the same
+show, so every kill still looks the same, and motion you can reproduce is
+motion you can tune. A burst is only built just before it goes off and removed
+when its last spark fades, so the page never carries more than about 250 sparks
+at once instead of all 914 from the start.
 
 The wash behind it is flat and 72% opaque, so your gameplay stays faintly
 visible and there is nothing to band. Duration and deaths come from the
