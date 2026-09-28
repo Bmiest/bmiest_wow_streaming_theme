@@ -116,6 +116,10 @@ function load(opts){
       /* Zelfde veld als js/wcl.js zet. js/progress.js vult hem anders alsnog
          in, maar dan weet compare.html het niet en staat er 'undefined'. */
       source    : 'raiderio',
+      /* DungeonEncounterID, hetzelfde veld als js/wcl.js zet. Daarmee vindt
+         de killmelding de render van de boss in js/bossart.js, welke bron
+         er ook won. */
+      encounter : d.boss ? d.boss.wowEncounterId : null,
       /* Staat erbij zodat een lichte stand niet als een volle wordt gelezen:
          pulls is dan leeg omdat we er niet om vroegen, niet omdat er geen
          pogingen zijn. */

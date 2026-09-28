@@ -111,6 +111,7 @@ function borrow(win, rio){
   if(win.bossName && rio.bossName && win.bossName !== rio.bossName) return win;
   if(!win.bossImg && rio.bossImg) win.bossImg = rio.bossImg;
   if(!win.summary && rio.summary) win.summary = rio.summary;
+  if(!win.encounter && rio.encounter) win.encounter = rio.encounter;
   if(win.total == null && rio.total != null){
     win.total  = rio.total;
     win.tier   = rio.tier;
