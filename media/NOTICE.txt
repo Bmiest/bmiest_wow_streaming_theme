@@ -6,3 +6,26 @@ hero. Blizzard's game content policy lets a streamer use gameplay footage
 non-commercially; it does not let me pass redistribution rights on to you.
 
 If you fork this overlay, replace this file with a clip of your own.
+
+sounds/*.ogg are voice lines from World of Warcraft's game files, and the same
+applies to them: Blizzard Entertainment's material, not covered by the MIT
+license. alerts.html plays them on a raid kill, a new best pull, a follow and
+a sub (see alertSounds in config.default.js). They are loudness-matched to
+-16 LUFS, so they are edited copies, not the original files.
+
+  work-work.ogg             sound/creature/peon/peonyes3.ogg                (558147)
+  something-need-doing.ogg  sound/creature/peon/peonwhat4.ogg               (558135)
+  ill-try.ogg               sound/creature/peon/peonyesattack3.ogg          (558138)
+  okie-dokie.ogg            sound/creature/peon/peonyes4.ogg                (558140)
+  work-complete.ogg         sound/creature/peon/peonbuildingcomplete1.ogg   (558132)
+  for-the-horde.ogg         sound/creature/grunt/gruntwarcry1.ogg           (551328)
+  victory-or-death.ogg      sound/character/orc/orcvocalmale/orcmalecheer02.ogg (541404)
+  ready-to-work.ogg         sound/creature/peon/peonready1.ogg              (558137)
+  what-you-want.ogg         sound/creature/peon/peonwhat3.ogg               (558143)
+  not-that-kind-of-orc.ogg  sound/creature/peon/peonpissed4.ogg             (558146)
+  be-happy-to.ogg           sound/creature/peon/peonyes2.ogg                (558139)
+  i-can-do-that.ogg         sound/creature/peon/peonyes1.ogg                (558136)
+  dabu.ogg                  sound/character/orc/orcvocalfemale/orcfemalecheer01.ogg (541328)
+
+The number is the file's FileDataID. If you fork this overlay, leave
+alertSounds empty or point it at clips of your own.
