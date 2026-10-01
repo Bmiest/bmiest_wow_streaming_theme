@@ -1,0 +1,44 @@
+/* =====================================================================
+   EMOTES  --  voorbeeldpagina en de strook voor build-emotes.py
+
+   De twee chatkleuren zijn die van Twitch zelf, niet uit ons palet: een
+   emote wordt niet op de overlay gezien maar in andermans chat, en daar
+   moet hij het in beide thema's redden.
+   ===================================================================== */
+
+/* strook: vast doek, transparant, niets dat beweegt */
+.strip, .strip body{background:transparent;margin:0}
+.strip .cell{position:absolute;line-height:0}
+.strip .cell svg{display:block}
+
+/* tokens.css zet body op overflow:hidden; deze pagina scrollt wel */
+.preview{background:var(--ink-900);overflow-x:hidden}
+.preview body{background:var(--ink-900);overflow:visible}
+.preview #stage{max-width:1180px;margin:0 auto;padding:56px 32px 80px;
+  display:flex;flex-direction:column;gap:18px}
+
+.hd h1{font-size:44px;font-weight:600;letter-spacing:-.03em}
+.hd p{margin:12px 0 22px;max-width:70ch;font-size:16px;line-height:1.55;color:var(--paper-dim)}
+.hd code,.row code{font-family:var(--f-mono);font-size:.92em;color:var(--jade)}
+
+.slot{margin:26px 0 2px;font-size:13px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--jade)}
+.row{display:grid;grid-template-columns:220px 1fr 1fr;gap:14px;align-items:stretch}
+.meta{display:flex;flex-direction:column;gap:6px;padding:14px 0}
+.nm{font-size:15px !important;font-weight:500}
+.ab{font-size:13px;line-height:1.45;color:var(--ink-300)}
+.sp{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-400)}
+
+.sw{display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px;padding:16px 18px;border-radius:6px}
+.sw--dark {background:#18181b;color:#efeff1}
+.sw--light{background:#ffffff;color:#0e0e10}
+.em{display:inline-block;line-height:0}
+.em svg{display:block}
+.line{flex-basis:100%;font-size:13px;line-height:28px;margin-top:2px}
+.line b{color:#3fd9a4;font-weight:600}
+.sw--light .line b{color:#1f8d68}
+.em--inline{vertical-align:middle;margin-top:-4px}
+
+@media (max-width:860px){
+  .row{grid-template-columns:1fr}
+}

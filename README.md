@@ -1655,6 +1655,82 @@ builds would come out the same.
 
 `graphics.tagline` is the line under your name on both banners.
 
+### Emotes
+
+Twenty emotes, one for every slot Twitch gives an affiliate, drawn in
+`js/emotes.js` and rendered by `build-emotes.py`. Same machinery as the
+stinger: a page draws one frame per position in a grid, headless Chrome shoots
+it, and the script cuts the grid into a GIF or a PNG.
+
+**Tier 1 animated**, five GIFs:
+
+| Emote | What it does |
+|---|---|
+| `bmiestWig` | the sub goal: he tips the wig like a hat, the bald crown sparkles, it lands back |
+| `bmiestHeal` | Holy and Mistweaver at once: eyes closed, hands together, white and jade heals rising |
+| `bmiestKill` | boss down: two hops, fireworks in jade, gold and white |
+| `bmiestWipe` | x-eyes, tongue out, and his ghost floats up with a halo |
+| `bmiestTea` | steam drifting off a jade cup, a sip, a happy *ahh* |
+
+**The static slots**, fifteen PNGs:
+
+| Slot | Emotes |
+|---|---|
+| Follower | `bmiestHi` wave · `bmiestLurk` peeking over a card from the bottom bar · `bmiestGG` GG on a ribbon · `bmiestLove` a jade heart · `bmiestAverage` half-lidded, two of four sub-goal boxes filled |
+| Tier 1 | `bmiestShield` smug in Power Word: Shield · `bmiestOom` empty mana nameplate · `bmiestPog` · `bmiestHmm` · `bmiestCry` |
+| Tier 2 | `bmiestHalo` the holy priest: white robe, gold collar, halo |
+| Tier 3 | `bmiestAngel` Spirit of Redemption: wings and halo |
+| Bits 1K / 5K / 10K | `bmiestGem` a jade gem · `bmiestShiny` a bigger one and star eyes · `bmiestCrown` a gold crown with a jade stone |
+
+The tiers climb in the same direction: jade robe, then white and gold, then
+wings. The bits climb from one gem to a crown, and the gem is the cheer glyph
+from `js/ribbon.js`.
+
+The one in all of them is the wig from the sub goal, put on a head: bald crown,
+a ring of hair with a straight fringe, a jade robe with a white priest's collar.
+It is the same object as the reward drawn in `js/ribbon.js`, so the thing your
+subs unlock is also the face they type.
+
+```bash
+./serve.sh              # in one terminal
+./build-emotes.py       # in another; ./build-emotes.py wig tea for just those
+```
+
+That writes `graphics/emotes/`: for every animated emote a `-112`, `-56` and
+`-28` GIF plus the same three as PNG (its first frame), for every static one
+the three PNGs. `preview.png` and `preview-static.png` put all of them on
+Twitch's dark and light chat; `emotes.html` shows them live at every size,
+grouped by slot.
+
+Upload under **Creator Dashboard > Viewer Rewards > Emotes**, each in the slot
+from the tables above, with **auto-resize off** and the three sizes one by one.
+The bits emotes sit under **Bits tier emotes** further down that page. Each size is drawn on its own:
+the 28 gets a thicker outline and drops the small details, because at that
+size a 3px line from the 112 averages out to grey. Let Twitch resize and you
+get the 112 shrunk instead.
+
+The GIF rules, and how the build sticks to them:
+
+- **One bit of transparency.** Everything has a dark outline on the outside,
+  and the alpha is cut at 50%. What is left on the edge is ink, not a light
+  fringe that glows on dark chat.
+- **The first frame is the static version** for viewers with animation off, so
+  every loop starts on its best pose rather than halfway through a move.
+- **60 frames, 1 MB.** The longest is 56 frames at 20 fps; the largest file is
+  about 200 KB. The script checks both and exits non-zero if one is over.
+- **Nothing flashes** faster than three times a second.
+
+After writing, the script reads every GIF back and compares it frame by frame
+with what went in, so a palette or disposal mistake does not reach your chat.
+Pillow merges identical frames and adds up their duration; the check accounts
+for that.
+
+The static ones skip all of that: a PNG keeps its full alpha, which is why
+the bubble in `bmiestShield` can be see-through. The rule that does carry over
+is the outline, since a PNG lands on both chat colours too. Adding one is an
+entry in `LIST` with `frames: 1` and a draw function; the parts it can reuse
+(hands, gem, heart, halo, crown, wings, the bottom-bar card) sit above it.
+
 ## 9. Files
 
 ```
@@ -1664,6 +1740,10 @@ graphics.html    channel assets: offline screen, banner, panel buttons
 css/graphics.css channel assets
 js/graphics.js   channel assets
 graphics/*.png   the rendered result
+emotes.html      emotes, live at every size, or as a frame grid for the build
+css/emotes.css   emotes page
+js/emotes.js     the emotes: one function of t per emote, no DOM
+graphics/emotes/ the rendered GIFs, PNGs and preview sheets
 topbar.html      session status above your gameplay  (2560 x 120)
 banner.html      data bar below your gameplay        (2560 x 248)
 alerts.html      alerts over your gameplay           (2560 x 1072)
@@ -1707,6 +1787,7 @@ compare.html     both raid sources side by side, with the verdict; ?demo=1
 serve.sh         local preview on http://localhost:8777
 build-stinger.sh renders stinger.webm
 build-graphics.sh renders graphics/*.png
+build-emotes.py  renders graphics/emotes/*.gif and *.png
 make-obs-collection.py           builds an OBS scene collection
 obs-scene-collection.pages.json  ready-made, points at the hosted site
 ```

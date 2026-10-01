@@ -1,0 +1,88 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emotes</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/emotes.css">
+<!--
+  Twee standen:
+    emotes.html                         voorbeeld: elke emote op elke maat,
+                                        op Twitch' donkere en lichte chat
+    emotes.html?e=wig&s=112&strip=1     alle frames van één emote in een
+                                        raster, voor build-emotes.py
+-->
+<div id="stage"></div>
+
+<script src="js/emotes.js"></script>
+<script>
+(function(){
+  'use strict';
+  var E = window.EMOTES, q = new URLSearchParams(location.search);
+  var stage = document.getElementById('stage');
+
+  function find(id){ return E.list.filter(function(x){ return x.id === id; })[0]; }
+
+  /* ---- strook voor de build -----------------------------------------
+     Frame i staat op kolom i % c, rij floor(i / c). Geen beweging, geen
+     achtergrond: wat Chrome schiet is precies wat er in de GIF komt. */
+  if(q.get('strip')){
+    document.documentElement.className = 'strip';
+    var e = find(q.get('e')), s = +(q.get('s') || 112), c = +(q.get('c') || 10);
+    var html = '';
+    for(var i = 0; i < e.frames; i++){
+      html += '<div class="cell" style="left:' + (i % c) * s + 'px;top:' +
+              Math.floor(i / c) * s + 'px">' + E.render(e.id, i / e.frames, s) + '</div>';
+    }
+    stage.innerHTML = html;
+    return;
+  }
+
+  /* ---- voorbeeld ----------------------------------------------------- */
+  document.documentElement.className = 'preview';
+  var CHAT = { wig:'sub goal is close', heal:'thanks for the heals', kill:'BOSS DOWN',
+               wipe:'one more pull', tea:'chill raid tonight', hi:'hey everyone',
+               lurk:'just lurking', gg:'gg', love:'love the stream', average:'super average pull',
+               shield:'bubbled', oom:'healer is oom', pog:'that was 1%', hmm:'is this the strat',
+               cry:'wiped at 2%', halo:'tier 2 hype', angel:'tier 3 hype', gem:'1000 bits',
+               shiny:'5000 bits', crown:'10000 bits' };
+
+  var head =
+    '<header class="hd"><h1>Emotes</h1>' +
+    '<p>Every emote at the three sizes Twitch shows, on its dark and its light chat. ' +
+    'This page draws them live; <code>./build-emotes.py</code> turns the same drawings ' +
+    'into the GIFs and PNGs in <code>graphics/emotes/</code>.</p></header>';
+
+  var slot = null;
+  var rows = E.list.map(function(e){
+    function swatch(theme){
+      return '<div class="sw sw--' + theme + '">' +
+        E.sizes.map(function(s){ return '<span class="em" data-e="' + e.id + '" data-s="' + s + '"></span>'; }).join('') +
+        '<p class="line"><b>kelderklasse</b>: ' + CHAT[e.id] + ' ' +
+        '<span class="em em--inline" data-e="' + e.id + '" data-s="28"></span></p>' +
+      '</div>';
+    }
+    var spec = e.frames > 1 ? e.frames + ' frames · ' + (e.frames / e.fps).toFixed(1) + ' s' : 'static';
+    var kop = e.slot !== slot ? '<h2 class="slot">' + e.slot + '</h2>' : '';
+    slot = e.slot;
+    return kop + '<section class="row"><div class="meta"><code class="nm">' + e.name + '</code>' +
+           '<span class="ab">' + e.about + '</span>' +
+           '<span class="sp">' + spec + '</span></div>' +
+           swatch('dark') + swatch('light') + '</section>';
+  }).join('');
+  stage.innerHTML = head + rows;
+
+  /* Zelfde kwantisering als de GIF: t springt per frame, niet vloeiend. */
+  var els = [].slice.call(document.querySelectorAll('.em')), last = {};
+  var t0 = performance.now();
+  function tick(now){
+    els.forEach(function(el, n){
+      var e = find(el.dataset.e), f = Math.floor((now - t0) / 1000 * e.fps) % e.frames;
+      if(last[n] === f) return;
+      last[n] = f;
+      el.innerHTML = E.render(e.id, f / e.frames, +el.dataset.s);
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
