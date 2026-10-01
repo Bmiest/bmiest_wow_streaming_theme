@@ -620,6 +620,26 @@ function drawCrown(k){
   return s;
 }
 
+/* ---- kanaalpunten ----------------------------------------------------
+   Geen emote, maar dezelfde drie maten en dezelfde regels. Twitch toont hem
+   op ongeveer 18 px naast je puntensaldo, dus één silhouet en verder niets:
+   een jade munt met een vierkant gat. Een edelsteen zou de bits van Twitch
+   zelf zijn, en een gezicht wordt op die maat pap. */
+function drawPoints(k){
+  var h = k.D ? 13 : 16;                       // halve gatbreedte; op 28 ruimer,
+  var a = 56 - h, b = 56 + h;                  // want de inktrand eet hem op
+  var d = 'M6 56A50 50 0 1 0 106 56A50 50 0 1 0 6 56Z' +
+          'M' + a + ' ' + a + 'H' + b + 'V' + b + 'H' + a + 'Z';
+  var s = '<path d="' + d + '" fill="' + C.jade + '" fill-rule="evenodd"' + ol(k) + '/>';
+  if(k.D)
+    s += '<circle cx="56" cy="56" r="39" fill="none" stroke="' + C.jadeDeep + '" stroke-width="3"/>' +
+         '<path d="M' + (a - 7) + ' ' + (a - 7) + 'H' + (b + 7) + 'V' + (b + 7) + 'H' + (a - 7) + 'Z" ' +
+         'fill="none" stroke="' + C.jadeDeep + '" stroke-width="3" stroke-linejoin="round"/>';
+  s += '<path d="M21 44A37 37 0 0 1 41 20" fill="none" stroke="' + C.white + '" stroke-width="' +
+       (k.D ? 6 : 8) + '" stroke-linecap="round"/>';
+  return s;
+}
+
 /* slot = waar hij bij Twitch heen gaat; frames 1 = statisch, alleen PNG */
 var A = 'Tier 1 · animated';
 var LIST = [
@@ -651,7 +671,11 @@ var LIST = [
 
   { id:'gem',   name:'bmiestGem',   slot:'Bits · 1K',  frames:1, fps:1, draw:drawGem,   about:'a jade gem, eyes wide' },
   { id:'shiny', name:'bmiestShiny', slot:'Bits · 5K',  frames:1, fps:1, draw:drawShiny, about:'a bigger gem, star eyes' },
-  { id:'crown', name:'bmiestCrown', slot:'Bits · 10K', frames:1, fps:1, draw:drawCrown, about:'a gold crown with a jade stone' }
+  { id:'crown', name:'bmiestCrown', slot:'Bits · 10K', frames:1, fps:1, draw:drawCrown, about:'a gold crown with a jade stone' },
+
+  // maxKB: Twitch neemt voor het punten-icoon niet meer dan 25 KB per maat
+  { id:'points', name:'channel-points', slot:'Channel points', frames:1, fps:1, maxKB:25, draw:drawPoints,
+    about:'the points icon: a jade coin with a square hole' }
 ];
 
 function render(id, t, size){

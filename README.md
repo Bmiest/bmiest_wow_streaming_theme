@@ -1686,6 +1686,13 @@ The tiers climb in the same direction: jade robe, then white and gold, then
 wings. The bits climb from one gem to a crown, and the gem is the cheer glyph
 from `js/ribbon.js`.
 
+**Channel points** get an icon from the same build: `channel-points-28`, `-56`
+and `-112.png`, a jade coin with a square hole. Twitch shows it at about 18px
+next to the balance, so it is one silhouette and nothing else; a gem would read
+as Twitch's own bits, and a face turns to mush at that size. Upload it under
+**Viewer Rewards > Channel Points > Customize points display**. Twitch takes
+at most 25 KB per size there, and the build checks that (`maxKB` on the entry).
+
 The one in all of them is the wig from the sub goal, put on a head: bald crown,
 a ring of hair with a straight fringe, a jade robe with a white priest's collar.
 It is the same object as the reward drawn in `js/ribbon.js`, so the thing your

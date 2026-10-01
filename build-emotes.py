@@ -46,7 +46,8 @@ def chrome():
 def manifest():
     js = ('global.window = {}; require("./js/emotes.js");'
           'console.log(JSON.stringify(window.EMOTES.list.map(function(e){'
-          '  return { id:e.id, name:e.name, slot:e.slot, frames:e.frames, fps:e.fps }; })));')
+          '  return { id:e.id, name:e.name, slot:e.slot, frames:e.frames, fps:e.fps,'
+          '           maxKB:e.maxKB || 1024 }; })));')
     return json.loads(subprocess.check_output(['node', '-e', js], text=True))
 
 
@@ -206,7 +207,7 @@ def main():
                     # statisch: PNG met volle alpha, geen GIF en dus niets af te snijden
                     by_size[s] = frames
                     kb = os.path.getsize(base + '.png') / 1024
-                    flag = '  <-- groter dan 1 MB' if kb * 1024 > MAX_BYTES else ''
+                    flag = '  <-- groter dan %d KB' % e['maxKB'] if kb > e['maxKB'] else ''
                     ok = ok and not flag
                     print('  %-30s %-9s %6.1f KB%s' % (base + '.png', 'static', kb, flag))
                     continue
