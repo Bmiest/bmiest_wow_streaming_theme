@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ultrawide streaming theme for WoW</title>
-<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens and a stinger. World of Warcraft data from Raider.IO and Warcraft Logs. Hosted, nothing to install.">
+<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens, a stinger and twenty emotes. World of Warcraft data from Raider.IO and Warcraft Logs. Hosted, nothing to install.">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/index.css">
@@ -27,8 +27,8 @@
       game does not need become a top bar and a bottom bar, and nothing but the
       alerts ever crosses the gameplay. What fills them is World of Warcraft:
       your characters and their raid progress, the guild's pull count on the
-      boss you are on, chat and your channel numbers. Three scene screens and a
-      stinger come with it. The pages run from this site, so in OBS you point a
+      boss you are on, chat and your channel numbers. Three scene screens, a
+      stinger and a full set of emotes come with it. The pages run from this site, so in OBS you point a
       browser source at them and there is nothing else to install. Updating is a
       <code>git push</code>.
     </p>
@@ -418,6 +418,22 @@
     </figure>
   </section>
 
+  <!-- Emotes: de bestanden uit graphics/emotes/, dus precies wat je uploadt,
+       en de GIF's bewegen zoals ze in chat bewegen. De lijst komt uit
+       js/emotes.js, zoals de panelknoppen uit de config: één plek. -->
+  <section class="screens">
+    <h2>Emotes</h2>
+    <div class="emotes" id="emoteGrid"></div>
+    <p class="hero__note">
+      Twenty, one for every slot Twitch gives an affiliate, all the same monk:
+      the wig from the sub goal on a head, in a jade Mistweaver robe with a
+      priest's collar. Every size is drawn on its own, so upload the
+      <code>-28</code>, <code>-56</code> and <code>-112</code> one by one with
+      auto-resize off. <a href="emotes.html">emotes.html</a> shows all three on
+      Twitch's dark and light chat; <code>./build-emotes.py</code> writes them.
+    </p>
+  </section>
+
   <section class="cols">
     <div class="rcard-wrap card" style="--acc:var(--paper)">
       <span class="rcard__cap">where the data comes from</span>
@@ -508,6 +524,7 @@
      hangen voor een rijtje characters. -->
 <script src="js/util.js"></script>
 <script src="js/raiderio.js"></script>
+<script src="js/emotes.js"></script>
 <script>
 (function(){
   'use strict';
@@ -544,6 +561,31 @@
       var src = 'graphics/panel-' + slug + '.png';
       return '<a href="' + src + '"><img src="' + src + '" alt="' + p.label +
              '" width="320" height="100" loading="lazy"></a>';
+    }).join('');
+  })();
+
+  /* De emotes, per slot. Tier 2 en Tier 3 hebben er elk één en schuiven als
+     groepjes in de flex-wrap naast elkaar. De drie bits-trappen worden één
+     groep met het bedrag eronder: los liet de wrap 10K alleen op een rij
+     achter. */
+  (function(){
+    var host = document.getElementById('emoteGrid');
+    if(!host || !window.EMOTES) return;
+    var groups = [];
+    window.EMOTES.list.forEach(function(e){
+      var key = /^Bits/.test(e.slot) ? 'Bits' : e.slot, g = groups[groups.length - 1];
+      if(!g || g.slot !== key) groups.push(g = { slot:key, list:[] });
+      g.list.push(e);
+    });
+    host.innerHTML = groups.map(function(g){
+      return '<div class="emotes__group"><span class="emotes__slot">' + g.slot + '</span>' +
+        '<div class="emotes__row">' + g.list.map(function(e){
+          var src = 'graphics/emotes/' + e.name + '-112.' + (e.frames > 1 ? 'gif' : 'png');
+          return '<figure class="emote"><a href="' + src + '"><img src="' + src + '" alt="' + e.name +
+                 '" title="' + e.about + '" width="112" height="112" loading="lazy"></a>' +
+                 '<figcaption>' + e.name + (/^Bits · /.test(e.slot) ?
+                   ' <b>' + e.slot.replace('Bits · ', '') + '</b>' : '') + '</figcaption></figure>';
+        }).join('') + '</div></div>';
     }).join('');
   })();
 

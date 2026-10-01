@@ -311,6 +311,22 @@ code{font-family:var(--f-mono);font-size:.92em;color:var(--paper-dim)}
 .panels a{border:1px solid var(--ink-750);line-height:0}
 .panels img{width:320px;height:100px}
 
+/* ---- emotes ---------------------------------------------------------
+   Op Twitch' donkere chatkleur en niet op ons palet: daar komen ze te staan.
+   Op hun eigen 112, want opgeschaald zie je een tekening die niemand in chat
+   te zien krijgt. */
+.emotes{display:flex;flex-wrap:wrap;gap:26px 34px}
+.emotes__group{display:flex;flex-direction:column;gap:10px}
+.emotes__slot{font-size:12px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--jade)}
+.emotes__row{display:flex;flex-wrap:wrap;gap:10px}
+.emote{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 12px 10px;background:#18181b;border:1px solid var(--ink-700)}
+.emote a{line-height:0}
+.emote img{display:block;width:112px;height:112px}
+.emote figcaption{font-family:var(--f-mono);font-size:12px;color:var(--ink-300)}
+.emote figcaption b{color:var(--gold);font-weight:500}
+
 /* ---- feitenlijstjes ------------------------------------------------- */
 .facts{display:grid;grid-template-columns:auto 1fr;gap:12px 22px;
   font-size:15px;align-items:baseline}
