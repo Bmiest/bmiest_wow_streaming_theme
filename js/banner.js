@@ -3,6 +3,7 @@
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG;
+var T = window.I18N.t;
 var DEMO = U.flag('demo');
 var RIO  = (location.search.match(/[?&]rio=([a-z]+)/) || [])[1];   // testoverride
 
@@ -80,7 +81,7 @@ function stamp(sel, when, lateAfterMin){
   /* "ago" en niet "late": de gegevens zijn oud omdat de raid gisteravond was,
      niet omdat er iemand achterloopt. De kleur zegt al dat je ernaar moet
      kijken; het woord hoeft er geen verwijt bij te doen. */
-  n.textContent = U.hhmm(t) + (late ? '  \u00b7  ' + lateness(min) + ' ago' : '');
+  n.textContent = U.hhmm(t) + (late ? '  \u00b7  ' + T('stamp.ago', { t:lateness(min) }) : '');
   n.classList.toggle('is-late', late);
 }
 
@@ -95,6 +96,9 @@ var elCard = U.$('.card--char'), elRow = U.$('#charRow'), elDots = U.$('#charDot
 /* Eén kolom: het gekloonde template plus verwijzingen naar de velden erin. */
 function makeSlot(){
   var node = U.$('#charTpl').content.firstElementChild.cloneNode(true);
+  /* De vaste labels in het template ('item level') zitten in een <template>,
+     en daar komt js/i18n.js bij het laden niet in. Dus per kloon. */
+  window.I18N.apply(node);
   elRow.appendChild(node);
   return {
     root  : node,
@@ -126,7 +130,7 @@ function paintProgress(s, raids){
   s.tiers.innerHTML = '';
   if(!r || !r.total){
     s.raid.textContent = '';
-    s.tiers.appendChild(U.el('span','prog__empty','no raid progress yet'));
+    s.tiers.appendChild(U.el('span','prog__empty', T('prog.none')));
     return;
   }
   s.raid.textContent = r.title;
@@ -158,7 +162,7 @@ function paintSlot(s, c){
   /* Geen rang voor wie geen keys loopt: Raider.IO geeft daar 0 terug, en
      "#0" leest als een plek in een lijst die niet bestaat. Vandaar de test
      op de waarde zelf en niet op null. */
-  s.scorel.textContent = 'm+ score' +
+  s.scorel.textContent = T('stat.score') +
     (c.rank ? '  \u00b7  #' + U.num(c.rank) : '');
   /* Van een character dat lang niet ingelogd heeft, heeft Blizzards CDN geen
      render meer staan: elk pad eronder geeft 403, ook het avatarplaatje waar
@@ -380,7 +384,7 @@ function bossFlash(capText, val, minor){
    percentage is boss-HP dat nog overstond, net als bij 'new best'. */
 function lastTry(L){
   var all = L.pulls || [], p = all[all.length - 1];
-  if(!p) return U.num(L.pullCount || 0) + ' pulls';
+  if(!p) return T('boss.pullsN', { n:U.num(L.pullCount || 0) });
   return tryLine(p);
 }
 function tryLine(p){
@@ -416,26 +420,28 @@ function paintBoss(L){
   if(L.bossName){
     tag.style.display = '';
     tag.className   = 'boss__tag ' + (L.defeated ? 'down' : 'prog');
-    tag.textContent = L.defeated ? 'down' : 'progress';
+    tag.textContent = T(L.defeated ? 'boss.down' : 'boss.progress');
   } else tag.style.display = 'none';
 
   var sub = U.$('#bossSub');
   sub.innerHTML = '';
   if(L.guild)   sub.appendChild(U.el('span', null, '‹' + L.guild + '›  '));
   if(L.summary) sub.appendChild(U.el('b', null, L.summary));
+  raceRank = sub;
+  paintRace();
 
   var big = U.$('#bossBig'), lbl = U.$('#bossLbl');
   var n = L.pullCount || 0;
   if(L.defeated){
     big.textContent = U.num(n); big.className = 'boss__v jade';
-    lbl.textContent = (n === 1 ? 'pull' : 'pulls') + ' to kill';
+    lbl.textContent = T('boss.toKill', { n:n });
   } else if(L.bestPct != null){
     big.textContent = L.bestPct.toFixed(2) + '%'; big.className = 'boss__v gold';
-    lbl.textContent = 'best of ' + n + ' pulls' +
+    lbl.textContent = T('boss.bestOf', { n:n }) +
                       (L.bestPhase ? '  \u00b7  ' + L.bestPhase : '');
   } else {
     big.textContent = U.num(n); big.className = 'boss__v';
-    lbl.textContent = n === 1 ? 'pull' : 'pulls';
+    lbl.textContent = T('boss.pulls', { n:n });
   }
 
   /* className wordt hierboven opnieuw gezet, dus de flits komt erna. */
@@ -447,13 +453,13 @@ function paintBoss(L){
      goede wipe en daarna de kill -- dan noemen de kaart en de melding over je
      beeld hetzelfde. Stond 'better' hier eerst, dan zei de kaart "new best"
      terwijl er "BOSS DOWN" over je gameplay lag. */
-  if(ev.down)        bossFlash('boss down', U.num(L.pullCount || 0) + ' pulls');
-  else if(ev.better) bossFlash('new best', L.bestPct.toFixed(2) + '%');
-  else if(ev.fresh)  bossFlash('last try', lastTry(L), true);
+  if(ev.down)        bossFlash(T('flash.down'), T('boss.pullsN', { n:U.num(L.pullCount || 0) }));
+  else if(ev.better) bossFlash(T('flash.best'), L.bestPct.toFixed(2) + '%');
+  else if(ev.fresh)  bossFlash(T('flash.last'), lastTry(L), true);
   /* Een wipe tijdens een reclear: wel het ribbonnetje, maar geen flits op het
      grote getal en geen nieuw staafje, want de cijfers van een boss die al
      ligt veranderen niet. */
-  else if(ev.farm)   bossFlash('last try', tryLine(L.farmLast), true);
+  else if(ev.farm)   bossFlash(T('flash.last'), tryLine(L.farmLast), true);
 
   var sp = U.$('#bossSpark');
   sp.innerHTML = '';
@@ -473,6 +479,23 @@ function paintBoss(L){
     sp.appendChild(b);
   });
 }
+
+/* ---- race to dutch first ------------------------------------------
+   Achter de voortgangsregel van de raidkaart: "#1 of 5 NL". De kaart zegt
+   hoe ver je bent, dit zegt hoe dat zich verhoudt tot de andere
+   Nederlandse guilds. Alleen de rang, want de kills staan er al naast en
+   een tweede telling (de race telt Nymrissa mee, 6/9 tegen 5/8) zou op 340px
+   alleen verwarren. Komt hij niet binnen, dan staat er gewoon niets. */
+var raceRank = null, raceState = null;
+function paintRace(){
+  if(!raceRank) return;
+  var old = U.$('.boss__race', raceRank);
+  if(old) old.remove();
+  var p = window.Race ? window.Race.parts(raceState).filter(function(x){ return x.k === 'rank'; })[0] : null;
+  if(!p) return;
+  raceRank.appendChild(U.el('span', 'boss__race' + (p.lead ? ' is-lead' : ''), p.text));
+}
+if(window.Race) window.Race.watch(function(s){ raceState = s; paintRace(); });
 
 /* Faalt stil: ongedocumenteerde endpoints, dus als Raider.IO ze verandert
    blijft alleen dit blok leeg en loopt de rest door. */
@@ -602,9 +625,9 @@ function demo(){
   setTimeout(function(){ stand(6, 43.89, false); }, 5800);   // new best
   setTimeout(function(){ stand(8, 43.89, true);  }, 9000);   // boss down
 
-  [['follow','joesswow','follows',''],
-   ['sub','vassham','sub','T2 · 14 mo'],
-   ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
+  [['follow','joesswow',T('ev.follow'),''],
+   ['sub','vassham',T('ev.sub'),'T2 · ' + T('ev.months', { n:14 })],
+   ['cheer','TheNoremac',T('ev.cheer'),T('ev.bits', { n:184 })]].forEach(function(p,i){
     setTimeout(function(){ pushEvent({kind:p[0],who:p[1],word:p[2],extra:p[3]}); }, 200 + i*300);
   });
 

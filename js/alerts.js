@@ -4,6 +4,7 @@
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG, R = window.Ribbon;
+var T = window.I18N.t;
 /* ?test=1 loopt alles af, ?test=kill of ?test=best pakt er één. Anders moet
    je dertig seconden wachten tot de cyclus bij de melding is die je wil
    zien -- die twee staan achteraan. */
@@ -18,8 +19,8 @@ var TEST = (location.search.match(/[?&]test=([a-z0-9]+)/) || [])[1];
 })();
 
 var LABEL = {
-  follow:'new follower', sub:'subscriber', cheer:'bits',
-  tip:'tip', raid:'raid'
+  follow:T('alert.follow'), sub:T('alert.sub'), cheer:T('alert.cheer'),
+  tip:T('alert.tip'), raid:T('alert.raid')
 };
 
 var HOLD  = 5200;
@@ -848,7 +849,7 @@ function renderRaid(e){
   if(e.kill) node.appendChild(fireworks(node));
 
   var mid = U.el('div','raid__mid');
-  mid.appendChild(U.el('div','raid__eyebrow', e.kill ? 'boss down' : 'new best'));
+  mid.appendChild(U.el('div','raid__eyebrow', T(e.kill ? 'flash.down' : 'flash.best')));
   mid.appendChild(U.el('div','raid__boss', e.boss || ''));
   /* Alleen bij een kill: wie 'm neerlegde. Zelfde haakjes als de raidkaart,
      zie guildOf() hierboven en '‹' + guild + '›' in js/banner.js. */
@@ -1068,14 +1069,14 @@ window.SE.start(push);
     var p = window.RioLive.pullOf(L, kill ? 'kill' : 'best') || {};
     var stats = [];
     if(kill){
-      stats.push([U.num(L.pullCount || 0), (L.pullCount === 1 ? 'pull' : 'pulls') + ' to kill']);
+      stats.push([U.num(L.pullCount || 0), T('boss.toKill', { n:L.pullCount || 0 })]);
     } else {
-      stats.push([L.bestPct.toFixed(2) + '%', 'boss hp left']);
-      stats.push([U.num(L.pullCount || 0), 'pulls']);
+      stats.push([L.bestPct.toFixed(2) + '%', T('alert.hpLeft')]);
+      stats.push([U.num(L.pullCount || 0), T('boss.pulls', { n:L.pullCount || 0 })]);
     }
-    if(p.phase || L.bestPhase) stats.push([p.phase || L.bestPhase, 'phase']);
-    if(mmss(p.seconds))        stats.push([mmss(p.seconds), 'duration']);
-    if(p.deaths)               stats.push([U.num(p.deaths), p.deaths === 1 ? 'death' : 'deaths']);
+    if(p.phase || L.bestPhase) stats.push([p.phase || L.bestPhase, T('alert.phase')]);
+    if(mmss(p.seconds))        stats.push([mmss(p.seconds), T('alert.duration')]);
+    if(p.deaths)               stats.push([U.num(p.deaths), T('alert.deaths', { n:p.deaths })]);
 
     push({
       kind     : 'progress',
@@ -1114,21 +1115,22 @@ window.SE.start(push);
 if(TEST){
   var demo = [
     {kind:'follow', who:'joesswow'},
-    {kind:'sub',    who:'vassham',    extra:'T2 · 14 mo',
+    {kind:'sub',    who:'vassham',    extra:'T2 · ' + T('ev.months', { n:14 }),
      message:'blijf lekker pushen die keys, we kijken mee'},
-    {kind:'cheer',  who:'TheNoremac', extra:'184 bits'},
-    {kind:'raid',   who:'Amphroxia',  extra:'42 viewers'},
+    {kind:'cheer',  who:'TheNoremac', extra:T('ev.bits', { n:184 })},
+    {kind:'raid',   who:'Amphroxia',  extra:T('ev.viewers', { n:42 })},
     {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'},
     {kind:'progress', src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  2/8 Mythic',
-     stats:[['43.89%','boss hp left'],['7','pulls'],['P3','phase'],
-            ['4:12','duration'],['18','deaths']], hold:8000},
+     stats:[['43.89%',T('alert.hpLeft')],['7',T('boss.pulls', { n:7 })],['P3',T('alert.phase')],
+            ['4:12',T('alert.duration')],['18',T('alert.deaths', { n:18 })]], hold:8000},
     {kind:'progress', kill:true, src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
      /* Wel de echte gildenaam: dat is geen verzonnen cijfer maar wie deze
         overlay draait, en dat verandert een testpad niet. */
      guild:guildOf(null),
-     stats:[['8','pulls to kill'],['P3','phase'],['5:46','duration'],['11','deaths']],
+     stats:[['8',T('boss.toKill', { n:8 })],['P3',T('alert.phase')],['5:46',T('alert.duration')],
+            ['11',T('alert.deaths', { n:11 })]],
      hold:19000}
   ];
   /* kill en best zitten allebei in 'progress', dus die hebben een eigen

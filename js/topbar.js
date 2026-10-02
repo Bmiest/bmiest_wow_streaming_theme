@@ -68,7 +68,11 @@ var SHOW_EMPTY = TB.showEmptyLabels !== false;
   var rail = U.$('#rail');
   WANT.forEach(function(key){
     var def = LABELS[key] || { text:key.replace(/-/g,' '), kind:'follow' };
-    var el  = window.Ribbon.make(def.kind, def.text, SHOW_EMPTY ? '\u2014' : '');
+    /* Vertaald als js/i18n.js de sleutel kent; anders de Engelse tekst
+       hierboven (follower-week en -total staan bv. niet in het woordenboek). */
+    var txt = window.I18N.t('lbl.' + key);
+    var el  = window.Ribbon.make(def.kind, txt === 'lbl.' + key ? def.text : txt,
+                                 SHOW_EMPTY ? '\u2014' : '');
     if(SHOW_EMPTY) el.classList.add('rib--empty');
     else el.style.display = 'none';
     rail.appendChild(el);
@@ -92,9 +96,10 @@ if(LSRC === 'streamelements' || LSRC === 'both') window.SE.start(onEvent);
 /* ---- status, kijkers en volgers -------------------------------------
    Dezelfde ribbons als de labelrail: kopblok met icoon, bijschrift op de
    rand. Zonder waarde staan ze gedempt, net als een leeg label. */
-var ribLive = window.Ribbon.make('live',   'status',  'offline');
-var ribView = window.Ribbon.make('viewers','viewers',   '\u2014');
-var ribFoll = window.Ribbon.make('follow', 'followers', '\u2014');
+var T = window.I18N.t;
+var ribLive = window.Ribbon.make('live',   T('rib.status'),    T('live.offline'));
+var ribView = window.Ribbon.make('viewers',T('rib.viewers'),   '\u2014');
+var ribFoll = window.Ribbon.make('follow', T('rib.followers'), '\u2014');
 [ribLive, ribView, ribFoll].forEach(function(r){ r.classList.add('rib--num'); });
 ribLive.classList.add('rib--empty');
 
@@ -168,10 +173,11 @@ function tierAt(n){
 
 function subCap(n){
   var s = tierAt(n), t = s.t;
-  if(!t || !t.reward) return 'subs';
+  if(!t || !t.reward) return window.I18N.t('goal.subs');
   /* De toevoeging hoort bij de belofte en blijft dus ook staan als de trap
      gehaald is: juist dan wil een kijker weten hoe lang de wig blijft. */
-  return (s.done ? t.reward + ' unlocked' : t.reward + ' at ' + t.at)
+  return (s.done ? window.I18N.t('goal.unlocked', { r:t.reward })
+                 : window.I18N.t('goal.at', { r:t.reward, n:t.at }))
        + (t.note ? ' \u00b7 ' + t.note : '');
 }
 
@@ -299,10 +305,10 @@ function clock(sec){
 
 function setLive(on, sec){
   ribLive.classList.toggle('rib--empty', !on);
-  if(!on){ upSec = null; ribLive.setValue('offline', true); return; }
+  if(!on){ upSec = null; ribLive.setValue(T('live.offline'), true); return; }
   upSec = sec;
   upAt  = Date.now();
-  ribLive.setValue(sec == null ? 'live' : clock(sec), true);
+  ribLive.setValue(sec == null ? T('live.live') : clock(sec), true);
 }
 
 setInterval(function(){

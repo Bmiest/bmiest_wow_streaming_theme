@@ -83,12 +83,36 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 .clock.small{font-size:132px}
 .headline{
   font-size:104px;font-weight:600;letter-spacing:-.035em;line-height:1.02;
-  text-align:center;max-width:1700px;
+  text-align:center;max-width:1240px;
 }
+/* Binnen de halo, niet erover. Die loopt van 760 tot 1800, en de flanken
+   met de characters beginnen op 611 en 1949; op de hoogte van de titel is
+   de ring nog zo'n 1000 breed. Op 1500 liep een lange streamtitel over
+   beide characters heen. js/scene.js maakt de letter kleiner tot het in
+   drie regels past; de clamp hier is het vangnet daarna. */
 .topic{
-  font-size:38px;font-weight:300;color:var(--paper-dim);
-  margin-top:18px;text-align:center;max-width:1500px;
+  font-size:38px;font-weight:300;color:var(--paper-dim);line-height:1.25;
+  margin-top:18px;text-align:center;max-width:940px;
+  overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;
 }
+.topic:empty{display:none}
+
+/* Race to Dutch First: de stand van je guild, onder de titel. Een kopje in
+   de stijl van de eyebrow, kleiner, en daaronder de stand op één regel. */
+.race{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:10px;
+  max-width:940px}
+.race__cap{
+  font-family:var(--f-mono);font-size:15px;color:var(--ink-300);
+  letter-spacing:.32em;text-transform:uppercase;padding-left:.32em;
+}
+.race__line{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
+  gap:6px 16px;font-size:30px;font-weight:500;color:var(--paper)}
+.race__sep{color:var(--ink-500)}
+.race__p--kills,.race__p--rank{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
+  font-size:28px}
+.race__p.is-lead{color:var(--gold)}
+.race__p--on{font-weight:400;color:var(--paper-dim)}
 
 /* ---- voet ---------------------------------------------------------- */
 /* Bronvermelding voor de characters op de flanken. Rechtsonder, gedempt en
@@ -122,6 +146,10 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 .sched__row.today .sched__d{color:var(--jade)}
 .sched__row.today .sched__t{color:var(--paper)}
 .sched__row.off .sched__t{color:var(--ink-500)}
+/* "next raid in 2d 4h" onder de lijst. Jade zodra er nu gestreamd wordt. */
+.sched__next{margin-top:10px;padding-left:18px;font-family:var(--f-mono);font-size:21px;
+  color:var(--paper-dim);letter-spacing:.02em}
+.sched__next.is-now{color:var(--jade)}
 .sched__tag{
   align-self:center;padding:2px 9px;
   background:var(--ink-900);border:1px solid var(--ink-600);border-radius:5px;

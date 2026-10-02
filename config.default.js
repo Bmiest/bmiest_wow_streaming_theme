@@ -30,6 +30,16 @@ window.OVERLAY_CONFIG = {
     bottomHeight: 248,
   },
 
+  // ---- taal ---------------------------------------------------------
+  // 'en' of 'nl': de taal van alles wat er op je stream staat. ?lang=nl op
+  // de URL van een browser source wint hiervan, en dat is de bedoelde weg:
+  // make-obs-collection.py --lang nl zet hem op elke bron. De browsertaal
+  // telt op de stream-pagina's bewust niet mee -- OBS neemt die van Windows
+  // over, en dan zou je stream ongevraagd van taal wisselen. Speldata
+  // (boss-, raid-, characternamen) blijft altijd zoals Blizzard ze noemt.
+  // Zie js/i18n.js.
+  lang: 'en',
+
   // ---- twitch -------------------------------------------------------
   twitch: {
     channel: 'bmiest',         // je kanaalnaam, kleine letters
@@ -213,6 +223,19 @@ window.OVERLAY_CONFIG = {
     token      : '',
   },
 
+  // ---- race to dutch first ------------------------------------------
+  // De stand in de race naar Cutting Edge tussen Nederlandse guilds, van
+  // racetodutchfirst.bmiest.be. Op de scene-schermen als regel onder de
+  // klok ("6/9 M · #1 of 5 NL · now on ..."), in de onderbalk als rang in de
+  // raidkaart. guild leeg = raiderio.guild.name. Lukt ophalen niet, dan
+  // verdwijnt alleen dat stukje. Zie js/race.js.
+  race: {
+    enabled    : true,
+    url        : 'https://racetodutchfirst.bmiest.be/data/race.json',
+    guild      : '',
+    pollSeconds: 600,
+  },
+
   // ---- geluid per melding --------------------------------------------
   // Zonder clip piept een raidmelding de klok uit js/chime.js (kill/best) en
   // zeggen de andere meldingen niets. Een clip hier vervangt de klok, of
@@ -360,12 +383,20 @@ window.OVERLAY_CONFIG = {
     topic: 'Mythic+ push to 3000',
     // note is optioneel en komt als tagje achter de tijd te staan.
     // De dagnaam moet overeenkomen met de lijst in js/scene.js, anders
-    // kleurt vandaag niet jade. Die staat in het Engels, net als de rest
-    // van wat er op je stream te lezen valt.
+    // kleurt vandaag niet jade. Schrijf hem in het Engels; met lang 'nl'
+    // toont de pagina hem zelf als 'woensdag'.
+    //
+    // Onder de lijst staat hoe lang het nog duurt tot de eerstvolgende
+    // ("next raid in 2d 4h"). Daarvoor moet time als 'uu:mm - uu:mm'
+    // geschreven zijn; een regel die zo niet leest telt niet mee. De tijden
+    // gelden in scheduleTimeZone, niet in de tijdzone van de pc waar OBS op
+    // draait. Staat er bij de eerstvolgende note 'raid', dan zegt hij raid,
+    // anders stream.
     schedule: [
       { day: 'wednesday', time: '20:00 - 23:00', note: 'raid' },
       { day: 'sunday',    time: '20:00 - 23:00', note: 'raid' },
     ],
+    scheduleTimeZone: 'Europe/Brussels',
     // Vul je eigen handles in -- deze verschijnen op de scene-schermen.
     // De guild-regel is informatie voor kijkers, geen huisstijl; weghalen mag.
     socials: [

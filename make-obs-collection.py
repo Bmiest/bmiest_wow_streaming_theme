@@ -36,6 +36,10 @@ ap.add_argument('--wcl', default=None,
                      'meldingen stil terug op Raider.IO. Het is het *token*, niet het '
                      'client secret -- en het resultaat bevat het dan, dus deel dat '
                      'bestand niet.')
+ap.add_argument('--lang', choices=['en','nl'], default=None,
+                help='taal van wat er op je stream staat; wordt als ?lang= aan elke '
+                     'browser-URL gehangen. Standaard Engels (lang in de config). '
+                     'De browsertaal telt in OBS bewust niet mee, zie js/i18n.js.')
 ap.add_argument('--stinger', default=None,
                 help='pad naar stinger.webm zoals OBS het ziet; standaard naast dit script')
 ap.add_argument('--out',  default='obs-scene-collection.json')
@@ -130,7 +134,8 @@ def browser(name, path, w, h):
     # stil terug op Raider.IO terwijl de balk ernaast gewoon Warcraft Logs
     # toont, en dat is precies het soort verschil dat je op stream niet ziet.
     url = BASE + '/' + path
-    for key, tok in (('jwt', a.jwt), ('wcl', a.wcl)):
+    for key, tok in (('lang', a.lang if a.lang != 'en' else None),
+                     ('jwt', a.jwt), ('wcl', a.wcl)):
         if tok:
             url += ('&' if '?' in url else '?') + key + '=' + tok
     return src(name, 'browser_source', {
@@ -273,13 +278,16 @@ if a.jwt and not a.local_files:
     print('  jwt       : meegegeven in de URLs -- deel dit bestand niet')
 if a.wcl and not a.local_files:
     print('  wcl       : meegegeven in de URLs -- deel dit bestand niet')
-if a.local_files and (a.jwt or a.wcl):
+if a.lang and not a.local_files:
+    print('  taal      : %s' % a.lang)
+if a.local_files and (a.jwt or a.wcl or (a.lang and a.lang != 'en')):
     # local_file slikt geen querystring, dus de tokens zijn nergens heen
     # gegaan. Stil weglaten is hier het ergste antwoord: de pagina's draaien,
     # ze doen alleen minder, en dat zie je op stream niet.
     print()
     print('  LET OP: --local-files gebruikt local_file zonder querystring, dus')
-    print('          --jwt/--wcl zijn NIET meegekomen. Zet ze in config.js, of')
+    print('          --jwt/--wcl/--lang zijn NIET meegekomen. Zet ze in config.js')
+    print('          (lang: \'nl\' voor de taal), of')
     print('          draai via serve.sh met --base-url.')
 print('  stinger   : %s' % STING)
 print()

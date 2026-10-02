@@ -4,6 +4,7 @@
 'use strict';
 var U = window.U, CFG = U.CFG;
 var SC = CFG.scenes || {};
+var T  = window.I18N.t;
 // Modus uit de URL, of uit een wrapper-bestand (scene-starting.html enz.)
 // zodat OBS' "Local file"-vinkje bruikbaar blijft -- dat slikt geen querystring.
 var MODE = (location.search.match(/[?&]mode=([a-z]+)/) || [, window.SCENE_MODE || 'starting'])[1];
@@ -34,20 +35,20 @@ function mmss(sec){
 
 var MODES = {
   starting: {
-    eyebrow: 'starting soon',
+    eyebrow: T('scene.starting'),
     tick: function(){
       var left = (SC.countdownMinutes || 10) * 60 - (Date.now() - t0) / 1000;
-      if(left <= 0){ elClock.textContent = 'almost there'; elClock.classList.add('small'); }
+      if(left <= 0){ elClock.textContent = T('scene.almost'); elClock.classList.add('small'); }
       else elClock.textContent = mmss(left);
     }
   },
   brb: {
-    eyebrow: 'be right back',
+    eyebrow: T('scene.brb'),
     tick: function(){ elClock.textContent = mmss((Date.now() - t0) / 1000); }
   },
   ending: {
-    eyebrow: 'thanks for watching',
-    headline: 'See you next time',
+    eyebrow: T('scene.ending'),
+    headline: T('scene.headline'),
     tick: null
   }
 };
@@ -64,11 +65,41 @@ if(M.headline){
    dan een vaste regel in de config. Die blijft als terugval staan voor als
    DecAPI niets bruikbaars teruggeeft. */
 if(MODE === 'starting'){
-  elTopic.textContent = SC.topic || '';
+  setTopic(SC.topic || '');
   window.Stats.title().then(function(t){
-    if(t) elTopic.textContent = t;
+    if(t) setTopic(t);
   }).catch(function(){});
 }
+
+/* De titel hoort binnen de halo te blijven. Op 1500px breed liep een lange
+   streamtitel over beide characters op de flanken heen (die staan op 611 en
+   1949, de halo op 760-1800). Dus: smaller dan de halo, afbreken over
+   hoogstens drie regels, en een titel die dan nog niet past wordt kleiner
+   tot TOPIC_MIN. Wat daarna nog overblijft, knipt de line-clamp in
+   scene.css af met een beletselteken -- liever dat dan tekst over een
+   character. */
+var TOPIC_MAX = 38, TOPIC_MIN = 26, TOPIC_LINES = 3;
+function setTopic(text){
+  elTopic.textContent = text;
+  fitTopic();
+}
+function fitTopic(){
+  if(!elTopic.textContent) return;
+  var size = TOPIC_MAX;
+  elTopic.style.fontSize = size + 'px';
+  while(size > TOPIC_MIN && lines(elTopic) > TOPIC_LINES){
+    size -= 2;
+    elTopic.style.fontSize = size + 'px';
+  }
+}
+function lines(n){
+  var lh = parseFloat(getComputedStyle(n).lineHeight) || 1;
+  return Math.round(n.scrollHeight / lh);
+}
+/* Outfit komt van Google Fonts en is bij de eerste meting misschien nog
+   niet binnen; de terugvalletter is breder, dus opnieuw meten zodra hij er
+   is. */
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitTopic);
 
 if(M.tick){ M.tick(); setInterval(M.tick, 1000); }
 
@@ -94,19 +125,99 @@ document.addEventListener('visibilitychange', function(){
 
 /* ---- schema -------------------------------------------------------- */
 var DAYS = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+var WEEK = 7 * 1440;
+var TZ   = SC.scheduleTimeZone || 'Europe/Brussels';
+
+/* Waar we nu zitten in de week, in minuten sinds zondag 00:00, en dat in de
+   tijdzone van het schema. De tijden in de config zijn Belgische tijden;
+   staat OBS op een pc in een andere zone, of draait deze pagina ergens
+   anders, dan klopt "volgende raid over" nog steeds. Een onbekende zone
+   valt terug op de klok van de pc. */
+function weekMinute(){
+  var d = new Date();
+  try {
+    var p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone:TZ, weekday:'long',
+                                       hour:'2-digit', minute:'2-digit', hourCycle:'h23' })
+      .formatToParts(d).forEach(function(x){ p[x.type] = x.value; });
+    var wd = DAYS.indexOf(String(p.weekday).toLowerCase());
+    if(wd >= 0) return wd * 1440 + (+p.hour % 24) * 60 + (+p.minute);
+  } catch(e){}
+  return d.getDay() * 1440 + d.getHours() * 60 + d.getMinutes();
+}
+
+/* De dagnaam in de taal van de pagina. In de config staat hij in het
+   Engels, want daar matcht hij op; 1 januari 2023 was een zondag. */
+function dayName(day){
+  var i = DAYS.indexOf(String(day).toLowerCase());
+  if(i < 0) return day;
+  try {
+    return new Intl.DateTimeFormat(window.I18N.locale(), { weekday:'long', timeZone:'UTC' })
+      .format(new Date(Date.UTC(2023, 0, 1 + i)));
+  } catch(e){ return day; }
+}
+
+/* '20:00 - 23:00' -> begin en duur in minuten. Over middernacht mag. */
+function slotOf(r){
+  var d = DAYS.indexOf(String(r.day).toLowerCase());
+  var m = String(r.time || '').match(/(\d{1,2}):(\d{2})\s*[-\u2013]\s*(\d{1,2}):(\d{2})/);
+  if(d < 0 || !m) return null;
+  var s = +m[1] * 60 + +m[2], e = +m[3] * 60 + +m[4];
+  return { start: d * 1440 + s, len: ((e - s + 1440) % 1440) || 1440,
+           raid: /raid/i.test(r.note || '') };
+}
+
+/* De eerstvolgende stream, of die van nu. */
+function nextSlot(){
+  var now = weekMinute(), best = null;
+  (SC.schedule || []).forEach(function(r){
+    var s = slotOf(r);
+    if(!s) return;
+    var since = (now - s.start + WEEK) % WEEK;
+    var c = since < s.len ? { now:true, wait:0, raid:s.raid }
+                          : { now:false, wait:(s.start - now + WEEK) % WEEK, raid:s.raid };
+    if(!best || (c.now && !best.now) || (c.now === best.now && c.wait < best.wait)) best = c;
+  });
+  return best;
+}
+
+function dur(min){
+  min = Math.max(1, min);
+  var d = Math.floor(min / 1440), h = Math.floor(min % 1440 / 60), m = min % 60;
+  if(d) return T('dur.d', { d:d, h:h });
+  if(h) return T('dur.h', { h:h, m:m });
+  return T('dur.m', { m:m });
+}
+
+var elNext = null;
+function paintNext(){
+  if(!elNext) return;
+  var n = nextSlot();
+  if(!n){ elNext.style.display = 'none'; return; }
+  elNext.style.display = '';
+  elNext.classList.toggle('is-now', n.now);
+  elNext.textContent = n.now
+    ? T(n.raid ? 'sched.nowRaid' : 'sched.nowStream')
+    : T(n.raid ? 'sched.nextRaid' : 'sched.nextStream', { t: dur(n.wait) });
+}
+
 function buildSchedule(root){
   var list = SC.schedule || [];
-  if(!list.length){ root.appendChild(U.el('div','sup__empty','no fixed schedule')); return; }
-  var today = DAYS[new Date().getDay()];
+  if(!list.length){ root.appendChild(U.el('div','sup__empty', T('sched.none'))); return; }
+  var today = DAYS[Math.floor(weekMinute() / 1440)];
   list.forEach(function(r){
     var row = U.el('div','sched__row');
     if(String(r.day).toLowerCase() === today) row.className += ' today';
     if(!r.time || /off|none|free/i.test(r.time)) row.className += ' off';
-    row.appendChild(U.el('span','sched__d', r.day));
-    row.appendChild(U.el('span','sched__t', r.time || 'off'));
+    row.appendChild(U.el('span','sched__d', dayName(r.day)));
+    row.appendChild(U.el('span','sched__t', r.time || T('sched.off')));
     if(r.note) row.appendChild(U.el('span','sched__tag', r.note));
     root.appendChild(row);
   });
+  elNext = U.el('div','sched__next');
+  root.appendChild(elNext);
+  paintNext();
+  setInterval(paintNext, 30 * 1000);
 }
 
 function buildSocials(root){
@@ -130,7 +241,7 @@ function pushSupporter(e){
 
 /* ---- chat (alleen op het BRB-scherm) ------------------------------- */
 function buildChatCard(){
-  var c = window.Ribbon.card('chat', 'info');
+  var c = window.Ribbon.card(T('cap.chat'), 'info');
   c.classList.add('rcard--chat');
   var box = U.el('div', null); box.id = 'sceneChat';
   c.body.appendChild(box);
@@ -145,21 +256,21 @@ function buildChatCard(){
 
   if(MODE === 'brb'){
     elFoot.appendChild(buildChatCard());
-    var cs = card('links', 'info');
+    var cs = card(T('cap.links'), 'info');
     var sc = U.el('div','socials'); buildSocials(sc); cs.body.appendChild(sc);
     elFoot.appendChild(cs);
   } else {
-    var c1 = card('schedule', 'info');
+    var c1 = card(T('cap.schedule'), 'info');
     var sd = U.el('div','sched'); buildSchedule(sd); c1.body.appendChild(sd);
     elFoot.appendChild(c1);
 
-    var c2 = card('links', 'info');
+    var c2 = card(T('cap.links'), 'info');
     var so = U.el('div','socials'); buildSocials(so); c2.body.appendChild(so);
     elFoot.appendChild(c2);
 
-    var c3 = card('recent', 'follow');
+    var c3 = card(T('cap.recent'), 'follow');
     supRoot = U.el('div','sup');
-    supRoot.appendChild(U.el('div','sup__empty','nothing yet this session'));
+    supRoot.appendChild(U.el('div','sup__empty', T('empty.session')));
     c3.body.appendChild(supRoot);
     elFoot.appendChild(c3);
   }
@@ -170,10 +281,10 @@ function buildChatCard(){
    hier ook; dat is de kaart in de onderbalk al, en op een scherm dat om
    aandacht voor één ding vraagt was het ruis. */
 var R = window.Ribbon;
-var ribName = R.make('live',    'channel',
+var ribName = R.make('live',    T('rib.channel'),
                      CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live');
-var ribView = R.make('viewers', 'viewers',   '\u2014');
-var ribFoll = R.make('follow',  'followers', '\u2014');
+var ribView = R.make('viewers', T('rib.viewers'),   '\u2014');
+var ribFoll = R.make('follow',  T('rib.followers'), '\u2014');
 [ribView, ribFoll].forEach(function(n){ n.classList.add('rib--num','rib--empty'); });
 ribView.classList.add('rib--r');
 [ribName, ribView, ribFoll].forEach(function(n){ U.$('#sceneTop').appendChild(n); });
@@ -329,6 +440,35 @@ function refresh(){
   });
 })();
 
+/* ---- race to dutch first --------------------------------------------
+   Onder de klok (of de afsluiter): hoe ver je guild is en waar hij staat
+   tussen de Nederlandse guilds. Dat stond tot nu met de hand in je
+   streamtitel, en die liep achter ("5/8M" terwijl de race al 6/9 telde).
+   Deze regel komt van dezelfde data als racetodutchfirst.bmiest.be. Geen
+   antwoord, geen regel: het blok blijft verborgen. Goud alleen voor de
+   rang en alleen als je eerste staat -- dezelfde regel als op de site, waar
+   goud de koploper is. */
+(function(){
+  if(!window.Race || !window.Race.enabled()) return;
+  var box = U.el('div','race');
+  box.style.display = 'none';
+  box.appendChild(U.el('div','race__cap', T('race.cap')));
+  var line = U.el('div','race__line');
+  box.appendChild(line);
+  U.$('.scene__mid').appendChild(box);
+
+  window.Race.watch(function(s){
+    var parts = window.Race.parts(s);
+    if(!parts.length){ box.style.display = 'none'; return; }
+    line.innerHTML = '';
+    parts.forEach(function(p, i){
+      if(i) line.appendChild(U.el('span','race__sep','\u00b7'));
+      line.appendChild(U.el('span','race__p race__p--' + p.k + (p.lead ? ' is-lead' : ''), p.text));
+    });
+    box.style.display = '';
+  });
+})();
+
 /* ---- start ---------------------------------------------------------- */
 U.poll(refresh, 60);
 window.SE.start(pushSupporter);
@@ -361,9 +501,9 @@ if(MODE === 'brb'){
 
 /* scene.html?demo=1 -- vult de supporterskaart zodat je kan uitlijnen */
 if(U.flag('demo')){
-  [['follow','joesswow','follows',''],
-   ['sub','vassham','sub','T2 · 14 mo'],
-   ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
+  [['follow','joesswow',T('ev.follow'),''],
+   ['sub','vassham',T('ev.sub'),'T2 · ' + T('ev.months', { n:14 })],
+   ['cheer','TheNoremac',T('ev.cheer'),T('ev.bits', { n:184 })]].forEach(function(p,i){
     setTimeout(function(){
       pushSupporter({kind:p[0], who:p[1], word:p[2], extra:p[3]});
     }, 300 + i*400);

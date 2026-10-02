@@ -3,6 +3,7 @@
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG, R = window.Ribbon;
+var T = window.I18N.t;
 var SC = CFG.scenes || {};
 var DEMO = U.flag('demo');
 if(DEMO) document.body.classList.add('demo');
@@ -24,11 +25,11 @@ if(DEMO) document.body.classList.add('demo');
 /* ---- kop ------------------------------------------------------------
    Het character stond hier ook. Dat is de kaart in de onderbalk al, en op
    een scherm waar je zelf het onderwerp bent voegde het niks toe. */
-var ribFoll = R.make('follow', 'followers', '—');
+var ribFoll = R.make('follow', T('rib.followers'), '—');
 U.$('#jcTopRibs').appendChild(ribFoll);
 
 U.$('#jcPlate').appendChild(
-  R.make('cam', 'camera', CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live'));
+  R.make('cam', T('cap.camera'), CFG.camName || (CFG.twitch && CFG.twitch.channel) || 'live'));
 
 /* De streamtitel komt van DecAPI; valt terug op 'Just Chatting'. */
 U.getText('https://decapi.me/twitch/title/' +
@@ -38,12 +39,12 @@ U.getText('https://decapi.me/twitch/title/' +
  }).catch(function(){});
 
 /* ---- kaarten -------------------------------------------------------- */
-var chatCard = R.card('chat', 'info');
+var chatCard = R.card(T('cap.chat'), 'info');
 U.$('#jcChatCard').appendChild(chatCard);
 var box = U.el('div'); box.id = 'jcChat';
 chatCard.body.appendChild(box);
 
-var strip = R.card('channel', 'info');
+var strip = R.card(T('rib.channel'), 'info');
 U.$('#jcStrip').appendChild(strip);
 
 var colSoc = U.el('div','jc__cols');
@@ -65,10 +66,10 @@ strip.body.appendChild(colRec);
    lopen eruit. Twee houdt ook het ritme van de socialskolom ernaast aan. */
 var ROWS = 2;
 var FILL = [
-  { key:'follower-latest',   kind:'follow', text:'latest follower' },
-  { key:'subscriber-latest', kind:'sub',    text:'latest sub' },
-  { key:'cheer-latest',      kind:'cheer',  text:'latest bits' },
-  { key:'tip-latest',        kind:'tip',    text:'latest tip' }
+  { key:'follower-latest',   kind:'follow', text:T('lbl.follower-latest') },
+  { key:'subscriber-latest', kind:'sub',    text:T('lbl.subscriber-latest') },
+  { key:'cheer-latest',      kind:'cheer',  text:T('lbl.cheer-latest') },
+  { key:'tip-latest',        kind:'tip',    text:T('lbl.tip-latest') }
 ];
 
 /* ---- data ----------------------------------------------------------- */
@@ -116,7 +117,7 @@ function paintRecent(){
     colRec.appendChild(R.make(f.kind, f.text, v));
     rows++;
   });
-  if(!rows) colRec.appendChild(U.el('div','jc__empty','nothing yet this session'));
+  if(!rows) colRec.appendChild(U.el('div','jc__empty', T('empty.session')));
 }
 
 function pushEvent(e){
@@ -136,9 +137,9 @@ window.Chat.start(addMessage, function(what){ window.Chat.prune(box, what); });
 window.SE.start(pushEvent);
 
 if(DEMO){
-  [['follow','joesswow','follows',''],
-   ['sub','vassham','sub','T2 · 14 mo'],
-   ['cheer','TheNoremac','bits','184 bits']].forEach(function(p,i){
+  [['follow','joesswow',T('ev.follow'),''],
+   ['sub','vassham',T('ev.sub'),'T2 · ' + T('ev.months', { n:14 })],
+   ['cheer','TheNoremac',T('ev.cheer'),T('ev.bits', { n:184 })]].forEach(function(p,i){
     setTimeout(function(){ pushEvent({kind:p[0],who:p[1],word:p[2],extra:p[3]}); }, 200 + i*300);
   });
   [['Amphroxia','wanneer gaan we raiden','#3fd9a4',[{key:'moderator',label:'mod'}]],
