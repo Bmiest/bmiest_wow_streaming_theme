@@ -38,7 +38,7 @@ Settings come from three layers, in this order:
 **Your JWT belongs in layer 3.** Pass it as a parameter:
 
 ```
-topbar.html?jwt=eyJ...
+topbar.html#jwt=eyJ...
 ```
 
 That URL only lives in your OBS configuration, exactly the way StreamElements'
@@ -76,7 +76,7 @@ fetches the pages directly, and updating is a `git push`.
 Your JWT goes in the URL:
 
 ```
-https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...
+https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html#jwt=eyJ...
 ```
 
 That URL only lives in your OBS configuration. `config.js` is in `.gitignore`
@@ -127,7 +127,7 @@ Open the file in a text editor and replace:
 Both go on *every* source URL, including the ones where you cannot see them
 working. `config.js` is gitignored and 404s on a hosted site, so the URL is the
 only place a token arrives, and `alerts.html` picks its raid source
-independently of the bottom bar: leave `?wcl=` off that one source and the
+independently of the bottom bar: leave `#wcl=` off that one source and the
 full-screen alerts fall back to Raider.IO while the bar beside them still reads
 `warcraftlogs`. Nothing on screen says so.
 
@@ -286,7 +286,7 @@ the same 504 Kbps it always was.
 
 The URLs below are the hosted ones; the ready-made collection in 1b fills them
 in already. Working locally instead? Put `./serve.sh` in front and it becomes
-`http://localhost:8777/...` -- and then you can leave `?jwt=` off, because
+`http://localhost:8777/...` -- and then you can leave `#jwt=` off, because
 locally the overlay reads your token from `config.js`.
 
 The 368px left over is split in two: a thin status strip **above** the gameplay
@@ -325,7 +325,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html?jwt=eyJ...` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html#jwt=eyJ...` |
 | Width | `2560` |
 | Height | `120` |
 | Custom frame rate | on, `30` FPS |
@@ -471,7 +471,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html?jwt=eyJ...` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/banner.html#jwt=eyJ...` |
 | Width | `2560` |
 | Height | `248` |
 | Custom frame rate | on, `30` FPS |
@@ -518,7 +518,7 @@ Source > **Browser**:
 
 | | |
 |---|---|
-| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html?jwt=eyJ...` |
+| URL | `https://bmiest.github.io/bmiest_wow_streaming_theme/alerts.html#jwt=eyJ...` |
 | Width | `2560` |
 | Height | `1072` |
 | Shutdown source when not visible | off |
@@ -1009,7 +1009,7 @@ messages an id and a login too, so the removal works there as well.
 **Left for you:**
 
 1. `streamelements.jwt` is empty in the shared config, and it should stay that
-   way. Pass your token in the browser source URL instead (`?jwt=eyJ...`).
+   way. Pass your token in the browser source URL instead (`#jwt=eyJ...`).
    Without a token, follows, subs, cheers and tips stay empty. Find it on
    streamelements.com under Account Settings > Show secrets > JWT Token.
 
@@ -1636,7 +1636,7 @@ Two things to check, in this order:
    chime with nothing to see. The generated collection puts Alerts last in the
    list, which is topmost; a scene edited by hand can drift.
 
-For the raid alerts specifically, add `?wcl=<token>` to that source too, and
+For the raid alerts specifically, add `#wcl=<token>` to that source too, and
 check `?health=1` reads `progress: warcraftlogs` rather than `raiderio` --
 without the token the page still works, it just quietly runs on the slower
 source.
@@ -1805,7 +1805,7 @@ css/alerts.css   alerts
 js/util.js       helpers
 js/raiderio.js   character + guild
 js/rio-live.js   live boss progress + pull history (Raider.IO)
-js/wcl.js        live boss progress (Warcraft Logs), needs ?wcl=<token>
+js/wcl.js        live boss progress (Warcraft Logs), needs #wcl=<token>
 js/progress.js   picks between those two and remembers the last good answer
 scene.html       starting / brb / ending             (2560 x 1440)
 scene-starting.html  wrappers for OBS' Local file mode, which takes no

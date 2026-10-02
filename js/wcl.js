@@ -80,7 +80,8 @@ var API = 'https://www.warcraftlogs.com/api/v2/client';
 
 /* Token uit de URL gaat voor op de config: zo kan je in OBS per bron iets
    anders instellen zonder het bestand aan te raken. */
-var TOKEN = (location.search.match(/[?&]wcl=([^&]+)/) || [])[1] || CFG.token || '';
+var TOKEN = (location.hash.match(/[#&]wcl=([^&]+)/) || [])[1] ||
+            (location.search.match(/[?&]wcl=([^&]+)/) || [])[1] || CFG.token || '';
 if (TOKEN) TOKEN = decodeURIComponent(TOKEN);
 
 /* Difficulty is bij WCL een getal. 5 is mythic, 4 heroic, 3 normal -- het

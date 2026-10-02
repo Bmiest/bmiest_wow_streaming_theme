@@ -25,7 +25,11 @@ var CFG = merge(window.OVERLAY_CONFIG || {}, window.OVERLAY_OVERRIDE);
 
 (function(){
   var q = new URLSearchParams(location.search);
-  var jwt = q.get('jwt');
+  /* Tokens horen achter # (#jwt=…&wcl=…): een fragment gaat nooit mee in het
+     HTTP-verzoek, dus het token belandt niet in de logs van GitHub Pages.
+     ?jwt= blijft werken voor bestaande OBS-bronnen. */
+  var hp = new URLSearchParams(location.hash.slice(1));
+  var jwt = hp.get('jwt') || q.get('jwt');
   /* De kant-en-klare OBS-collectie bevat de plaatshouder __JWT__. Wie die
      vergeet te vervangen kreeg een overlay die stil deed alsof er nooit
      iets gebeurde: SE weigert het token, dus geen alerts en geen events.

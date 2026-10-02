@@ -26,12 +26,14 @@ ap.add_argument('--no-stinger', action='store_true',
                 help='laat de stinger-transitie weg; voeg hem in OBS zelf toe. '
                      'Scheelt een pad met backslashes in de JSON, en dat is de '
                      'enige plek waar handmatig bewerken stuk kan gaan.')
-ap.add_argument('--jwt', default=None,
-                help='StreamElements JWT; wordt aan elke browser-URL gehangen. '
+ap.add_argument('--jwt', default=os.environ.get('OVERLAY_JWT'),
+                help='StreamElements JWT; wordt als #jwt= aan elke browser-URL gehangen. '
+                     'Zet hem liever in $OVERLAY_JWT: een argument belandt in je '
+                     'shellgeschiedenis en in de proceslijst. '
                      'Alleen zinvol bij een gehoste site. Het resultaat bevat dan '
                      'je token -- deel dat bestand niet.')
-ap.add_argument('--wcl', default=None,
-                help='Warcraft Logs-token; wordt net als --jwt aan elke browser-URL '
+ap.add_argument('--wcl', default=os.environ.get('OVERLAY_WCL'),
+                help='Warcraft Logs-token (of $OVERLAY_WCL); wordt net als --jwt aan elke browser-URL '
                      'gehangen. Zonder dit vallen de raidkaart en de schermvullende '
                      'meldingen stil terug op Raider.IO. Het is het *token*, niet het '
                      'client secret -- en het resultaat bevat het dan, dus deel dat '
@@ -133,11 +135,15 @@ def browser(name, path, w, h):
     # bron los van de onderbalk. Een alerts.html zonder ?wcl= valt daardoor
     # stil terug op Raider.IO terwijl de balk ernaast gewoon Warcraft Logs
     # toont, en dat is precies het soort verschil dat je op stream niet ziet.
+    # De tokens gaan achter # en niet in de querystring: een fragment wordt
+    # nooit naar de server gestuurd, dus ze komen niet in de logs van GitHub
+    # Pages. In de OBS-configuratie staan ze nog wel.
     url = BASE + '/' + path
-    for key, tok in (('lang', a.lang if a.lang != 'en' else None),
-                     ('jwt', a.jwt), ('wcl', a.wcl)):
-        if tok:
-            url += ('&' if '?' in url else '?') + key + '=' + tok
+    if a.lang and a.lang != 'en':
+        url += ('&' if '?' in url else '?') + 'lang=' + a.lang
+    frag = '&'.join(key + '=' + tok for key, tok in (('jwt', a.jwt), ('wcl', a.wcl)) if tok)
+    if frag:
+        url += '#' + frag
     return src(name, 'browser_source', {
         'is_local_file': False,
         'url': url,
@@ -239,10 +245,14 @@ col = {
     'virtual-camera': {'type2': 3},
 }
 
-with open(os.path.join(HERE, a.out), 'w', encoding='utf-8') as fh:
-    json.dump(col, fh, indent=2, ensure_ascii=False)
-
 OUT = os.path.join(HERE, a.out)
+
+# Met --jwt/--wcl staan er tokens in, dus alleen leesbaar voor jezelf (0600).
+# os.open zet de modus alleen bij een nieuw bestand; chmod dekt een bestaand.
+with os.fdopen(os.open(OUT, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600),
+               'w', encoding='utf-8') as fh:
+    json.dump(col, fh, indent=2, ensure_ascii=False)
+os.chmod(OUT, 0o600)
 
 # ---- installeren ---------------------------------------------------------
 def scenes_dir():
@@ -267,6 +277,7 @@ if a.install:
     for d in dirs:
         dst = os.path.join(d, slug + '.json')
         shutil.copyfile(OUT, dst)
+        os.chmod(dst, 0o600)
         print('geinstalleerd: %s' % dst)
     print()
     print('Herstart OBS en kies de collectie onder Scene Collection.')
