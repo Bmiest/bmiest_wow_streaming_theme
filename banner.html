@@ -22,13 +22,13 @@
 
     <!-- 1 ─ camera (leeg vlak, je OBS-cam ligt hierachter) ------------->
     <section class="cam">
-      <div class="cam__hint">camera</div>
+      <div class="cam__hint" data-i18n="cap.camera">camera</div>
       <div class="cam__plate" id="camPlate"></div>
     </section>
 
     <!-- 2 ─ characters (één kolom per character, gevuld uit charTpl) ---->
     <div class="rcard-wrap card--char">
-      <span class="rcard__cap" data-icon="sword">characters</span>
+      <span class="rcard__cap" data-icon="sword" data-i18n="cap.characters">characters</span>
       <!-- de tijd erin komt uit js/banner.js, en blijft leeg tot de eerste
            geslaagde poll -->
       <span class="rcard__src"><span id="charSrc">raider.io</span><b class="rcard__at" id="charAt"></b></span>
@@ -41,7 +41,7 @@
 
     <!-- 3 ─ boss progress van de guild ---------------------------------->
     <div class="rcard-wrap card--boss">
-      <span class="rcard__cap" data-icon="raid">raid</span>
+      <span class="rcard__cap" data-icon="raid" data-i18n="cap.raid">raid</span>
       <!-- De bronnaam wisselt mee met wie de kaart vulde: zie js/progress.js -->
       <span class="rcard__src"><span id="bossSrc">raider.io</span><b class="rcard__at" id="bossAt"></b></span>
       <div class="rcard"><div class="rcard__in">
@@ -75,7 +75,7 @@
 
     <!-- 4 ─ chat -------------------------------------------------------->
     <div class="rcard-wrap card--chat">
-      <span class="rcard__cap" data-icon="chat">chat</span>
+      <span class="rcard__cap" data-icon="chat" data-i18n="cap.chat">chat</span>
       <div class="rcard"><div class="rcard__in">
         <div id="chatList"></div>
       </div></div>
@@ -83,9 +83,9 @@
 
     <!-- 5 ─ recente events ---------------------------------------------->
     <div class="rcard-wrap card--events">
-      <span class="rcard__cap" data-icon="follow">recent</span>
+      <span class="rcard__cap" data-icon="follow" data-i18n="cap.recent">recent</span>
       <div class="rcard"><div class="rcard__in">
-        <div class="events" id="events"><div class="events__empty">nothing yet this session</div></div>
+        <div class="events" id="events"><div class="events__empty" data-i18n="empty.session">nothing yet this session</div></div>
       </div></div>
     </div>
 
@@ -112,7 +112,7 @@
         <span class="char__guild"></span>
       </div>
       <div class="char__stats">
-        <div class="stat"><div class="stat__v char__ilvl">—</div><div class="stat__l">item level</div></div>
+        <div class="stat"><div class="stat__v char__ilvl">—</div><div class="stat__l" data-i18n="stat.ilvl">item level</div></div>
         <div class="stat"><div class="stat__v char__score">—</div><div class="stat__l char__scorel">m+ score</div></div>
       </div>
       <div class="prog">
@@ -127,6 +127,8 @@
 <script src="config.js"></script>
 <script src="vendor/socket.io.js"></script>
 <script src="js/util.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/race.js"></script>
 <script src="js/ribbon.js"></script>
 <script src="js/backdrop.js"></script>
 <script src="js/camevent.js"></script>

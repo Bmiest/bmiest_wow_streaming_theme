@@ -17,8 +17,11 @@ var TYPES = {
   cheer:'cheer', tip:'tip', donation:'tip',
   raid:'raid', host:'raid'
 };
+/* Het woord op het tagje, in de taal van de pagina (js/i18n.js). Zonder
+   i18n.js op de pagina blijft het Engels. */
+function T(k, v){ return window.I18N ? window.I18N.t(k, v) : k; }
 var WORD = {
-  follow:'follows', sub:'sub', cheer:'bits', tip:'tip', raid:'raid'
+  follow:T('ev.follow'), sub:T('ev.sub'), cheer:T('ev.cheer'), tip:T('ev.tip'), raid:T('ev.raid')
 };
 
 function norm(type, d){
@@ -26,20 +29,20 @@ function norm(type, d){
   var kind = TYPES[String(type||'').toLowerCase()];
   if(!kind) return null;
 
-  var who = d.displayName || d.username || d.name || d.from || 'iemand';
+  var who = d.displayName || d.username || d.name || d.from || T('ev.someone');
   var extra = '';
   if(kind==='sub'){
     var months = d.amount || d.streak || 0;
     var tier = d.tier != null ? String(d.tier) : '';
     extra = (tier && tier !== '1000' && tier !== 'prime' ? 'T'+tier.charAt(0)+' ' : '')
-          + (months > 1 ? months+' mo' : 'new');
-    if(d.gifted || d.bulkGifted) extra = 'gift';
+          + (months > 1 ? T('ev.months', { n:months }) : T('ev.new'));
+    if(d.gifted || d.bulkGifted) extra = T('ev.gift');
   } else if(kind==='cheer'){
-    extra = U.num(d.amount)+' bits';
+    extra = T('ev.bits', { n:U.num(d.amount) });
   } else if(kind==='tip'){
     extra = (d.currency||'') + ' ' + (d.amount||'');
   } else if(kind==='raid'){
-    extra = U.num(d.amount||0)+' viewers';
+    extra = T('ev.viewers', { n:U.num(d.amount||0) });
   }
 
   return { kind:kind, who:who, word:WORD[kind], extra:extra.trim(),
