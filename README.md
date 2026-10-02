@@ -148,6 +148,28 @@ Then drop the file in `%APPDATA%\obs-studio\basic\scenes\`, start OBS and pick
 After that, only the two `[VERVANG]` placeholders are left: replace them with
 your Game Capture and your camera.
 
+### Language: English or Dutch
+
+Everything on stream is English by default. For Dutch, put `?lang=nl` on every
+browser source, or generate the collection with `--lang nl`:
+
+```bash
+./make-obs-collection.py --base-url https://streamoverlay.bmiest.be --lang nl ...
+```
+
+That covers the captions, the scene screens, the event and alert wording and the
+schedule (day names, "volgende raid over 1d 20u"). Boss, raid, item and character
+names stay as the game writes them, and so does whatever you typed in the config
+yourself (topic, sub reward, socials). `lang: 'nl'` in `config.js` does the same
+for a local setup.
+
+The browser's own language is deliberately **not** used on the stream pages.
+OBS' built-in browser takes the language of Windows, so on a Dutch PC the stream
+would switch without you asking. Only the front page (`index.html`) follows your
+browser, and it has an EN | NL switch in the top right that also changes the
+previews and makes the copy buttons hand out URLs with `?lang=nl`. The strings
+live in `js/i18n.js`; the Dutch front page text in `js/i18n-index.js`.
+
 ## 2. OBS -- video settings
 
 **Settings > Video**
@@ -1355,9 +1377,9 @@ One page, three modes via the URL:
 
 | Scene | URL | What |
 |---|---|---|
-| Starting soon | `scene.html?mode=starting` | countdown, stream title, schedule, socials, recent supporters |
-| Be right back | `scene.html?mode=brb` | clock counts up, chat stays visible so people stick around |
-| Ending | `scene.html?mode=ending` | sign-off, schedule, socials |
+| Starting soon | `scene.html?mode=starting` | countdown, stream title, race standing, schedule with the next raid, socials, recent supporters |
+| Be right back | `scene.html?mode=brb` | clock counts up, race standing, chat stays visible so people stick around |
+| Ending | `scene.html?mode=ending` | sign-off, race standing, schedule, socials |
 
 The header has your channel on the left and viewers and followers on the right,
 the same ribbons as the top bar, one size up. Viewers is there on the starting
@@ -1369,14 +1391,33 @@ noise.
 
 Under the clock, the starting screen shows the **stream title**, because Twitch
 knows that better than a fixed line in the config. `scenes.topic` remains the
-fallback for when DecAPI returns nothing usable.
+fallback for when DecAPI returns nothing usable. The title stays inside the halo:
+it wraps to at most three lines at 940px wide, gets smaller (38 down to 26px)
+when it still does not fit, and is cut off with an ellipsis after that. At the
+old 1500px a long title ran over both characters on the flanks.
+
+Below that, every scene screen shows where your guild stands in the
+**Race to Dutch First**: `6/9 M · #1 of 5 NL · now on The Twin Fangs`, from
+`https://racetodutchfirst.bmiest.be/data/race.json` (settings under `race` in the
+config, polled every 10 minutes). The rank is gold while you are first, the same
+rule as on that site. That used to live in the stream title by hand, and the
+title fell behind ("5/8M" while the race already counted 6/9). If the file does
+not load, the line is simply not there. The bottom bar's raid card carries the
+rank only (`#1 of 5 NL`), next to the progress line.
 
 All of them are browser sources, `2560 x 1440`, position `0, 0`. Countdown
 length, fallback topic, schedule and socials live in `config.js` under `scenes`.
 Today's day is tinted jade in the schedule, and a row with a `note` gets a small
 tag after it, so your raid nights read `20:00 - 23:00` `RAID`. The day name has
-to match the weekday list in `js/scene.js`, which is in English like the rest of
-what ends up on screen; a name that does not match simply never highlights.
+to match the weekday list in `js/scene.js`, so write it in English; with
+`?lang=nl` the page shows it as *woensdag* itself. A name that does not match
+simply never highlights.
+
+Under the rows: **"next raid in 1d 20h"**, or "raiding now" in jade while a
+slot is running. It reads `time` as `hh:mm - hh:mm` (past midnight is fine) in
+`scenes.scheduleTimeZone`, default `Europe/Brussels`, not in the time zone of
+the PC OBS runs on. It says *raid* when the next slot has `note: 'raid'`, and
+*stream* otherwise.
 
 **The clock starts running when the scene comes on screen**, not when OBS loads
 the page. That is the difference between a countdown that starts at 10:00 when
@@ -1775,6 +1816,9 @@ stinger.html     one frame of the transition
 css/scene.css    scenes
 css/chatting.css Just Chatting
 js/scene.js      scenes
+js/race.js       Race to Dutch First standing (racetodutchfirst.bmiest.be)
+js/i18n.js       English / Dutch: ?lang=, dictionary, front page switch
+js/i18n-index.js the front page in Dutch
 js/chatting.js   Just Chatting
 js/chat.js       Twitch IRC
 js/labels.js     label store
@@ -1799,10 +1843,10 @@ make-obs-collection.py           builds an OBS scene collection
 obs-scene-collection.pages.json  ready-made, points at the hosted site
 ```
 
-> Everything on screen is in English: the label captions, the card captions,
-> the scene screens and the event wording. The code comments are in Dutch, and
-> so is the fake chat in demo mode, because that stands in for what viewers
-> actually type.
+> Everything on screen is in English unless a source has `?lang=nl`: the label
+> captions, the card captions, the scene screens and the event wording. The code
+> comments are in Dutch, and so is the fake chat in demo mode, because that
+> stands in for what viewers actually type.
 
 ---
 
