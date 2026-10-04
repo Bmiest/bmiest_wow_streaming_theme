@@ -9,7 +9,8 @@
    null en verdwijnt het blok; de rest van de pagina merkt er niets van.
 
    Velden die gebruikt worden: guilds[].name, mythicKills, totalBosses, rank,
-   ceKilledAt, current.name. Die bestaan al sinds de eerste versie van de
+   ceKilledAt, current.name, en tier.ceBoss.name (alleen de voorpagina).
+   De eerste zes bestaan al sinds de eerste versie van de
    site en de Warcraft Logs-PR daar laat ze staan. */
 (function(){
 'use strict';
@@ -39,7 +40,10 @@ function guild(){
       rank   : g.rank || null,
       count  : list.length,
       ce     : !!g.ceKilledAt,
-      current: g.current && g.current.name || null
+      current: g.current && g.current.name || null,
+      /* De CE-boss van de tier, voor de voorpagina: na Cutting Edge staat
+         daar die boss achter je character in plaats van niets. */
+      ceBoss : d.tier && d.tier.ceBoss && d.tier.ceBoss.name || null
     };
   }).catch(function(e){
     console.warn('[race]', e.message);
