@@ -136,6 +136,7 @@ function paintInfo(){
   var c = chars[active]; if(!c) return;
   stage.style.setProperty('--cls', classColour(c.klass));
   $('charName').textContent = c.name;
+  fitName();
   var sp = $('charSpec'); sp.textContent = '';
   if(c.spec){ sp.appendChild(txt('em', '', c.spec)); sp.appendChild(document.createTextNode(' ')); }
   sp.appendChild(document.createTextNode(c.klass || ''));
@@ -152,6 +153,19 @@ function paintInfo(){
 }
 onLang(paintInfo);
 
+/* Een naam is één woord: nooit midden in breken, maar kleiner zetten tot hij
+   in zijn kolom past (de CSS-clamp blijft het maximum). */
+function fitName(){
+  var el = $('charName'); if(!el) return;
+  el.style.removeProperty('font-size');
+  var room = el.clientWidth, need = el.scrollWidth;
+  if(room && need > room){
+    var px = parseFloat(getComputedStyle(el).fontSize);
+    el.style.fontSize = Math.max(24, Math.floor(px * room / need)) + 'px';
+  }
+}
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitName);
+
 /* De render in zijn vak, gemeten op zijn alpha zoals de pauzeschermen dat
    doen (RaiderIO.fitRender): voeten op de onderrand, figuur gecentreerd. */
 function place(img){
@@ -165,7 +179,7 @@ var placing = 0;
 addEventListener('resize', function(){
   if(placing) return;
   placing = requestAnimationFrame(function(){
-    placing = 0; fit();
+    placing = 0; fit(); fitName();
     renders.forEach(function(im){ if(im && im.naturalWidth) place(im); });
   });
 });
