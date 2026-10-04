@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 :root{
   /* ---- grond -------------------------------------------------------
@@ -29,6 +29,10 @@
   --holy      :#ffffff;
   --gold      :#d8b263;
   --rose      :#d98b8b;
+  /* Alleen voor LIVE (het blokje in de bug van de webpagina's), nooit op
+     een stream-pagina: daar weet iedereen al dat je live bent. Familie-
+     token uit bmiest-design; de race-site leest hem vanaf hier. */
+  --live-red  :#e5484d;
 
   /* ---- vorm (uit Amused: capsules, pillen, ribbons) ---------------- */
   --r-cap :30px;
