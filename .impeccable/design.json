@@ -1,0 +1,366 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T07:56:03+00:00",
+  "title": "Design System: bmiest stream overlay",
+  "extensions": {
+    "designLanguage": {
+      "version": 2,
+      "surface": "index.html",
+      "familyRepo": "Bmiest/bmiest-design",
+      "scopeNote": "family = shared v2 language, should match the family DESIGN.md; overlay = this product only. OBS pages share tokens.css but keep their v1 surface.",
+      "changeLog": [
+        {
+          "date": "2026-10-04",
+          "branch": "design/v2-showcase",
+          "commits": [
+            "de856a2",
+            "96d30f8",
+            "e5ace00"
+          ],
+          "change": "Showcase page rebuilt in v2 as a character-select hero (mock B with mock A's alerts ticker). tokens.css gains --live-red and Outfit 800."
+        }
+      ]
+    },
+    "colorMeta": {
+      "jade": {
+        "role": "primary",
+        "displayName": "Mistweaver Jade",
+        "scope": "family",
+        "tonalRamp": [
+          "oklch(15% 0.15 165)",
+          "oklch(25% 0.15 165)",
+          "oklch(35% 0.15 165)",
+          "oklch(48% 0.15 165)",
+          "oklch(60% 0.15 165)",
+          "oklch(72% 0.15 165)",
+          "oklch(84% 0.15 165)",
+          "oklch(95% 0.15 165)"
+        ],
+        "purpose": "Brand: bug mark and guild slot, active language and pick, primary button, ticker label and edge, section caps, tally key, step numbers, links, chevron, focus."
+      },
+      "jade-deep": {
+        "role": "primary",
+        "displayName": "Deep Jade",
+        "scope": "family",
+        "purpose": "OBS pages only; unused on the showcase."
+      },
+      "jade-ghost": {
+        "role": "primary",
+        "displayName": "Jade Ghost",
+        "scope": "family",
+        "purpose": "Link underlines and selection."
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Podium Gold",
+        "scope": "overlay",
+        "purpose": "A first or a best: the new-best ticker tag and alert."
+      },
+      "live-red": {
+        "role": "tertiary",
+        "displayName": "Broadcast Red",
+        "scope": "family",
+        "purpose": "LIVE block only, only while live, never on a stream page. Open: paper on it is ~3.4:1."
+      },
+      "rose": {
+        "role": "tertiary",
+        "displayName": "Faded Rose",
+        "scope": "family",
+        "purpose": "OBS pages; unused on the showcase."
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "scope": "family",
+        "purpose": "Primary text, Priest class colour, button hover."
+      },
+      "paper-dim": {
+        "role": "neutral",
+        "displayName": "Faded Paper",
+        "scope": "family",
+        "purpose": "Spec line, intro, ticker body."
+      },
+      "ink-900": {
+        "role": "neutral",
+        "displayName": "Raid Night Black",
+        "scope": "family",
+        "purpose": "Page ground, bug name, ticker, ink on jade."
+      },
+      "ink-850": {
+        "role": "neutral",
+        "displayName": "Table Ink",
+        "scope": "family",
+        "purpose": "Preview wells, avatar ground, value blocks."
+      },
+      "ink-800": {
+        "role": "neutral",
+        "displayName": "Panel Ink",
+        "scope": "family",
+        "purpose": "Ribbon and pick bodies, name blocks."
+      },
+      "ink-750": {
+        "role": "neutral",
+        "displayName": "Raised Ink",
+        "scope": "family",
+        "purpose": "Pills, copy buttons, active pick body, code."
+      },
+      "ink-700": {
+        "role": "neutral",
+        "displayName": "Rule Ink",
+        "scope": "family",
+        "purpose": "1px outlines, hairlines, rules, stat keys."
+      },
+      "ink-600": {
+        "role": "neutral",
+        "displayName": "Outline Ink",
+        "scope": "family",
+        "purpose": "Ribbon outline, scrollbar."
+      },
+      "ink-500": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "scope": "family",
+        "purpose": "Pick outline on hover."
+      },
+      "ink-300": {
+        "role": "neutral",
+        "displayName": "Caption Grey",
+        "scope": "family",
+        "purpose": "Captions, sublines, table heads, hints."
+      },
+      "ink-200": {
+        "role": "neutral",
+        "displayName": "Soft Grey",
+        "scope": "family",
+        "purpose": "Notes, pill text, stat keys."
+      },
+      "holy": {
+        "role": "neutral",
+        "displayName": "Holy",
+        "scope": "overlay",
+        "purpose": "v1 OBS light accent only; never on the web page."
+      },
+      "void-glow": {
+        "role": "neutral",
+        "displayName": "Void Glow",
+        "scope": "overlay",
+        "purpose": "Radial behind the boss plane (24%; race uses 32%)."
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Poster name",
+        "purpose": "Character name, once per page."
+      },
+      "headline": {
+        "displayName": "Section head",
+        "purpose": "Behind a 14px slanted jade cap."
+      },
+      "headline-sub": {
+        "displayName": "Subsection head",
+        "purpose": "11px cap."
+      },
+      "spec": {
+        "displayName": "Spec",
+        "purpose": "Spec word in class colour."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Pills, tally, table heads, uppercase."
+      },
+      "label-micro": {
+        "displayName": "Micro label",
+        "purpose": "Ticker tags, stat keys."
+      },
+      "numeric-stat": {
+        "displayName": "Stat figure",
+        "purpose": "ilvl and M+ score."
+      }
+    },
+    "shadows": [
+      {
+        "name": "live-dot-ring",
+        "value": "0 0 0 2px var(--paper)",
+        "purpose": "Drawn ring around the LIVE dot; not elevation."
+      }
+    ],
+    "shapes": [
+      {
+        "name": "slant",
+        "value": "clip-path: polygon(0 0, 100% 0, calc(100% - N) 100%, 0 100%)",
+        "purpose": "N: 11px ribbon/button, 10px ribbon key, 8px boss tag, 6px pill/copy/step, 5px section cap, 4px sub cap."
+      },
+      {
+        "name": "chevron",
+        "value": "7px, 2px jade right+bottom borders, rotate(-45deg) closed, 45deg open",
+        "purpose": "Fold disclosure."
+      },
+      {
+        "name": "v1-capsule",
+        "value": "30px / 999px",
+        "purpose": "OBS pages only (v1)."
+      }
+    ],
+    "heroGround": {
+      "void": "radial-gradient(closest-side, rgba(150,90,255,.24), transparent) behind the boss plane",
+      "class": "radial-gradient(closest-side, color-mix(in srgb, var(--cls) 20%, transparent), transparent) behind the character",
+      "bossOpacity": 0.55,
+      "bossMask": "linear-gradient(#000 55%, transparent 94%)",
+      "charMask": "linear-gradient(#000 95%, transparent)"
+    },
+    "motion": [
+      {
+        "name": "t-fast",
+        "value": "160ms",
+        "purpose": "Hover colour, chevron."
+      },
+      {
+        "name": "t-med",
+        "value": "300ms",
+        "purpose": "OBS pages."
+      },
+      {
+        "name": "t-slow",
+        "value": "420ms",
+        "purpose": "Character/boss crossfade, class-colour shifts."
+      },
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.22,.61,.36,1)",
+        "purpose": "All transitions."
+      },
+      {
+        "name": "ticker-run",
+        "value": "56s linear infinite, translateX(-50%)",
+        "purpose": "Alerts ticker; paused on hover/focus; static under reduced motion."
+      },
+      {
+        "name": "plane-drift",
+        "value": "boss 0.32 x scroll, character 0.12 x scroll",
+        "purpose": "Multiplane drift; off under reduced motion."
+      },
+      {
+        "name": "live-pulse",
+        "value": "1.6s, opacity .3 at 50%",
+        "purpose": "LIVE dot."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stage-column",
+        "value": "1180px"
+      },
+      {
+        "name": "tablet",
+        "value": "900px"
+      },
+      {
+        "name": "phone",
+        "value": "560px"
+      },
+      {
+        "name": "small",
+        "value": "480px"
+      }
+    ],
+    "bossArt": {
+      "source": "Blizzard render CDN creature-display JPEGs, keyed to alpha by build-bosscutouts.py (<=10 transparent, >=34 opaque, 0.6px matte blur, trimmed +6px)",
+      "provenance": "img/boss/PROVENANCE.md",
+      "maxScale": "2x natural height"
+    },
+    "openDecisions": [
+      {
+        "name": "live-red contrast",
+        "state": "open",
+        "note": "Paper on #e5484d ~3.4:1 at 13px/800; darkening the family token undecided."
+      }
+    ],
+    "narrative": {
+      "northStar": "The Character Select Screen",
+      "rules": [
+        "The Gold Is a Record Rule",
+        "The Red Means On Air Rule",
+        "The Paper Priest Rule",
+        "The Poster Voice Rule",
+        "The Figure Is Mono Rule",
+        "The Flat Ink Rule",
+        "The Two Planes Rule",
+        "The One Slant Rule"
+      ]
+    }
+  },
+  "components": [
+    {
+      "name": "Broadcast Bug",
+      "kind": "custom",
+      "refersTo": "bug-name",
+      "description": "Flush square blocks: LIVE, jade mark, name, jade guild slot.",
+      "html": "<div class=\"ds-bug\"><span class=\"l\"><i></i>Live</span><span class=\"m\"></span><span class=\"n\">bmiest</span><span class=\"s\">Kelderklasse</span></div>",
+      "css": ".ds-bug{display:flex;height:40px;font:800 14px/1 Outfit,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase}.ds-bug>*{display:flex;align-items:center;gap:9px}.ds-bug .l{padding:0 18px;background:#e5484d;color:#eef1f5;font-size:13px;letter-spacing:.14em}.ds-bug .l i{width:8px;height:8px;border-radius:999px;box-shadow:0 0 0 2px #eef1f5}.ds-bug .m{width:40px;background:#3fd9a4;margin-right:5px}.ds-bug .n{padding:0 20px 0 0;background:#0a0b0d;color:#eef1f5}.ds-bug .s{padding:0 18px;background:#3fd9a4;color:#0a0b0d;letter-spacing:.06em}"
+    },
+    {
+      "name": "Ribbon",
+      "kind": "custom",
+      "refersTo": "ribbon",
+      "description": "Slanted 1px outline, ink-800 body, key block left.",
+      "html": "<div class=\"ds-rib\"><div class=\"in\"><span class=\"k\">ilvl</span><span class=\"v\">327.0</span></div></div>",
+      "css": ".ds-rib{width:340px;height:44px;padding:1px;background:#2a2f37;clip-path:polygon(0 0,100% 0,calc(100% - 11px) 100%,0 100%)}.ds-rib .in{height:100%;display:flex;align-items:center;background:#131519;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}.ds-rib .k{width:76px;height:100%;display:grid;place-items:center;background:#1e2228;color:#a8b1bc;font:800 10px Outfit,sans-serif;letter-spacing:.14em;text-transform:uppercase;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}.ds-rib .v{padding-left:13px;color:#eef1f5;font:700 18px 'JetBrains Mono',monospace}"
+    },
+    {
+      "name": "Character Pick",
+      "kind": "custom",
+      "refersTo": "pick-active",
+      "description": "60px ribbon with avatar; chosen = jade outline.",
+      "html": "<button class=\"ds-pick\"><span class=\"in\"><span class=\"a\"></span><span class=\"t\"><b>Shiftheal</b><small>Holy Priest · Ragnaros</small></span></span></button>",
+      "css": ".ds-pick{width:300px;height:60px;border:0;padding:1px;background:#3fd9a4;clip-path:polygon(0 0,100% 0,calc(100% - 11px) 100%,0 100%);font-family:Outfit,sans-serif;text-align:left}.ds-pick .in{height:100%;display:flex;align-items:center;background:#171a1f;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}.ds-pick .a{width:58px;height:100%;background:#0e1014}.ds-pick .t{display:grid;gap:2px;padding-left:14px}.ds-pick b{font-size:18px;font-weight:700;color:#eef1f5}.ds-pick small{font-size:12px;color:#3fd9a4}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid jade, trailing slant; paper on hover.",
+      "html": "<a class=\"ds-btn\" href=\"#\">Watch on Twitch</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;height:48px;padding:0 30px 0 20px;background:#3fd9a4;color:#0a0b0d;font:800 15px Outfit,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;clip-path:polygon(0 0,100% 0,calc(100% - 11px) 100%,0 100%);transition:background 160ms cubic-bezier(.22,.61,.36,1)}.ds-btn:hover{background:#eef1f5}"
+    },
+    {
+      "name": "Pill",
+      "kind": "chip",
+      "refersTo": "pill",
+      "description": "Slanted ink-750 chip, label type.",
+      "html": "<span class=\"ds-pill\">Copy</span>",
+      "css": ".ds-pill{display:inline-flex;padding:6px 15px 6px 11px;background:#171a1f;color:#3fd9a4;font:800 11px Outfit,sans-serif;letter-spacing:.14em;text-transform:uppercase;clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%)}"
+    },
+    {
+      "name": "Alerts Ticker",
+      "kind": "custom",
+      "refersTo": "ticker",
+      "description": "Edge-to-edge band, 2px jade top, jade label flush left.",
+      "html": "<div class=\"ds-tk\"><b>Alerts <small>demo</small></b><span><i>Cheered</i> <em>TheNoremac</em> · 184 bits</span><span><i class=\"g\">New best</i> <em>The Lost Explorers</em> · 43.89%</span></div>",
+      "css": ".ds-tk{display:flex;align-items:stretch;height:52px;background:#0a0b0d;border-top:2px solid #3fd9a4;font-family:Outfit,sans-serif;overflow:hidden}.ds-tk>b{display:flex;align-items:center;gap:10px;padding:0 20px;background:#3fd9a4;color:#0a0b0d;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.ds-tk small{font-size:10px;padding:3px 6px;background:#0a0b0d;color:#3fd9a4}.ds-tk>span{display:flex;align-items:center;gap:10px;padding:0 26px;color:#c9d0d8;font-size:15px;white-space:nowrap}.ds-tk i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#3fd9a4}.ds-tk i.g{color:#d8b263}.ds-tk em{font-style:normal;font-weight:700;color:#eef1f5}"
+    },
+    {
+      "name": "Section Head",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Headline behind a slanted jade cap.",
+      "html": "<h2 class=\"ds-h\">On stream</h2>",
+      "css": ".ds-h{display:flex;align-items:center;gap:12px;font:800 32px/1.05 Outfit,sans-serif;letter-spacing:-.01em;text-transform:uppercase;color:#eef1f5}.ds-h::before{content:'';width:14px;height:.9em;background:#3fd9a4;clip-path:polygon(0 0,100% 0,calc(100% - 5px) 100%,0 100%)}"
+    },
+    {
+      "name": "Tally Strip",
+      "kind": "custom",
+      "refersTo": "tally-key",
+      "description": "Flush key/name/file blocks above a screen preview.",
+      "html": "<p class=\"ds-ty\"><span class=\"k\">PGM</span><span class=\"n\">Raid</span><span class=\"f\">topbar · alerts · banner</span></p>",
+      "css": ".ds-ty{display:flex;height:28px;font:800 11px Outfit,sans-serif;letter-spacing:.14em;text-transform:uppercase}.ds-ty>*{display:flex;align-items:center;padding:0 11px}.ds-ty .k{background:#3fd9a4;color:#0a0b0d}.ds-ty .n{background:#131519;color:#eef1f5}.ds-ty .f{color:#818b98;font:400 12px 'JetBrains Mono',monospace;letter-spacing:0;text-transform:none}"
+    },
+    {
+      "name": "Fold",
+      "kind": "custom",
+      "refersTo": "fold",
+      "description": "Hairline fold with drawn jade chevron.",
+      "html": "<details class=\"ds-fold\"><summary>OBS sources <small>file, size, position</small></summary></details>",
+      "css": ".ds-fold{border-top:1px solid #1e2228;border-bottom:1px solid #1e2228}.ds-fold summary{list-style:none;display:flex;align-items:baseline;gap:14px;padding:18px 2px;font:700 16px Outfit,sans-serif;color:#eef1f5;cursor:pointer}.ds-fold summary::-webkit-details-marker{display:none}.ds-fold summary::before{content:'';align-self:center;width:7px;height:7px;border-right:2px solid #3fd9a4;border-bottom:2px solid #3fd9a4;transform:rotate(-45deg)}.ds-fold[open] summary::before{transform:rotate(45deg)}.ds-fold small{font-size:14px;font-weight:400;color:#818b98}"
+    }
+  ]
+}
