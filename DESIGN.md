@@ -19,7 +19,7 @@ colors:
   jade-ghost: "rgba(63,217,164,.13)"
   gold: "#d8b263"
   rose: "#d98b8b"
-  live-red: "#e5484d"
+  live-red: "#c93339"
   holy: "#ffffff"
   void-glow: "rgba(150,90,255,.24)"
 typography:
@@ -261,7 +261,7 @@ Confirmed rejection (contract thesis): the docs page with a screenshot on top. T
 **Key Characteristics:**
 - [family] Flat ink scale, Outfit + JetBrains Mono, jade + gold + live-red, from tokens.css.
 - [family] Right-edge slant on ribbons, pills, buttons and section caps; flush square blocks for the bug, the language switch and the ticker.
-- [family] Colour as meaning: jade = brand/live, gold = first or best, live-red = on air.
+- [family] Colour as meaning: jade = brand/live, gold = earned (first, best, leader, winner), live-red = on air; failures and lateness are rose.
 - [overlay] Character-select hero: character and boss as transparent cut-outs on two planes, the class colour as the character's light.
 - [overlay] The real OBS pages as live, scaled previews instead of screenshots.
 - [overlay] OBS pages keep the v1 surface; only tokens.css is shared.
@@ -275,10 +275,10 @@ The family's near-black ink ramp with one cool green voice and one warm gold voi
 - **Deep Jade** (jade-deep): [family] a token from tokens.css used by the OBS pages; the showcase page does not use it.
 
 ### Secondary
-- **Podium Gold** (gold): [overlay] a first or a best. On this page only the "new best" tag in the alerts ticker; on stream, the new-best alert ("the same shape in gold").
+- **Podium Gold** (gold): [family] earned: a first, a best, a leader or a winner. On this page only the "new best" tag in the alerts ticker; on stream, the new-best alert ("the same shape in gold").
 
 ### Tertiary
-- **Broadcast Red** (live-red): [family] on air only: the LIVE block in the bug, shown only while DecAPI says the channel is live; never on a stream page. Lives in tokens.css (since this branch), so the race site can read it from here.
+- **Broadcast Red** (live-red): [family] on air only: the LIVE block in the bug, shown only while DecAPI says the channel is live; never on a stream page. Lives in tokens.css (since this branch), so the race site can read it from here. Value #c93339 (darkened from #e5484d on 2026-10-04) so paper text on it reaches 4.6:1.
 - **Faded Rose** (rose): [family] a token the OBS pages use; not used on the showcase page.
 
 ### Class colour [overlay]
@@ -302,7 +302,7 @@ The family's near-black ink ramp with one cool green voice and one warm gold voi
 - **Void Glow** (void-glow): [overlay value] the violet radial behind the boss plane, at 24% (the race site's hero uses the same hue at 32%).
 
 ### Named Rules
-**The Gold Is a Record Rule.** [overlay] Gold marks a first or a best and nothing else: not a tag colour, not a hover, not a state.
+**The Gold Is Earned Rule.** [family] Gold marks something earned (a first, a new best, the leader, the winner) and nothing else: not a tag colour, not a hover, not a state.
 
 **The Red Means On Air Rule.** [family] Live-red only on the LIVE block, only while the channel is really live, and never on a page that is itself the stream.
 
@@ -420,7 +420,3 @@ Folds between 1px ink-700 hairlines: the drawn jade chevron, the fold title (jad
 - **Don't** show LIVE or a live dot unless the channel is live.
 - **Don't** bring the v1 capsules and round pills of the OBS pages to a v2 web surface.
 - **Don't** let the install notes lead the page; they stay folded below the work.
-
-## Open decisions
-
-- **LIVE pill contrast.** The LIVE block is paper on live-red (#e5484d) at 13px/800, about 3.4:1, below 4.5:1 for small text. Whether to darken the family's `--live-red` token is undecided; until it is, the value stays as it is and this is not a rule.

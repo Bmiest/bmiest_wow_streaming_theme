@@ -53,14 +53,14 @@
       "gold": {
         "role": "secondary",
         "displayName": "Podium Gold",
-        "scope": "overlay",
-        "purpose": "A first or a best: the new-best ticker tag and alert."
+        "scope": "family",
+        "purpose": "Earned: a first, a new best, the leader, the winner. Here the new-best ticker tag and alert."
       },
       "live-red": {
         "role": "tertiary",
         "displayName": "Broadcast Red",
         "scope": "family",
-        "purpose": "LIVE block only, only while live, never on a stream page. Open: paper on it is ~3.4:1."
+        "purpose": "LIVE block only, only while live, never on a stream page. #c93339 (darkened from #e5484d) so paper on it is 4.6:1."
       },
       "rose": {
         "role": "tertiary",
@@ -268,13 +268,7 @@
       "provenance": "img/boss/PROVENANCE.md",
       "maxScale": "2x natural height"
     },
-    "openDecisions": [
-      {
-        "name": "live-red contrast",
-        "state": "open",
-        "note": "Paper on #e5484d ~3.4:1 at 13px/800; darkening the family token undecided."
-      }
-    ],
+    "openDecisions": [],
     "narrative": {
       "northStar": "The Character Select Screen",
       "rules": [
@@ -296,7 +290,7 @@
       "refersTo": "bug-name",
       "description": "Flush square blocks: LIVE, jade mark, name, jade guild slot.",
       "html": "<div class=\"ds-bug\"><span class=\"l\"><i></i>Live</span><span class=\"m\"></span><span class=\"n\">bmiest</span><span class=\"s\">Kelderklasse</span></div>",
-      "css": ".ds-bug{display:flex;height:40px;font:800 14px/1 Outfit,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase}.ds-bug>*{display:flex;align-items:center;gap:9px}.ds-bug .l{padding:0 18px;background:#e5484d;color:#eef1f5;font-size:13px;letter-spacing:.14em}.ds-bug .l i{width:8px;height:8px;border-radius:999px;box-shadow:0 0 0 2px #eef1f5}.ds-bug .m{width:40px;background:#3fd9a4;margin-right:5px}.ds-bug .n{padding:0 20px 0 0;background:#0a0b0d;color:#eef1f5}.ds-bug .s{padding:0 18px;background:#3fd9a4;color:#0a0b0d;letter-spacing:.06em}"
+      "css": ".ds-bug{display:flex;height:40px;font:800 14px/1 Outfit,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase}.ds-bug>*{display:flex;align-items:center;gap:9px}.ds-bug .l{padding:0 18px;background:#c93339;color:#eef1f5;font-size:13px;letter-spacing:.14em}.ds-bug .l i{width:8px;height:8px;border-radius:999px;box-shadow:0 0 0 2px #eef1f5}.ds-bug .m{width:40px;background:#3fd9a4;margin-right:5px}.ds-bug .n{padding:0 20px 0 0;background:#0a0b0d;color:#eef1f5}.ds-bug .s{padding:0 18px;background:#3fd9a4;color:#0a0b0d;letter-spacing:.06em}"
     },
     {
       "name": "Ribbon",

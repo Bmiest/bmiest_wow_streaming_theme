@@ -32,7 +32,7 @@
   /* Alleen voor LIVE (het blokje in de bug van de webpagina's), nooit op
      een stream-pagina: daar weet iedereen al dat je live bent. Familie-
      token uit bmiest-design; de race-site leest hem vanaf hier. */
-  --live-red  :#e5484d;
+  --live-red  :#c93339;
 
   /* ---- vorm (uit Amused: capsules, pillen, ribbons) ---------------- */
   --r-cap :30px;
