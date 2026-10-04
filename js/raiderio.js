@@ -26,6 +26,7 @@ function character(c){
       realm : d.realm,
       klass : d.class,
       spec  : d.active_spec_name,
+      race  : d.race || '',            // alleen de voorpagina toont dit
       guild : d.guild ? d.guild.name : '',
       color : U.CLASS_COLORS[d.class] || '#eef1f5',
       thumb : d.thumbnail_url,
