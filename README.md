@@ -82,27 +82,38 @@ https://bmiest.github.io/bmiest_wow_streaming_theme/topbar.html#jwt=eyJ...
 That URL only lives in your OBS configuration. `config.js` is in `.gitignore`
 and returns a 404 on the site, so your token is never public.
 
-The **front page of the site** (`index.html`) is an overview: a live preview of
-the overlay in the proportions it has on your stream, every source URL with a
-copy button, and the sizes and positions OBS asks for. Those previews are the
-real pages in an `iframe`, scaled down -- not screenshots, so nothing goes
-stale when the overlay changes.
+The **front page of the site** (`index.html`) is for viewers first. It opens
+like WoW's character select: the character stands in front of the raid boss the
+guild is on, with name, spec and stat ribbons on the left and a character picker
+on the right. Switching characters crossfades the render while the boss stays
+where it is. Under that, the stream theme is shown working: the real pages in
+an `iframe`, scaled down (not screenshots, so nothing goes stale when the
+overlay changes), the emotes and the channel graphics. The install notes, every
+source URL with a copy button and the sizes and positions OBS asks for, sit
+folded at the bottom.
 
-Two things there follow from the character rotation. The three scene previews
-each start the rotation a step further along (`scene-brb.html?rot=1`,
-`scene-ending.html?rot=2`), because they load at the same moment and otherwise
-show the same pair three times over; in OBS there is nothing behind the URL and
-it just starts at the first pair. And a **Characters** strip lists the whole
-roster at once, from the same `js/raiderio.js` the overlay runs on, for anyone
-who is not going to sit out a rotation of a minute to see all of them.
+Where the data comes from (`js/index.js`):
 
-That strip is the one place that asks Raider.IO once instead of polling, so it
-retries a failed character once after 900ms -- their API hands out a 500 often
-enough that a single attempt regularly left holes in the row. A character that
-still does not answer drops out and the rest stay. `index.html` deliberately
-does **not** load `config.js`: it is the public showcase, it has the shared
-config it needs, and your StreamElements token has no business being in a page
-that draws a row of characters.
+- **Characters**: every character in `raiderio.characters`, from the same
+  `js/raiderio.js` the overlay runs on. The page asks Raider.IO once instead of
+  polling, so a failed character gets one retry after 900ms (their API hands out
+  a 500 often enough). If it still does not answer, Shiftheal and Bhikhu fall
+  back to their name, class, race and render without figures; any other
+  character drops out of the picker.
+- **The boss**: the boss the guild is on, from the Race to Dutch First standing
+  (`js/race.js`); after Cutting Edge, the tier's CE boss. If that site does not
+  answer, Raider.IO's live tracking (`js/rio-live.js`, light mode). The render is
+  a transparent cut-out from `img/boss/`, see below.
+- **LIVE** in the top-left bug: DecAPI's uptime (`js/stats.js`), every two minutes.
+
+The three scene previews each start the character rotation a step further along
+(`scene-brb.html?rot=1`, `scene-ending.html?rot=2`), because they load at the
+same moment and otherwise show the same pair three times over; in OBS there is
+nothing behind the URL and it just starts at the first pair.
+
+`index.html` deliberately does **not** load `config.js`: it is the public
+showcase, it has the shared config it needs, and your StreamElements token has
+no business being in a page that draws a row of characters.
 
 ### The collection
 
@@ -728,6 +739,17 @@ adds, so the script takes the first one, unless `LEADS` at the top of the script
 says the fight has two. Add new council fights there. A boss without a render
 (the CDN answers 403 for some models) gets the Raider.IO portrait, as before.
 To use your own image for a boss, set `liveTracking.bossArt` in your config.
+
+The front page shows the same renders without their flat grey backdrop.
+`build-bosscutouts.py` keys that backdrop to alpha and writes
+`img/boss/creature-display-<id>.png` for every render in `js/bossart.js`, each
+PNG carrying its origin in an `impeccable:prompt` text chunk. It uses the same
+thresholds as the race site's `scripts/boss-cutouts.py`, so a boss has the same
+silhouette on both sites. Run it after `build-bossart.py`:
+
+```bash
+uv run --with pillow ./build-bosscutouts.py
+```
 
 ### How often it updates
 
@@ -1782,8 +1804,10 @@ entry in `LIST` with `frames: 1` and a draw function; the parts it can reuse
 ## 9. Files
 
 ```
-index.html       front page: previews, URLs, OBS numbers
+index.html       front page: character select, previews, URLs, OBS numbers
 css/index.css    front page
+js/index.js      front page
+img/boss/        boss cut-outs for the front page (build-bosscutouts.py)
 graphics.html    channel assets: offline screen, banner, panel buttons
 css/graphics.css channel assets
 js/graphics.js   channel assets

@@ -1,527 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="referrer" content="strict-origin">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ultrawide streaming theme for WoW</title>
-<meta name="description" content="A streaming theme for a 3440x1440 ultrawide going out to Twitch as 2560x1440: top bar, bottom bar, alerts, scene screens, a stinger and twenty emotes. World of Warcraft data from Raider.IO and Warcraft Logs. Hosted, nothing to install.">
+<meta name="referrer" content="strict-origin">
+<title>bmiest · World of Warcraft stream</title>
+<meta name="description" content="Shiftheal and Bhikhu, the healers of bmiest's World of Warcraft stream with Kelderklasse, in front of the raid boss the guild is on, and the stream theme they appear in: every screen running live, the emotes and the channel graphics. For streamers: hosted, nothing to install.">
+<meta name="theme-color" content="#0a0b0d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://render.worldofwarcraft.com" crossorigin>
+<!-- Zelfde URL als de @import in tokens.css, dus één download; hier staat
+     hij alleen zodat de fonts niet op die import hoeven te wachten. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap">
 <link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/index.css">
+</head>
+<body data-title-nl="bmiest · World of Warcraft-stream">
 
-<div class="page">
+<a class="skip" href="#main" data-i18n-html="m.skip">Skip to the screens</a>
 
-  <header class="head">
-    <div class="head__bar">
-    <div class="rib rib--sm" style="--acc:var(--jade)">
-      <div class="rib__bar"><div class="rib__in">
-        <span class="rib__acc"><svg viewBox="0 0 18 18">
-          <circle cx="9" cy="9" r="3" fill="currentColor"></circle>
-          <path d="M4.2 4.2a6.8 6.8 0 0 0 0 9.6M13.8 4.2a6.8 6.8 0 0 1 0 9.6"
-                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-        </svg></span>
-        <span class="rib__val">bmiest</span>
-      </div></div>
+<!-- ==== Characterkeuze ====================================================
+     Zoals het characterscherm van WoW: de healer staat voor de raidboss
+     waar de guild op zit. Drie lagen achter elkaar -- de boss ver weg, het
+     character ervoor, de tekst erop -- en die schuiven bij het scrollen een
+     klein beetje uit elkaar. De boss komt live uit de race-stand
+     (js/race.js), het character uit Raider.IO (js/raiderio.js); zie
+     js/index.js. Zonder JavaScript staat hier Shiftheal, zonder plaatjes. -->
+<header class="hero">
+  <div class="wrap top">
+    <div class="bug">
+      <span class="bug__live" id="bugLive" hidden><span class="live-dot" aria-hidden="true"></span>Live</span>
+      <a class="bug__name" href="https://www.twitch.tv/bmiest"><span class="bug__mark"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="3" fill="currentColor"></circle><path d="M4.2 4.2a6.8 6.8 0 0 0 0 9.6M13.8 4.2a6.8 6.8 0 0 1 0 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg></span>bmiest</a>
+      <span class="bug__slot" id="bugGuild">Kelderklasse<span class="bug__realm"> · EU-Draenor</span></span>
     </div>
-
     <!-- Taalkeuze. Wisselt deze pagina, de voorbeelden erin en de URL's
-         achter de kopieerknoppen; zie js/i18n.js. Een segmentknop in plaats
-         van een schuifje: twee talen, en je ziet in één keer welke aanstaat. -->
-    <div class="lang" role="group" aria-label="Language" id="langPick">
+         achter de kopieerknoppen; zie js/i18n.js. -->
+    <div class="lang-switch" role="group" aria-label="Language" id="langPick">
       <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
       <button type="button" data-lang="nl" aria-pressed="false" lang="nl">NL</button>
     </div>
-    </div>
+  </div>
 
-    <h1 data-i18n-html="d1">Ultrawide streaming theme for WoW</h1>
-    <p class="lead" data-i18n-html="d2">
-      Cut for one specific setup: a <b>3440x1440 ultrawide</b> that goes out to
-      Twitch as 2560x1440. The layout starts from that shape — the 368px the
-      game does not need become a top bar and a bottom bar, and nothing but the
-      alerts ever crosses the gameplay. What fills them is World of Warcraft:
-      your characters and their raid progress, the guild's pull count on the
-      boss you are on, chat and your channel numbers. Three scene screens, a
-      stinger and a full set of emotes come with it. The pages run from this site, so in OBS you point a
-      browser source at them and there is nothing else to install. Updating is a
-      <code>git push</code>.
-    </p>
-    <p class="base"><span data-i18n-html="base">base URL</span> <b id="base">…</b></p>
-  </header>
-
-  <!-- Hero: de echte pagina's, op schaal, in de verhouding waarin ze op je
-       stream liggen. Geen screenshot -- dit is de overlay zelf, met live
-       data. -->
-  <section class="hero">
-    <div class="hero__frame" id="heroFrame">
-      <div class="zone zone--top">
-        <iframe src="topbar.html?demo=1" title="Top bar" scrolling="no"></iframe>
+  <div class="wrap stage" id="stage">
+    <div class="planes" aria-hidden="true">
+      <div class="plane plane--boss" id="bossPlane">
+        <span class="glow glow--void"></span>
+        <div class="boss" id="bossArt"></div>
       </div>
-
-      <div class="zone zone--game">
-        <!-- Echte gameplay achter de overlay, als je een clip neerzet. Zonder
-             bestand laadt dit niets en blijft de arcering staan: een video
-             zonder poster en zonder bron is gewoon doorzichtig, dus er is
-             geen JavaScript nodig om terug te vallen.
-
-             Zet er een stil, kort fragment neer op media/gameplay.webm (of
-             .mp4). Ruwe gameplay in 21:9, geen Twitch-clip van je stream --
-             daar zitten de balken al in en dan krijg je overlay over
-             overlay. Zie de README. -->
-        <video class="zone__vid" autoplay muted loop playsinline preload="auto"
-               aria-hidden="true">
-          <source src="media/gameplay.mp4" type="video/mp4">
-        </video>
-        <span class="zone__tag" data-i18n-html="d4">gameplay <b>2560 × 1072</b></span>
-        <!-- De alertlaag hoort hier: op je stream ligt die over de gameplay,
-             precies in deze zone en op precies deze maat. De hele cyclus, dus
-             volger, sub, bits, raid en tip komen hier voorbij en daarna de
-             twee raidmeldingen. Op mute. Niet lazy: dit is het eerste dat je
-             ziet, dat moet niet op een scroll wachten. -->
-        <iframe src="alerts.html?test=1&amp;mute=1" title="Alerts over gameplay"
-                scrolling="no"></iframe>
-      </div>
-
-      <div class="zone zone--bottom">
-        <span class="cam-ghost" data-i18n-html="d5">camera</span>
-        <iframe src="banner.html?demo=1" title="Bottom bar" scrolling="no"></iframe>
+      <div class="plane plane--char" id="charPlane">
+        <span class="glow glow--cls"></span>
+        <div class="fig" id="fig"></div>
       </div>
     </div>
 
-    <p class="hero__note" data-i18n-html="d6">
-      The 1440 pixels of height are split into 120 on top, 1072 of gameplay and
-      248 below. The top carries session status, the bottom the content:
-      camera, characters, raid progress, chat and recent events. The camera area
-      is a hole in the bottom bar, with your webcam behind it.
-      The alert layer is running in the middle: a follower, a sub, bits, a raid
-      and a tip come past every few seconds, and after those the two raid
-      alerts. It is muted here.
+    <div class="info" id="info">
+      <h1 class="poster info__name" id="charName">Shiftheal</h1>
+      <p class="info__spec" id="charSpec"><em>Holy</em> Priest</p>
+      <ul class="ribs" id="charRibs"></ul>
+    </div>
+
+    <p class="bosstag" id="bossTag" hidden>
+      <span class="bosstag__k" id="bossTagK"></span><span class="bosstag__n" id="bossTagN"></span><span class="bosstag__m mono" id="bossTagM"></span>
     </p>
 
-    <!-- De verhouding van het gameplayvlak is geen toeval: 2560x1072 is de
-         maat die overblijft als de balken banden zijn in plaats van panelen
-         die over je spel liggen, en die maat is precies een ultrawide. Dat
-         staat nergens op de pagina, dus hier. -->
-    <p class="hero__note" data-i18n-html="d7">
-      The overlay is built for an ultrawide. Instead of panels floating over
-      the game, the bars are full-width bands above and below it, and what that
-      leaves is a gameplay window of 2560 x 1072. At 2.39:1 that is the shape
-      of a 3440x1440 monitor to within 0.03%, so an ultrawide capture fills it
-      edge to edge with nothing cropped and no black bands. A 16:9 capture
-      works too: you either scale it to the full width and lose some height off
-      the top and bottom, or keep the whole frame and accept a narrow band at
-      each side.
-    </p>
-  </section>
+    <div class="select">
+      <h2 class="select__h" id="pickH" data-i18n-html="b.select">Choose a character</h2>
+      <div class="picks" id="picks" role="group" aria-labelledby="pickH"></div>
+      <p class="select__note" data-i18n-html="d53">The bottom bar shows two of these at a time and rotates through the rest, and the pause screens do the same with full-body renders. Straight from Raider.IO, so this is the same data the overlay runs on — item level and score included.</p>
+      <a class="btn select__watch" href="https://www.twitch.tv/bmiest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3 3.5 6.5V19H8v2.5h2.5L13 19h3.5L21 14.5V3H5Zm14 10.5-2.5 2.5H13l-2.5 2.5V16H7V5h12v8.5ZM16 8h-2v5h2V8Zm-4.5 0h-2v5h2V8Z" fill="currentColor"/></svg><span data-i18n-html="m.watch">Watch on Twitch</span></a>
+    </div>
+  </div>
 
-  <!-- Het snelle pad. De brontabel eronder is het handmatige pad en blijft
-       naslag; wat hier staat, staat daar dus niet nog eens. -->
-  <section class="rcard-wrap card" style="--acc:var(--jade)">
-    <span class="rcard__cap" data-i18n-html="d8">installing</span>
-    <div class="rcard"><div class="rcard__in">
+  <!-- De meldingencyclus van alerts.html?test=1, als lopende band. Verzonnen
+       namen, dus het label zegt demo. -->
+  <div class="ticker">
+    <h2 class="ticker__label"><span data-i18n-html="b2.alerts">Alerts</span> <small data-i18n-html="m.demo">demo</small></h2>
+    <ol class="ticker__list" id="ticker"></ol>
+  </div>
+</header>
 
-      <p data-i18n-html="d9">
-        There is nothing to download and nothing to run. OBS fetches the pages
-        from this site, so the whole install is a scene collection, a token and
-        one local video file.
-      </p>
+<main class="page" id="main">
 
-      <ol class="steps">
-        <li>
-          <h3 data-i18n-html="d10">Set the canvas</h3>
-          <p data-i18n-html="d11">
-            <i>Settings &rarr; Video</i>: base and output resolution both
-            <code>2560x1440</code>, downscale filter Lanczos, 60 FPS. The
-            layout is that canvas, split into 120 pixels of top bar, 1072 of
-            gameplay and 248 below, so the sources only land in the right place
-            if the canvas matches.
-          </p>
-        </li>
-        <li>
-          <h3 data-i18n-html="d12">Import the scene collection</h3>
-          <p data-i18n-html="d13">
-            Download
-            <a href="obs-scene-collection.pages.json">obs-scene-collection.pages.json</a>,
-            open it in a text editor and replace <code>__JWT__</code> with your
-            StreamElements JWT. Then <i>Scene Collection &rarr; Import</i> and
-            pick <b>bmiest overlay</b>.
-          </p>
-          <p data-i18n-html="d14">
-            That brings in all seven browser sources at the right size and
-            position, and the five scenes around them. Rather do it by hand? The
-            table below has every URL, size and position.
-          </p>
-          <p data-i18n-html="d99">
-            Want what is on stream in Dutch? Put <code>?lang=nl</code> on every
-            browser source, or build the collection with
-            <code>./make-obs-collection.py --lang nl</code>. The copy buttons
-            below add it for you while this page is set to NL. Boss, raid and
-            character names stay as the game writes them.
-          </p>
-        </li>
-        <li>
-          <h3 data-i18n-html="d15">Add the stinger</h3>
-          <p data-i18n-html="d16">
-            <i>Scene Transitions &rarr; + &rarr; Stinger</i>, point it at
-            <a href="stinger.webm">stinger.webm</a> and set the transition point
-            to <code>500</code> ms. This is the one file that has to live on your
-            disk: OBS will not play a stinger transition from a URL. It is
-            deliberately not in the collection either, because a Windows path
-            full of backslashes is the one thing that breaks when you edit that
-            JSON by hand.
-          </p>
-        </li>
-        <li>
-          <h3 data-i18n-html="d17">Point the two placeholders at your own sources</h3>
-          <p data-i18n-html="d18">
-            Two sources come in as flat colour blocks, named
-            <code>[VERVANG] Gameplay</code> and <code>[VERVANG] Webcam</code>.
-            Replace the first with your Game Capture, <i>scale to inner
-            bounds</i> at 2560&nbsp;&times;&nbsp;1072, and the second with your
-            Video Capture Device, <i>scale to outer bounds</i> at
-            340&nbsp;&times;&nbsp;200. The camera area is a punched hole in the
-            bottom bar, so your webcam belongs behind it, not on top.
-          </p>
-        </li>
-        <li>
-          <h3 data-i18n-html="d19">Three settings on the browser sources</h3>
-          <p data-i18n-html="d20">
-            Set <i>Custom frame rate</i> to 30 FPS on the two bars. Nothing in
-            them needs 60, and it halves what they cost to render.
-          </p>
-          <p data-i18n-html="d21">
-            Leave <i>Shutdown source when not visible</i> and <i>Refresh browser
-            when scene becomes active</i> <b>off</b>. That way your chat history
-            survives a scene switch, and the clocks on the scene screens still
-            restart when those come on screen.
-          </p>
-          <p data-i18n-html="d22">
-            Tick <i>Control audio via OBS</i> on the alerts source, or the sound
-            never reaches your mix: a peon or orc voice line from WoW on a boss
-            kill, a new best, a follow and a sub.
-          </p>
-        </li>
-      </ol>
+  <!-- De schermen zelf: echte pagina's in demomodus, op schaal. -->
+  <section class="view" aria-labelledby="stH">
+    <h2 class="view__title" id="stH" data-i18n-html="b.stream.h">On stream</h2>
+    <p class="caption" data-i18n-html="b.stream.cap">The programme picture and the four screens around it, all the real pages in demo mode.</p>
 
-    </div></div>
-  </section>
-
-  <!-- URL's + de getallen die OBS wil weten -->
-  <section class="rcard-wrap card" style="--acc:var(--jade)">
-    <span class="rcard__cap" data-i18n-html="d23">in obs</span>
-    <div class="rcard"><div class="rcard__in">
-
-      <div class="scroll">
-        <table class="srcs">
-          <thead>
-            <tr><th data-i18n-html="d24">Source</th><th data-i18n-html="d25">What</th><th data-i18n-html="d26">Size</th><th data-i18n-html="d27">Position</th><th></th></tr>
-          </thead>
-          <tbody>
-            <tr data-file="topbar.html">
-              <td data-i18n-html="d28">Top bar</td><td class="t-mono">topbar.html</td>
-              <td class="t-mono">2560 × 120</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="banner.html">
-              <td data-i18n-html="d29">Bottom bar</td><td class="t-mono">banner.html</td>
-              <td class="t-mono">2560 × 248</td><td class="t-mono">0, 1192</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="alerts.html">
-              <td data-i18n-html="d30">Alerts</td><td class="t-mono">alerts.html</td>
-              <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="scene-starting.html">
-              <td data-i18n-html="d31">Starting soon</td><td class="t-mono">scene-starting.html</td>
-              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="scene-brb.html">
-              <td data-i18n-html="d32">Be right back</td><td class="t-mono">scene-brb.html</td>
-              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="scene-ending.html">
-              <td data-i18n-html="d33">Ending</td><td class="t-mono">scene-ending.html</td>
-              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr data-file="chatting.html">
-              <td data-i18n-html="d34">Just Chatting</td><td class="t-mono">chatting.html</td>
-              <td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td>
-              <td><button class="copy" type="button">copy</button></td>
-            </tr>
-            <tr class="srcs--other">
-              <td data-i18n-html="d35">Game Capture</td><td data-i18n-html="d36">your game, <i>scale to inner bounds</i></td>
-              <td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td><td></td>
-            </tr>
-            <tr class="srcs--other">
-              <td data-i18n-html="d37">Webcam</td><td data-i18n-html="d38">Video Capture, <i>scale to outer bounds</i></td>
-              <td class="t-mono">340 × 200</td><td class="t-mono">24, 1216</td><td></td>
-            </tr>
-            <tr class="srcs--other">
-              <td data-i18n-html="d39">Stinger</td><td data-i18n-html="d40"><i>Scene Transitions</i> → Stinger, point at 500 ms</td>
-              <td class="t-mono">stinger.webm</td><td data-i18n-html="d41">local file</td><td></td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="mv">
+      <div class="mv__pgm">
+        <p class="tally"><span class="tally__k">PGM</span><span class="tally__n" data-i18n-html="b.pgm">Raid</span><span class="tally__f">topbar · alerts · banner</span></p>
+        <div class="frame">
+          <div class="zone zone--top"><iframe src="topbar.html?demo=1" title="Top bar" scrolling="no" loading="lazy"></iframe></div>
+          <div class="zone zone--game">
+            <!-- Echte gameplay achter de overlay, als media/gameplay.mp4 er
+                 staat; zonder bestand blijft het vlak gewoon leeg. Zie de
+                 README. -->
+            <video autoplay muted loop playsinline preload="auto" aria-hidden="true"><source src="media/gameplay.mp4" type="video/mp4"></video>
+            <!-- De hele meldingencyclus, op mute: een pagina die uit zichzelf
+                 begint te piepen is geen visitekaartje. -->
+            <iframe src="alerts.html?test=1&amp;mute=1" title="Alerts over gameplay" scrolling="no" loading="lazy"></iframe>
+            <span class="zone__tag" data-i18n-html="d4">gameplay <b>2560 × 1072</b></span>
+          </div>
+          <div class="zone zone--bottom">
+            <span class="cam-ghost" data-i18n-html="d5">camera</span>
+            <iframe src="banner.html?demo=1" title="Bottom bar" scrolling="no" loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="cols2 mv__notes">
+          <p class="note" data-i18n-html="d6">The 1440 pixels of height are split into 120 on top, 1072 of gameplay and 248 below. The top carries session status, the bottom the content: camera, characters, raid progress, chat and recent events. The camera area is a hole in the bottom bar, with your webcam behind it. The alert layer is running in the middle: a follower, a sub, bits, a raid and a tip come past every few seconds, and after those the two raid alerts. It is muted here.</p>
+          <p class="note" data-i18n-html="d7">The overlay is built for an ultrawide. Instead of panels floating over the game, the bars are full-width bands above and below it, and what that leaves is a gameplay window of 2560 x 1072. At 2.39:1 that is the shape of a 3440x1440 monitor to within 0.03%, so an ultrawide capture fills it edge to edge with nothing cropped and no black bands. A 16:9 capture works too: you either scale it to the full width and lose some height off the top and bottom, or keep the whole frame and accept a narrow band at each side.</p>
+        </div>
       </div>
 
-      <p class="hint" data-i18n-html="d42">
-        <b>Your StreamElements token belongs in the URL</b>, as
-        <code>#jwt=eyJ…</code>. That URL only lives in your OBS configuration,
-        exactly the way StreamElements' own overlay URL works, so the token is
-        never on this site. Without one everything still runs, but alerts,
-        events and the labels stay empty. The copy button hands you the URL
-        without a token; paste yours on the end in OBS.
-      </p>
+      <div class="mv__grid">
+        <figure class="shot">
+          <p class="tally"><span class="tally__n" data-i18n-html="d31">Starting soon</span><span class="tally__f">scene-starting.html</span></p>
+          <div class="scr" data-h="1440"><iframe src="scene-starting.html" title="Starting soon" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d45">Starting soon — countdown, stream title, the race standing, schedule with the next raid, and socials</figcaption>
+        </figure>
+        <figure class="shot">
+          <p class="tally"><span class="tally__n" data-i18n-html="d32">Be right back</span><span class="tally__f">scene-brb.html</span></p>
+          <div class="scr" data-h="1440"><iframe src="scene-brb.html?rot=1" title="Be right back" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d46">Be right back — the clock counts up, chat stays on screen</figcaption>
+        </figure>
+        <figure class="shot">
+          <p class="tally"><span class="tally__n" data-i18n-html="d33">Ending</span><span class="tally__f">scene-ending.html</span></p>
+          <div class="scr" data-h="1440"><iframe src="scene-ending.html?rot=2" title="Ending" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d47">Ending — sign-off with schedule and socials</figcaption>
+        </figure>
+        <figure class="shot">
+          <p class="tally"><span class="tally__n" data-i18n-html="d34">Just Chatting</span><span class="tally__f">chatting.html</span></p>
+          <div class="scr" data-h="1440"><iframe src="chatting.html?demo=1" title="Just Chatting" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d48">Just Chatting — camera left, chat right</figcaption>
+        </figure>
+      </div>
 
-      <p class="hint" data-i18n-html="d43">
-        <b>Warcraft Logs rides along the same way</b>, as <code>#wcl=…</code> on
-        every source. It is optional — without it the raid card runs on
-        Raider.IO alone, exactly as before. With it, Warcraft Logs fills the
-        card whenever it answers and Raider.IO becomes the fallback, because it
-        derives its live tracking from the same logs and so can lag but never
-        lead. It is the one that knows about the kill you just got. What goes in that URL is an
-        <i>access token</i>, good for a year; the client secret that mints it
-        stays off this site entirely. <a href="compare.html">compare.html</a>
-        puts both sources side by side with the verdict underneath, which is the
-        page to open if the numbers ever look wrong.
-      </p>
-
-    </div></div>
-  </section>
-
-  <!-- De schermen zelf, ook live -->
-  <section class="screens">
-    <h2 data-i18n-html="d44">The screens</h2>
-    <div class="grid">
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-starting.html" title="Starting soon" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d45">Starting soon — countdown, stream title, the race standing, schedule with the next raid, and socials</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-brb.html?rot=1" title="Be right back" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d46">Be right back — the clock counts up, chat stays on screen</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="scene-ending.html?rot=2" title="Ending" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d47">Ending — sign-off with schedule and socials</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1440">
-          <iframe src="chatting.html?demo=1" title="Just Chatting" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d48">Just Chatting — camera left, chat right</figcaption>
-      </figure>
-
-      <!-- De alertlaag is 1072 hoog en transparant, en staat op mute: een
-           pagina die uit zichzelf begint te piepen is geen visitekaartje. -->
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1072">
-          <iframe src="alerts.html?test=kill&amp;mute=1" title="Boss kill alert" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d49">Boss down — fourteen seconds of fireworks, the boss's own model on the flanks and your guild under its name. On repeat here, so you do not have to wait out the cycle above</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__box" data-w="2560" data-h="1072">
-          <iframe src="alerts.html?test=best&amp;mute=1" title="New best alert" scrolling="no" loading="lazy"></iframe>
-        </div>
-        <figcaption data-i18n-html="d50">New best — the same shape in gold. The kill version runs in the frame at the top of this page</figcaption>
-      </figure>
+      <h3 class="sub__title" data-i18n-html="m.alerts.h">During the raid</h3>
+      <div class="cols2 mv__alerts">
+        <figure class="shot">
+          <div class="scr" data-h="1072"><iframe src="alerts.html?test=kill&amp;mute=1" title="Boss kill alert" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d49">Boss down — fourteen seconds of fireworks, the boss's own model on the flanks and your guild under its name. On repeat here, so you do not have to wait out the cycle above</figcaption>
+        </figure>
+        <figure class="shot">
+          <div class="scr" data-h="1072"><iframe src="alerts.html?test=best&amp;mute=1" title="New best alert" scrolling="no" loading="lazy"></iframe></div>
+          <figcaption data-i18n-html="d50">New best — the same shape in gold. The kill version runs in the frame at the top of this page</figcaption>
+        </figure>
+      </div>
+      <p class="note" data-i18n-html="d51">These previews are the real pages in an iframe, scaled down, so they show whatever the overlay shows right now. The chat in them is stand-in text for what viewers type. The three scene screens start their character rotation one step apart (<code>?rot=</code>), so you see three different pairs here instead of the same one three times. The alert previews are muted; on stream, a kill says "Work complete.", "For the Horde!" or "Victory or death!", and a new best "Work, work!" or another peon line. The other five alerts (follow, sub, cheer, tip, raid) get a small burst of the same fireworks, off to the sides of the alert.</p>
     </div>
-    <p class="hero__note" data-i18n-html="d51">
-      These previews are the real pages in an iframe, scaled down, so they show
-      whatever the overlay shows right now. The chat in them is stand-in text
-      for what viewers type. The three scene screens start their character
-      rotation one step apart (<code>?rot=</code>), so you see three different
-      pairs here instead of the same one three times. The alert previews are
-      muted; on stream, a kill says "Work complete.", "For the Horde!" or
-      "Victory or death!", and a new best "Work, work!" or another peon line.
-      The other five alerts (follow, sub, cheer, tip, raid) get a small burst
-      of the same fireworks, off to the sides of the alert.
-    </p>
   </section>
 
-  <!-- De hele rij characters in één keer. In de onderbalk en op de
-       pauzeschermen komen ze twee tegelijk langs; wie hier komt kijken heeft
-       geen zin om een rotatie van een minuut uit te zitten. -->
-  <section class="screens">
-    <h2 data-i18n-html="d52">Characters</h2>
-    <div class="roster" id="roster"></div>
-    <p class="hero__note" id="rosterNote" data-i18n-html="d53">
-      The bottom bar shows two of these at a time and rotates through the rest,
-      and the pause screens do the same with full-body renders. Straight from
-      Raider.IO, so this is the same data the overlay runs on — item level and
-      score included.
-    </p>
+  <!-- De bronkeuze, met een echte meting erin (geen verzonnen cijfers). -->
+  <section class="view" aria-labelledby="cmpH">
+    <h2 class="view__title" id="cmpH" data-i18n-html="d54">Two sources for the raid card</h2>
+    <p class="note" data-i18n-html="d55">Raider.IO derives its live tracking from the same uploaded logs Warcraft Logs keeps, so it can lag but never lead. The card reads both and runs on Warcraft Logs whenever it answers, naming the source it used; Raider.IO stays on as the fallback and for the two things only it has, the boss portrait and the progress line. Below is a real reading, not a mock-up: Raider.IO still had the boss alive at 19 pulls while its own progress line already counted the kill.</p>
+    <div class="board"><iframe src="compare.html?demo=1" title="Raid source comparison" scrolling="no" loading="lazy"></iframe></div>
+    <p class="note" data-i18n-html="d56">Open <a href="compare.html">compare.html</a> with a Warcraft Logs token during a raid and it does this live, every 20 seconds, with the verdict coming from the same code the card uses.</p>
   </section>
 
-  <!-- De bronkeuze, met de opname erin. Hier staan bewust geen verzonnen
-       cijfers: dit is een echte meting met de datum erbij, en juist daarom is
-       dit de plek om die functie te laten zien. In de onderbalk kan het niet
-       -- die kaart is 340px en 'demo · warcraftlogs' past er niet in, en een
-       echte bronnaam boven verzonnen cijfers is een vermelding voor iets wat
-       die dienst nooit geleverd heeft. -->
-  <section class="screens">
-    <h2 data-i18n-html="d54">Two sources for the raid card</h2>
-    <p class="hero__note" style="margin:0 0 22px" data-i18n-html="d55">
-      Raider.IO derives its live tracking from the same uploaded logs Warcraft
-      Logs keeps, so it can lag but never lead. The card reads both and runs on
-      Warcraft Logs whenever it answers, naming the source it used; Raider.IO
-      stays on as the fallback and for the two things only it has, the boss
-      portrait and the progress line. Below is a real reading, not a mock-up:
-      Raider.IO still had the boss alive at 19 pulls while its own progress
-      line already counted the kill.
-    </p>
-    <div class="board">
-      <iframe src="compare.html?demo=1" title="Raid source comparison"
-              scrolling="no" loading="lazy"></iframe>
-    </div>
-    <p class="hero__note" data-i18n-html="d56">
-      Open <a href="compare.html">compare.html</a> with a Warcraft Logs token
-      during a raid and it does this live, every 20 seconds, with the verdict
-      coming from the same code the card uses.
-    </p>
+  <!-- Emotes: de bestanden uit graphics/emotes/, dus precies wat je uploadt.
+       De lijst komt uit js/emotes.js. -->
+  <section class="view" aria-labelledby="emH">
+    <h2 class="view__title" id="emH" data-i18n-html="d62">Emotes and channel points</h2>
+    <p class="caption" data-i18n-html="d63">Twenty, one for every slot Twitch gives an affiliate, all the same monk: the wig from the sub goal on a head, in a jade Mistweaver robe with a priest's collar. Every size is drawn on its own, so upload the <code>-28</code>, <code>-56</code> and <code>-112</code> one by one with auto-resize off. <a href="emotes.html">emotes.html</a> shows all three on Twitch's dark and light chat; <code>./build-emotes.py</code> writes them.</p>
+    <div class="egroups" id="emotes"></div>
   </section>
 
   <!-- Kanaalgraphics: de PNG's uit graphics/, gerenderd uit graphics.html -->
-  <section class="screens">
-    <h2 data-i18n-html="d57">Channel graphics</h2>
-    <div class="assets">
-      <figure class="asset">
-        <a href="graphics/offline.png">
-          <img src="graphics/offline.png" alt="Offline screen" loading="lazy">
-        </a>
+  <section class="view" aria-labelledby="gxH">
+    <h2 class="view__title" id="gxH" data-i18n-html="d57">Channel graphics</h2>
+    <div class="gfx">
+      <figure>
+        <a href="graphics/offline.png"><img src="graphics/offline.png" alt="Offline screen" width="1920" height="1080" loading="lazy"></a>
         <figcaption data-i18n-html="d58">Offline screen — 1920 × 1080, goes in Video Player Banner</figcaption>
       </figure>
-      <figure class="asset">
-        <a href="graphics/profile-banner.png">
-          <img src="graphics/profile-banner.png" alt="Profile banner" loading="lazy">
-        </a>
+      <figure>
+        <a href="graphics/profile-banner.png"><img src="graphics/profile-banner.png" alt="Profile banner" width="1200" height="480" loading="lazy"></a>
         <figcaption data-i18n-html="d59">Profile banner — 1200 × 480</figcaption>
       </figure>
     </div>
-
-    <figure class="asset">
-      <div class="panels" id="panelStrip"></div>
-      <figcaption data-i18n-html="d60">
-        Panel buttons — 320 px wide, for the About tab. They come from
-        <code>graphics.panels</code> in the config, and
-        <code>./build-graphics.sh</code> writes them all. Same jade head on
-        every one: the icon differentiates, the colour holds them together.
-      </figcaption>
-    </figure>
-
-    <!-- Het infopaneel staat naast de knoppen en niet in de grid hierboven:
-         die twee banners staan daar op gelijke schaal naast elkaar, en een
-         staand paneel van 320 breed hoort niet in die verhouding. -->
-    <figure class="asset asset--info">
-      <a href="graphics/panel-overlay.png">
-        <img src="graphics/panel-overlay.png" alt="Info panel about the overlay"
-             width="320" height="430" loading="lazy">
-      </a>
-      <figcaption data-i18n-html="d61">
-        Info panel — 320 × 430, a whole panel instead of a button: what a
-        viewer who clicks through is looking at. The plan on it is drawn from
-        the heights in <code>config.layout</code>, so it cannot drift away from
-        what is on screen. Text and URL come from <code>graphics.about</code>.
-        A PNG cannot be clicked, so give the panel the same link in Twitch's
-        editor.
-      </figcaption>
-    </figure>
-  </section>
-
-  <!-- Emotes: de bestanden uit graphics/emotes/, dus precies wat je uploadt,
-       en de GIF's bewegen zoals ze in chat bewegen. De lijst komt uit
-       js/emotes.js, zoals de panelknoppen uit de config: één plek. -->
-  <section class="screens">
-    <h2 data-i18n-html="d62">Emotes and channel points</h2>
-    <div class="emotes" id="emoteGrid"></div>
-    <p class="hero__note" data-i18n-html="d63">
-      Twenty, one for every slot Twitch gives an affiliate, all the same monk:
-      the wig from the sub goal on a head, in a jade Mistweaver robe with a
-      priest's collar. Every size is drawn on its own, so upload the
-      <code>-28</code>, <code>-56</code> and <code>-112</code> one by one with
-      auto-resize off. <a href="emotes.html">emotes.html</a> shows all three on
-      Twitch's dark and light chat; <code>./build-emotes.py</code> writes them.
-    </p>
-  </section>
-
-  <section class="cols">
-    <div class="rcard-wrap card" style="--acc:var(--paper)">
-      <span class="rcard__cap" data-i18n-html="d64">where the data comes from</span>
-      <div class="rcard"><div class="rcard__in">
-        <dl class="facts">
-          <dt data-i18n-html="d65">Chat</dt><dd data-i18n-html="d66">Twitch IRC over websocket, anonymous</dd>
-          <dt data-i18n-html="d67">Characters</dt>
-          <dd data-i18n-html="d68"><a href="https://raider.io" rel="noopener">Raider.IO</a>, public API</dd>
-          <dt data-i18n-html="d69">Raid progress</dt>
-          <dd data-i18n-html="d70"><a href="https://raider.io" rel="noopener">Raider.IO</a> and
-              <a href="https://www.warcraftlogs.com" rel="noopener">Warcraft Logs</a>,
-              Warcraft Logs first — the card says which one it used</dd>
-          <dt data-i18n-html="d71">Viewers, followers, uptime, title</dt><dd data-i18n-html="d72">DecAPI</dd>
-          <dt data-i18n-html="d73">The sub goal</dt><dd data-i18n-html="d74">StreamElements' goal counter, or DecAPI for your real active count</dd>
-          <dt data-i18n-html="d75">Follows, subs, bits, tips, raids</dt><dd data-i18n-html="d76">StreamElements, socket + REST</dd>
-        </dl>
-        <p class="hint" data-i18n-html="d77">
-          The parts fail independently, on purpose. If the StreamElements
-          socket drops out the labels keep working over the REST call, and the
-          raid card has two sources plus a memory of the last good answer — so
-          one of them going down no longer empties it. Add
-          <code>?health=1</code> to a URL to see what is not responding and
-          which source won. That is off by default, because a red warning on
-          screen is worse than the problem it reports.
-        </p>
-      </div></div>
-    </div>
-
-    <div class="rcard-wrap card" style="--acc:var(--gold)">
-      <span class="rcard__cap" data-i18n-html="d78">parameters</span>
-      <div class="rcard"><div class="rcard__in">
-        <dl class="facts">
-          <dt><code>#jwt=eyJ…</code></dt><dd data-i18n-html="d79">your StreamElements token</dd>
-          <dt><code>?demo=1</code></dt><dd data-i18n-html="d80">fake data, to line things up without streaming</dd>
-          <dt><code>?test=1</code></dt><dd data-i18n-html="d81">on alerts.html: cycles through every type</dd>
-          <dt><code>?test=kill</code></dt><dd data-i18n-html="d82">just the boss-down alert, on repeat; <code>best</code> for the other one</dd>
-          <dt><code>?test=sub</code></dt><dd data-i18n-html="d83">one type on repeat, by name: <code>sub</code>, <code>follow</code>, <code>cheer</code>, <code>tip</code>, <code>raid</code></dd>
-          <dt><code>?mute=1</code></dt><dd data-i18n-html="d84">on alerts.html: no sound, which is what the previews above use</dd>
-          <dt><code>?health=1</code></dt><dd data-i18n-html="d85">reports what is not responding, top right</dd>
-          <dt><code>?rio=native</code></dt><dd data-i18n-html="d86">raid card in the house style; <code>widget</code> or <code>off</code> also work</dd>
-          <dt><code>?channel=…</code></dt><dd data-i18n-html="d87">a different channel than the one in the config</dd>
-          <dt><code>?lang=nl</code></dt><dd data-i18n-html="d100">Dutch on stream; <code>en</code> is the default. The browser's own language is ignored there, so OBS on a Dutch Windows does not switch by itself</dd>
-        </dl>
-      </div></div>
+    <div class="panels-row">
+      <figure class="shot">
+        <div class="panels" id="panelStrip"></div>
+        <figcaption data-i18n-html="d60">Panel buttons — 320 px wide, for the About tab. They come from <code>graphics.panels</code> in the config, and <code>./build-graphics.sh</code> writes them all. Same jade head on every one: the icon differentiates, the colour holds them together.</figcaption>
+      </figure>
+      <figure class="shot panel-info">
+        <a href="graphics/panel-overlay.png"><img src="graphics/panel-overlay.png" alt="Info panel about the overlay" width="320" height="430" loading="lazy"></a>
+        <figcaption data-i18n-html="d61">Info panel — 320 × 430, a whole panel instead of a button: what a viewer who clicks through is looking at. The plan on it is drawn from the heights in <code>config.layout</code>, so it cannot drift away from what is on screen. Text and URL come from <code>graphics.about</code>. A PNG cannot be clicked, so give the panel the same link in Twitch's editor.</figcaption>
+      </figure>
     </div>
   </section>
 
-  <section class="rcard-wrap card card--wide" style="--acc:var(--paper-dim)">
-    <span class="rcard__cap" data-i18n-html="d88">the shape language</span>
-    <div class="rcard"><div class="rcard__in">
-      <p data-i18n-html="d89">
-        Everything shares one shape: bars that taper to the right, a caption as
-        a tag on the edge, and a coloured head block with an icon. The cards are
-        that same language as a surface, with the bottom-right corner cut off.
-        The 1px outline is everywhere made of two <code>clip-path</code> layers
-        on top of each other, because a normal <code>border</code> will not
-        follow an angled edge.
-      </p>
-      <p data-i18n-html="d90">
-        What is deliberately <i>not</i> in it: gradients. Twitch sends several
-        encodes out at once, and on the bottom rung of that ladder (504 Kbps at
-        360p) a soft wash across 2560 pixels is the first thing to band. So the colour sits in small areas instead: the head
-        block, the ring around a portrait, a single dot. The background gets its
-        depth from curved bands that cross each other; where two overlap the
-        surface is slightly lighter, and that is the only shading in the whole
-        design. It is one canvas of 2560x1440: the scene screens show all of
-        it, and the two bars show the slice that falls at their own height, so
-        the same composition runs on behind your gameplay.
-      </p>
-    </div></div>
+  <!-- Voor streamers. Onder het werk en dichtgevouwen: wie hier van Twitch
+       komt kijken hoeft er niet doorheen. Wat in de folds staat is de
+       naslag van de oude voorpagina, ongewijzigd. -->
+  <section class="view" id="install" aria-labelledby="installH">
+    <h2 class="view__title" id="installH" data-i18n-html="m.install.h">Run it on your own stream</h2>
+    <p class="caption" data-i18n-html="m.install.cap">For streamers: nothing to install, OBS fetches the pages from this site.</p>
+    <div class="intro">
+      <p data-i18n-html="d2">Cut for one specific setup: a <b>3440x1440 ultrawide</b> that goes out to Twitch as 2560x1440. The layout starts from that shape — the 368px the game does not need become a top bar and a bottom bar, and nothing but the alerts ever crosses the gameplay. What fills them is World of Warcraft: your characters and their raid progress, the guild's pull count on the boss you are on, chat and your channel numbers. Three scene screens, a stinger and a full set of emotes come with it. The pages run from this site, so in OBS you point a browser source at them and there is nothing else to install. Updating is a <code>git push</code>.</p>
+      <p class="base"><span data-i18n-html="base">base URL</span><b id="base">…</b></p>
+    </div>
+    <div class="folds">
+      <details class="fold">
+        <summary data-i18n-html="m.fold.install">Installing <small>canvas, scene collection, stinger, two placeholders, three settings</small></summary>
+        <div class="fold__body">
+          <p data-i18n-html="d9">There is nothing to download and nothing to run. OBS fetches the pages from this site, so the whole install is a scene collection, a token and one local video file.</p>
+          <ol class="steps">
+            <li><h3 data-i18n-html="d10">Set the canvas</h3><p data-i18n-html="d11"><i>Settings &rarr; Video</i>: base and output resolution both <code>2560x1440</code>, downscale filter Lanczos, 60 FPS. The layout is that canvas, split into 120 pixels of top bar, 1072 of gameplay and 248 below, so the sources only land in the right place if the canvas matches.</p></li>
+            <li><h3 data-i18n-html="d12">Import the scene collection</h3><p data-i18n-html="d13">Download <a href="obs-scene-collection.pages.json">obs-scene-collection.pages.json</a>, open it in a text editor and replace <code>__JWT__</code> with your StreamElements JWT. Then <i>Scene Collection &rarr; Import</i> and pick <b>bmiest overlay</b>.</p><p data-i18n-html="d14">That brings in all seven browser sources at the right size and position, and the five scenes around them. Rather do it by hand? The table below has every URL, size and position.</p><p data-i18n-html="d99">Want what is on stream in Dutch? Put <code>?lang=nl</code> on every browser source, or build the collection with <code>./make-obs-collection.py --lang nl</code>. The copy buttons below add it for you while this page is set to NL. Boss, raid and character names stay as the game writes them.</p></li>
+            <li><h3 data-i18n-html="d15">Add the stinger</h3><p data-i18n-html="d16"><i>Scene Transitions &rarr; + &rarr; Stinger</i>, point it at <a href="stinger.webm">stinger.webm</a> and set the transition point to <code>500</code> ms. This is the one file that has to live on your disk: OBS will not play a stinger transition from a URL. It is deliberately not in the collection either, because a Windows path full of backslashes is the one thing that breaks when you edit that JSON by hand.</p></li>
+            <li><h3 data-i18n-html="d17">Point the two placeholders at your own sources</h3><p data-i18n-html="d18">Two sources come in as flat colour blocks, named <code>[VERVANG] Gameplay</code> and <code>[VERVANG] Webcam</code>. Replace the first with your Game Capture, <i>scale to inner bounds</i> at 2560&nbsp;&times;&nbsp;1072, and the second with your Video Capture Device, <i>scale to outer bounds</i> at 340&nbsp;&times;&nbsp;200. The camera area is a punched hole in the bottom bar, so your webcam belongs behind it, not on top.</p></li>
+            <li><h3 data-i18n-html="d19">Three settings on the browser sources</h3><p data-i18n-html="d20">Set <i>Custom frame rate</i> to 30 FPS on the two bars. Nothing in them needs 60, and it halves what they cost to render.</p><p data-i18n-html="d21">Leave <i>Shutdown source when not visible</i> and <i>Refresh browser when scene becomes active</i> <b>off</b>. That way your chat history survives a scene switch, and the clocks on the scene screens still restart when those come on screen.</p><p data-i18n-html="d22">Tick <i>Control audio via OBS</i> on the alerts source, or the sound never reaches your mix: a peon or orc voice line from WoW on a boss kill, a new best, a follow and a sub.</p></li>
+          </ol>
+        </div>
+      </details>
+      <details class="fold">
+        <summary data-i18n-html="m.fold.obs">In OBS <small>every source with its URL, size and position</small></summary>
+        <div class="fold__body">
+          <div class="table-wrap">
+            <table class="srcs">
+              <thead><tr><th data-i18n-html="d24">Source</th><th data-i18n-html="d25">What</th><th data-i18n-html="d26">Size</th><th data-i18n-html="d27">Position</th><th><span class="vh" data-i18n="copy">copy</span></th></tr></thead>
+              <tbody>
+                <tr data-file="topbar.html"><td data-i18n-html="d28">Top bar</td><td class="t-mono">topbar.html</td><td class="t-mono">2560 × 120</td><td class="t-mono">0, 0</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="banner.html"><td data-i18n-html="d29">Bottom bar</td><td class="t-mono">banner.html</td><td class="t-mono">2560 × 248</td><td class="t-mono">0, 1192</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="alerts.html"><td data-i18n-html="d30">Alerts</td><td class="t-mono">alerts.html</td><td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="scene-starting.html"><td data-i18n-html="d31">Starting soon</td><td class="t-mono">scene-starting.html</td><td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="scene-brb.html"><td data-i18n-html="d32">Be right back</td><td class="t-mono">scene-brb.html</td><td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="scene-ending.html"><td data-i18n-html="d33">Ending</td><td class="t-mono">scene-ending.html</td><td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr data-file="chatting.html"><td data-i18n-html="d34">Just Chatting</td><td class="t-mono">chatting.html</td><td class="t-mono">2560 × 1440</td><td class="t-mono">0, 0</td><td><button class="copy" type="button">copy</button></td></tr>
+                <tr class="srcs--other"><td data-i18n-html="d35">Game Capture</td><td data-i18n-html="d36">your game, <i>scale to inner bounds</i></td><td class="t-mono">2560 × 1072</td><td class="t-mono">0, 120</td><td></td></tr>
+                <tr class="srcs--other"><td data-i18n-html="d37">Webcam</td><td data-i18n-html="d38">Video Capture, <i>scale to outer bounds</i></td><td class="t-mono">340 × 200</td><td class="t-mono">24, 1216</td><td></td></tr>
+                <tr class="srcs--other"><td data-i18n-html="d39">Stinger</td><td data-i18n-html="d40"><i>Scene Transitions</i> → Stinger, point at 500 ms</td><td class="t-mono">stinger.webm</td><td data-i18n-html="d41">local file</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint" data-i18n-html="d42"><b>Your StreamElements token belongs in the URL</b>, as <code>#jwt=eyJ…</code>. That URL only lives in your OBS configuration, exactly the way StreamElements' own overlay URL works, so the token is never on this site. Without one everything still runs, but alerts, events and the labels stay empty. The copy button hands you the URL without a token; paste yours on the end in OBS.</p>
+          <p class="hint" data-i18n-html="d43"><b>Warcraft Logs rides along the same way</b>, as <code>#wcl=…</code> on every source. It is optional — without it the raid card runs on Raider.IO alone, exactly as before. With it, Warcraft Logs fills the card whenever it answers and Raider.IO becomes the fallback, because it derives its live tracking from the same logs and so can lag but never lead. It is the one that knows about the kill you just got. What goes in that URL is an <i>access token</i>, good for a year; the client secret that mints it stays off this site entirely. <a href="compare.html">compare.html</a> puts both sources side by side with the verdict underneath, which is the page to open if the numbers ever look wrong.</p>
+        </div>
+      </details>
+      <details class="fold">
+        <summary data-i18n-html="m.fold.data">Where the data comes from <small>and what happens when a source drops out</small></summary>
+        <div class="fold__body">
+          <dl class="facts">
+            <dt data-i18n-html="d65">Chat</dt><dd data-i18n-html="d66">Twitch IRC over websocket, anonymous</dd>
+            <dt data-i18n-html="d67">Characters</dt><dd data-i18n-html="d68"><a href="https://raider.io" rel="noopener">Raider.IO</a>, public API</dd>
+            <dt data-i18n-html="d69">Raid progress</dt><dd data-i18n-html="d70"><a href="https://raider.io" rel="noopener">Raider.IO</a> and <a href="https://www.warcraftlogs.com" rel="noopener">Warcraft Logs</a>, Warcraft Logs first — the card says which one it used</dd>
+            <dt data-i18n-html="d71">Viewers, followers, uptime, title</dt><dd data-i18n-html="d72">DecAPI</dd>
+            <dt data-i18n-html="d73">The sub goal</dt><dd data-i18n-html="d74">StreamElements' goal counter, or DecAPI for your real active count</dd>
+            <dt data-i18n-html="d75">Follows, subs, bits, tips, raids</dt><dd data-i18n-html="d76">StreamElements, socket + REST</dd>
+            <dt data-i18n-html="m.data.boss">The boss on this page</dt><dd data-i18n-html="m.data.bossv"><a href="https://racetodutchfirst.bmiest.be" rel="noopener">Race to Dutch First</a>, the boss the guild is on (after Cutting Edge, the tier's last boss); Raider.IO live tracking if that does not answer</dd>
+          </dl>
+          <p class="hint" data-i18n-html="d77">The parts fail independently, on purpose. If the StreamElements socket drops out the labels keep working over the REST call, and the raid card has two sources plus a memory of the last good answer — so one of them going down no longer empties it. Add <code>?health=1</code> to a URL to see what is not responding and which source won. That is off by default, because a red warning on screen is worse than the problem it reports.</p>
+        </div>
+      </details>
+      <details class="fold">
+        <summary data-i18n-html="m.fold.params">Parameters <small>for the URL of a source</small></summary>
+        <div class="fold__body">
+          <dl class="facts">
+            <dt><code>#jwt=eyJ…</code></dt><dd data-i18n-html="d79">your StreamElements token</dd>
+            <dt><code>?demo=1</code></dt><dd data-i18n-html="d80">fake data, to line things up without streaming</dd>
+            <dt><code>?test=1</code></dt><dd data-i18n-html="d81">on alerts.html: cycles through every type</dd>
+            <dt><code>?test=kill</code></dt><dd data-i18n-html="d82">just the boss-down alert, on repeat; <code>best</code> for the other one</dd>
+            <dt><code>?test=sub</code></dt><dd data-i18n-html="d83">one type on repeat, by name: <code>sub</code>, <code>follow</code>, <code>cheer</code>, <code>tip</code>, <code>raid</code></dd>
+            <dt><code>?mute=1</code></dt><dd data-i18n-html="d84">on alerts.html: no sound, which is what the previews above use</dd>
+            <dt><code>?health=1</code></dt><dd data-i18n-html="d85">reports what is not responding, top right</dd>
+            <dt><code>?rio=native</code></dt><dd data-i18n-html="d86">raid card in the house style; <code>widget</code> or <code>off</code> also work</dd>
+            <dt><code>?channel=…</code></dt><dd data-i18n-html="d87">a different channel than the one in the config</dd>
+            <dt><code>?lang=nl</code></dt><dd data-i18n-html="d100">Dutch on stream; <code>en</code> is the default. The browser's own language is ignored there, so OBS on a Dutch Windows does not switch by itself</dd>
+          </dl>
+        </div>
+      </details>
+      <details class="fold">
+        <summary data-i18n-html="m.fold.shape">The shape language <small>and why there are no gradients in it</small></summary>
+        <div class="fold__body">
+          <p data-i18n-html="d89">Everything shares one shape: bars that taper to the right, a caption as a tag on the edge, and a coloured head block with an icon. The cards are that same language as a surface, with the bottom-right corner cut off. The 1px outline is everywhere made of two <code>clip-path</code> layers on top of each other, because a normal <code>border</code> will not follow an angled edge.</p>
+          <p data-i18n-html="d90">What is deliberately <i>not</i> in it: gradients. Twitch sends several encodes out at once, and on the bottom rung of that ladder (504 Kbps at 360p) a soft wash across 2560 pixels is the first thing to band. So the colour sits in small areas instead: the head block, the ring around a portrait, a single dot. The background gets its depth from curved bands that cross each other; where two overlap the surface is slightly lighter, and that is the only shading in the whole design. It is one canvas of 2560x1440: the scene screens show all of it, and the two bars show the slice that falls at their own height, so the same composition runs on behind your gameplay.</p>
+          <p data-i18n-html="m.shape.web">This page is the exception: it is a web page, not a stream source, so the glow behind the boss and the character is allowed here and nowhere on stream.</p>
+        </div>
+      </details>
+    </div>
   </section>
 
   <footer class="foot">
@@ -531,11 +290,12 @@
     <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme" data-i18n-html="d94">Repo on GitHub</a>
     <a href="https://raider.io" rel="noopener" data-i18n-html="d95">Character and raid data by Raider.IO</a>
     <a href="https://www.warcraftlogs.com" rel="noopener" data-i18n-html="d96">Raid progress by Warcraft Logs</a>
+    <a href="https://racetodutchfirst.bmiest.be" rel="noopener" data-i18n-html="m.foot.race">The guild's boss from Race to Dutch First</a>
     <a href="https://wago.tools" rel="noopener" data-i18n-html="d97">Boss renders by Blizzard, matched via wago.tools</a>
     <a href="compare.html" data-i18n-html="d98">compare.html — both raid sources side by side</a>
   </footer>
 
-</div>
+</main>
 
 <script src="config.default.js"></script>
 <!-- Geen config.js hier. Deze pagina is de publieke etalage en heeft aan de
@@ -548,215 +308,11 @@
 <script src="js/i18n.js"></script>
 <script src="js/i18n-index.js"></script>
 <script src="js/raiderio.js"></script>
+<script src="js/rio-live.js"></script>
+<script src="js/race.js"></script>
+<script src="js/bossart.js"></script>
+<script src="js/stats.js"></script>
 <script src="js/emotes.js"></script>
-<script>
-(function(){
-  'use strict';
-
-  /* Basis-URL van deze site, zodat de kopieerknoppen lokaal net zo goed
-     werken als op github.io. */
-  var base = location.href.replace(/[^/]*$/, '');
-  document.getElementById('base').textContent = base;
-
-  /* De previews zijn echte pagina's op ontwerpmaat (2560 breed), geschaald
-     naar de breedte die ze hier krijgen. Bij resize opnieuw meten. */
-  function fit(){
-    var hero = document.getElementById('heroFrame');
-    if(hero) hero.style.setProperty('--s', (hero.clientWidth / 2560).toFixed(5));
-    Array.prototype.forEach.call(document.querySelectorAll('.shot__box'), function(b){
-      b.style.setProperty('--s', (b.clientWidth / +b.dataset.w).toFixed(5));
-      /* De alertlaag is 1072 hoog en de scenes 1440, dus de hoogte komt uit
-         het element in plaats van uit een vast getal in de CSS. */
-      b.style.setProperty('--h', b.dataset.h || 1440);
-    });
-  }
-  fit();
-  addEventListener('resize', fit);
-
-  /* De panelknoppen uit de config, zodat deze pagina niet uit de pas kan
-     lopen met wat build-graphics.sh schrijft. Dezelfde slugregel als daar. */
-  (function(){
-    var strip = document.getElementById('panelStrip');
-    var list  = ((window.OVERLAY_CONFIG || {}).graphics || {}).panels || [];
-    if(!strip) return;
-    strip.innerHTML = list.map(function(p){
-      var slug = String(p.label).toLowerCase().replace(/[^a-z0-9]+/g, '-')
-                                .replace(/^-|-$/g, '');
-      var src = 'graphics/panel-' + slug + '.png';
-      return '<a href="' + src + '"><img src="' + src + '" alt="' + p.label +
-             '" width="320" height="100" loading="lazy"></a>';
-    }).join('');
-  })();
-
-  /* De emotes, per slot. Tier 2 en Tier 3 hebben er elk één en schuiven als
-     groepjes in de flex-wrap naast elkaar. De drie bits-trappen worden één
-     groep met het bedrag eronder: los liet de wrap 10K alleen op een rij
-     achter. */
-  (function(){
-    var host = document.getElementById('emoteGrid');
-    if(!host || !window.EMOTES) return;
-    var groups = [];
-    window.EMOTES.list.forEach(function(e){
-      var key = /^Bits/.test(e.slot) ? 'Bits' : e.slot, g = groups[groups.length - 1];
-      if(!g || g.slot !== key) groups.push(g = { slot:key, list:[] });
-      g.list.push(e);
-    });
-    host.innerHTML = groups.map(function(g){
-      return '<div class="emotes__group"><span class="emotes__slot">' + g.slot + '</span>' +
-        '<div class="emotes__row">' + g.list.map(function(e){
-          var src = 'graphics/emotes/' + e.name + '-112.' + (e.frames > 1 ? 'gif' : 'png');
-          return '<figure class="emote"><a href="' + src + '"><img src="' + src + '" alt="' + e.name +
-                 '" title="' + e.about + '" width="112" height="112" loading="lazy"></a>' +
-                 '<figcaption>' + e.name + (/^Bits · /.test(e.slot) ?
-                   ' <b>' + e.slot.replace('Bits · ', '') + '</b>' : '') + '</figcaption></figure>';
-        }).join('') + '</div></div>';
-    }).join('');
-  })();
-
-  /* De characterrij. Dezelfde bron als de overlay zelf -- js/raiderio.js --
-     zodat deze pagina niet uit de pas kan lopen met wat er in de onderbalk
-     staat. Elke fetch staat op zichzelf: valt Raider.IO om voor één
-     character, dan staat de rest er gewoon. Blijft de hele rij leeg, dan
-     halen we de sectie weg; een kop met niets eronder is geen etalage. */
-  (function(){
-    var host = document.getElementById('roster');
-    var list = ((window.OVERLAY_CONFIG || {}).raiderio || {}).characters || [];
-    if(!host || !list.length || !window.RaiderIO) return;
-
-    /* Plekken vooruit neerzetten, zodat de rij in configvolgorde staat en
-       niet in de volgorde waarin de antwoorden binnenkomen. */
-    var cells = list.map(function(){
-      var d = document.createElement('div');
-      d.className = 'ros ros--wait';
-      host.appendChild(d);
-      return d;
-    });
-
-    function fill(cell, c){
-      var U = window.U;
-      cell.className = 'ros';
-      cell.innerHTML =
-        '<div class="ros__pic">' +
-          '<img alt="" width="82" height="82">' +
-          '<svg viewBox="0 0 100 100" aria-hidden="true">' +
-            '<circle cx="50" cy="50" r="48"></circle></svg>' +
-        '</div>' +
-        '<div><div class="ros__nm"></div>' +
-             '<div class="ros__sp"></div>' +
-             '<div class="ros__rl"></div></div>' +
-        '<div class="ros__st">' +
-          '<div><b class="ros__il"></b><i data-i18n="stat.ilvl"></i></div>' +
-          '<div><b class="ros__ms"></b><i data-i18n="stat.score"></i></div>' +
-        '</div>';
-      window.I18N.apply(cell);
-      cell.querySelector('.ros__nm').textContent = c.name;
-      cell.querySelector('.ros__sp').textContent =
-        [c.spec, c.klass].filter(Boolean).join(' ');
-      cell.querySelector('.ros__rl').textContent = c.realm;
-      cell.querySelector('.ros__il').textContent =
-        c.ilvl != null ? Number(c.ilvl).toFixed(1) : '\u2014';
-      cell.querySelector('.ros__ms').textContent =
-        c.score != null ? U.num(c.score) : '\u2014';
-      cell.querySelector('circle').style.stroke = c.color;
-      /* Van een character dat lang niet ingelogd heeft is de render van
-         Blizzards CDN verdwenen; dan blijft de schijf leeg staan in plaats
-         van een kapot plaatje te tonen. Zelfde afweging als in de
-         onderbalk. */
-      var img = cell.querySelector('img');
-      img.onerror = function(){ img.onerror = null; img.removeAttribute('src'); };
-      if(c.thumb) img.src = c.thumb;
-    }
-
-    /* Raider.IO geeft met enige regelmaat een 500 terug die bij de volgende
-       poging gewoon werkt. De overlay zelf pollt elke vijf minuten en loopt
-       daar vanzelf overheen; deze pagina vraagt het één keer bij het laden,
-       dus die ene herkansing is hier het verschil tussen een volle rij en
-       een halve. */
-    function fetchChar(spec){
-      return window.RaiderIO.character(spec).catch(function(){
-        return new Promise(function(done){ setTimeout(done, 900); })
-          .then(function(){ return window.RaiderIO.character(spec); });
-      });
-    }
-
-    /* Eén fetch per character, en het resultaat twee keer gebruikt: meteen
-       de plek invullen, en aan het eind tellen of er iets overbleef. */
-    Promise.all(list.map(function(spec, i){
-      return fetchChar(spec).then(function(c){
-        fill(cells[i], c);
-        return true;
-      }).catch(function(){
-        cells[i].remove();
-        return false;
-      });
-    })).then(function(res){
-      if(res.indexOf(true) < 0) host.closest('section').remove();
-    });
-  })();
-
-  /* ---- taal ----------------------------------------------------------
-     De Engelse tekst staat in de HTML en blijft de bron; de Nederlandse
-     komt uit js/i18n-index.js. Bij de eerste wissel bewaren we het Engels
-     per blok, zodat terug naar EN gewoon de oorspronkelijke HTML is.
-
-     De voorbeelden zijn echte pagina's, dus die krijgen ?lang= mee en laden
-     opnieuw. De kopieerknoppen geven daarna een URL met ?lang=nl, want dat
-     is wat je in OBS nodig hebt om de stream in die taal te krijgen. */
-  var I = window.I18N, NL = (window.I18N_INDEX || {}).nl || {};
-  var blocks = document.querySelectorAll('[data-i18n-html]'), EN = {};
-  Array.prototype.forEach.call(blocks, function(n){
-    EN[n.getAttribute('data-i18n-html')] = n.innerHTML;
-  });
-  var TITLE = { en: document.title, nl: NL.d1 || document.title };
-
-  function paintLang(l){
-    Array.prototype.forEach.call(blocks, function(n){
-      var k = n.getAttribute('data-i18n-html');
-      var h = l === 'nl' && NL[k] != null ? NL[k] : EN[k];
-      if(n.innerHTML !== h) n.innerHTML = h;
-    });
-    document.title = TITLE[l] || TITLE.en;
-    Array.prototype.forEach.call(document.querySelectorAll('#langPick button'), function(b){
-      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === l));
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('.copy'), function(b){
-      if(!b.classList.contains('ok')) b.textContent = I.t('copy');
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('iframe'), function(f){
-      var src = f.getAttribute('src'), next = I.withLang(src, l);
-      if(next !== src) f.setAttribute('src', next);
-    });
-  }
-  paintLang(I.lang);
-  I.onChange(paintLang);
-  document.getElementById('langPick').addEventListener('click', function(e){
-    var b = e.target.closest('button[data-lang]');
-    if(b) I.set(b.getAttribute('data-lang'));
-  });
-
-  /* Kopieren: de volledige URL van de bron, zonder token. */
-  function copy(text, btn){
-    var done = function(){
-      var was = btn.textContent;
-      btn.textContent = window.I18N.t('copied');
-      btn.classList.add('ok');
-      setTimeout(function(){ btn.textContent = was; btn.classList.remove('ok'); }, 1400);
-    };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).then(done, function(){});
-      return;
-    }
-    var t = document.createElement('textarea');
-    t.value = text; document.body.appendChild(t); t.select();
-    try { document.execCommand('copy'); done(); } catch(e){}
-    document.body.removeChild(t);
-  }
-
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest ? e.target.closest('.copy') : null;
-    if(!btn) return;
-    var row = btn.closest('tr');
-    if(row && row.dataset.file) copy(window.I18N.withLang(base + row.dataset.file), btn);
-  });
-})();
-</script>
+<script src="js/index.js"></script>
+</body>
+</html>
