@@ -148,9 +148,11 @@ img { max-width: 100%; }
 /* Een lage, brede boss (vleugels) hangt boven het character. */
 .boss--wide img { width: 100%; height: auto; max-height: 52%; }
 
-.plane--char { left: 50%; width: min(600px, 46%); margin-left: max(-300px, -23%); top: 6%; }
+/* Het character staat heel tussen de bug en de ticker: zijn voeten op een
+   lijn 36px boven de ticker, alleen de laatste paar procent loopt uit. */
+.plane--char { left: 50%; width: min(600px, 46%); margin-left: max(-300px, -23%); top: 2%; bottom: 36px; }
 .fig { position: absolute; inset: 0; overflow: hidden;
-  -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
+  -webkit-mask-image: linear-gradient(#000 95%, transparent); mask-image: linear-gradient(#000 95%, transparent); }
 .fig__img { position: absolute; max-width: none; opacity: 0; transition: opacity var(--t-slow) var(--ease); }
 .fig__img.is-on { opacity: 1; }
 
@@ -166,8 +168,8 @@ img { max-width: 100%; }
 .ribs .rib__val.mono { font-family: var(--f-mono); font-size: 18px; font-weight: 700; }
 .ribs .rib--cls .rib__acc { --acc: var(--cls, var(--jade)); color: var(--ink-900); transition: background var(--t-slow) var(--ease); }
 
-/* midden onder: welke boss erachter staat */
-.bosstag { position: relative; z-index: 2; grid-column: 2; grid-row: 2; justify-self: center; align-self: end; display: flex; align-items: stretch; height: 30px; max-width: 100%; }
+/* links onder de cijfers: welke boss erachter staat */
+.bosstag { position: relative; z-index: 2; display: flex; align-items: stretch; width: max-content; height: 30px; max-width: 100%; margin-top: 20px; }
 .bosstag > * { display: flex; align-items: center; padding: 0 11px; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; }
 .bosstag__k { background: var(--ink-750); color: var(--ink-200); }
 .bosstag__n { background: var(--ink-800); color: var(--paper); letter-spacing: .06em; font-size: 12px; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -185,7 +187,7 @@ img { max-width: 100%; }
 .pick__t { display: grid; gap: 2px; padding-left: 14px; min-width: 0; }
 .pick__n { font-size: 18px; font-weight: 700; line-height: 1.1; }
 .pick__s { font-size: 12px; color: var(--ink-300); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pick:not(:disabled):hover .rib__bar { background: var(--ink-500); }
+.pick:not(:disabled):not([aria-pressed="true"]):hover .rib__bar { background: var(--ink-500); }
 .pick:focus-visible { outline: 0; }
 .pick:focus-visible .rib__bar { background: var(--paper); }
 .pick[aria-pressed="true"] .rib__bar { background: var(--jade); }
@@ -378,7 +380,8 @@ img { max-width: 100%; }
   .info, .select { display: contents; }
   .planes { position: relative; inset: auto; order: 1; height: 500px; margin: 0 calc(-1 * var(--gut)); }
   .plane--boss { left: 4%; right: 4%; }
-  .plane--char { width: min(460px, 86%); margin-left: max(-230px, -43%); top: 4%; }
+  .plane--char { width: min(460px, 86%); margin-left: max(-230px, -43%); top: 4%; bottom: 0; }
+  .fig { -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
   .bosstag { order: 2; align-self: center; margin: -14px 0 18px; }
   .info__name { order: 3; font-size: clamp(44px, 11vw, 72px); }
   .info__spec { order: 4; margin-top: 6px; font-size: 19px; }

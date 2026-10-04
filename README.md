@@ -743,7 +743,9 @@ To use your own image for a boss, set `liveTracking.bossArt` in your config.
 The front page shows the same renders without their flat grey backdrop.
 `build-bosscutouts.py` keys that backdrop to alpha and writes
 `img/boss/creature-display-<id>.png` for every render in `js/bossart.js`, each
-PNG carrying its origin in an `impeccable:prompt` text chunk. It uses the same
+PNG carrying its origin in an `impeccable:prompt` text chunk; the same origin,
+per file with the boss and its source URL, is written to
+[`img/boss/PROVENANCE.md`](img/boss/PROVENANCE.md). It uses the same
 thresholds as the race site's `scripts/boss-cutouts.py`, so a boss has the same
 silhouette on both sites. Run it after `build-bossart.py`:
 
