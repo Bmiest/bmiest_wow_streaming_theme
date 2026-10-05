@@ -1,8 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- bmiest: the family's slanted jade accent block with the channel badge's broadcast mark, on ink. -->
-  <rect width="64" height="64" fill="#0a0b0d"/>
-  <path d="M5 6h54l-9 52H5z" fill="#3fd9a4"/>
-  <circle cx="30" cy="32" r="5" fill="#0a0b0d"/>
-  <path d="M20 22a14 14 0 0 0 0 20M40 22a14 14 0 0 1 0 20" fill="none" stroke="#0a0b0d" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M13.5 16a23 23 0 0 0 0 32M46.5 16a23 23 0 0 1 0 32" fill="none" stroke="#0a0b0d" stroke-width="4.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- bmiest: the family's slanted jade block (the rank blocks, the panels) with a bold "b" cut in ink. -->
+  <path d="M0 0H32L26 32H0Z" fill="#3fd9a4"/>
+  <path d="M6 4H11V14.2A7.5 7.5 0 1 1 6 21.5ZM13.5 17A4.5 4.5 0 1 0 13.5 26A4.5 4.5 0 1 0 13.5 17Z" fill="#0a0b0d" fill-rule="evenodd"/>
 </svg>
