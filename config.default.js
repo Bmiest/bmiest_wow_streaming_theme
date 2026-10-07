@@ -225,13 +225,16 @@ window.OVERLAY_CONFIG = {
 
   // ---- race to dutch first ------------------------------------------
   // De stand in de race naar Cutting Edge tussen Nederlandse guilds, van
-  // racetodutchfirst.bmiest.be. Op de scene-schermen als regel onder de
+  // racetodutchfirst.nl. Rechtstreeks dat adres: het oude
+  // racetodutchfirst.bmiest.be stuurt door, en een browser breekt een
+  // ophaalactie naar een ander domein af op een doorverwijzing zonder
+  // CORS-header. Op de scene-schermen als regel onder de
   // klok ("6/9 M · #1 of 5 NL · now on ..."), in de onderbalk als rang in de
   // raidkaart. guild leeg = raiderio.guild.name. Lukt ophalen niet, dan
   // verdwijnt alleen dat stukje. Zie js/race.js.
   race: {
     enabled    : true,
-    url        : 'https://racetodutchfirst.bmiest.be/data/race.json',
+    url        : 'https://racetodutchfirst.nl/data/race.json',
     guild      : '',
     pollSeconds: 600,
   },
