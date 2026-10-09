@@ -71,7 +71,7 @@
     <div class="select">
       <h2 class="select__h" id="pickH" data-i18n-html="b.select">Choose a character</h2>
       <div class="picks" id="picks" role="group" aria-labelledby="pickH"></div>
-      <p class="select__note" data-i18n-html="d53">The bottom bar shows two of these at a time and rotates through the rest, and the pause screens do the same with full-body renders. Straight from Raider.IO, so this is the same data the overlay runs on — item level and score included.</p>
+      <p class="select__note" data-i18n-html="d53">The bottom bar shows Shiftheal and Bhikhu side by side, and the pause screens put them full-body on the flanks. With more characters in the config both rotate per pair. Straight from Raider.IO, so this is the same data the overlay runs on — item level and score included.</p>
       <a class="btn select__watch" href="https://www.twitch.tv/bmiest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3 3.5 6.5V19H8v2.5h2.5L13 19h3.5L21 14.5V3H5Zm14 10.5-2.5 2.5H13l-2.5 2.5V16H7V5h12v8.5ZM16 8h-2v5h2V8Zm-4.5 0h-2v5h2V8Z" fill="currentColor"/></svg><span data-i18n-html="m.watch">Watch on Twitch</span></a>
     </div>
   </div>
@@ -112,7 +112,7 @@
           </div>
         </div>
         <div class="cols2 mv__notes">
-          <p class="note" data-i18n-html="d6">The 1440 pixels of height are split into 120 on top, 1072 of gameplay and 248 below. The top carries session status, the bottom the content: camera, characters, raid progress, chat and recent events. The camera area is a hole in the bottom bar, with your webcam behind it. The alert layer is running in the middle: a follower, a sub, bits, a raid and a tip come past every few seconds, and after those the two raid alerts. It is muted here.</p>
+          <p class="note" data-i18n-html="d6">The 1440 pixels of height are split into 120 on top, 1072 of gameplay and 248 below. The top carries session status, the bottom the content: camera, characters, the raid card, chat and recent events. The raid card rotates through four pages: the boss you are on, the Race to Dutch First standings, the race log with the latest kills and best pulls of every Dutch guild, and the guild with its world ranks. After every pull it goes back to the boss. The camera area is a hole in the bottom bar, with your webcam behind it. The alert layer is running in the middle: a follower, a sub, bits, a raid and a tip come past every few seconds, and after those the two raid alerts. It is muted here.</p>
           <p class="note" data-i18n-html="d7">The overlay is built for an ultrawide. Instead of panels floating over the game, the bars are full-width bands above and below it, and what that leaves is a gameplay window of 2560 x 1072. At 2.39:1 that is the shape of a 3440x1440 monitor to within 0.03%, so an ultrawide capture fills it edge to edge with nothing cropped and no black bands. A 16:9 capture works too: you either scale it to the full width and lose some height off the top and bottom, or keep the whole frame and accept a narrow band at each side.</p>
         </div>
       </div>
@@ -121,17 +121,17 @@
         <figure class="shot">
           <p class="tally"><span class="tally__n" data-i18n-html="d31">Starting soon</span><span class="tally__f">scene-starting.html</span></p>
           <div class="scr" data-h="1440"><iframe src="scene-starting.html" title="Starting soon" scrolling="no" loading="lazy"></iframe></div>
-          <figcaption data-i18n-html="d45">Starting soon — countdown, stream title, the race standing, schedule with the next raid, and socials</figcaption>
+          <figcaption data-i18n-html="d45">Starting soon — countdown, stream title, the Race to Dutch First standings, schedule with the next raid, and socials</figcaption>
         </figure>
         <figure class="shot">
           <p class="tally"><span class="tally__n" data-i18n-html="d32">Be right back</span><span class="tally__f">scene-brb.html</span></p>
           <div class="scr" data-h="1440"><iframe src="scene-brb.html?rot=1" title="Be right back" scrolling="no" loading="lazy"></iframe></div>
-          <figcaption data-i18n-html="d46">Be right back — the clock counts up, chat stays on screen</figcaption>
+          <figcaption data-i18n-html="d46">Be right back — the clock counts up, the race standings under it, chat stays on screen</figcaption>
         </figure>
         <figure class="shot">
           <p class="tally"><span class="tally__n" data-i18n-html="d33">Ending</span><span class="tally__f">scene-ending.html</span></p>
           <div class="scr" data-h="1440"><iframe src="scene-ending.html?rot=2" title="Ending" scrolling="no" loading="lazy"></iframe></div>
-          <figcaption data-i18n-html="d47">Ending — sign-off with schedule and socials</figcaption>
+          <figcaption data-i18n-html="d47">Ending — sign-off with the race standings, schedule and socials</figcaption>
         </figure>
         <figure class="shot">
           <p class="tally"><span class="tally__n" data-i18n-html="d34">Just Chatting</span><span class="tally__f">chatting.html</span></p>
@@ -151,7 +151,7 @@
           <figcaption data-i18n-html="d50">New best — the same shape in gold. The kill version runs in the frame at the top of this page</figcaption>
         </figure>
       </div>
-      <p class="note" data-i18n-html="d51">These previews are the real pages in an iframe, scaled down, so they show whatever the overlay shows right now. The chat in them is stand-in text for what viewers type. The three scene screens start their character rotation one step apart (<code>?rot=</code>), so you see three different pairs here instead of the same one three times. The alert previews are muted; on stream, a kill says "Work complete.", "For the Horde!" or "Victory or death!", and a new best "Work, work!" or another peon line. The other five alerts (follow, sub, cheer, tip, raid) get a small burst of the same fireworks, off to the sides of the alert.</p>
+      <p class="note" data-i18n-html="d51">These previews are the real pages in an iframe, scaled down, so they show whatever the overlay shows right now. The chat in them is stand-in text for what viewers type. With more than two characters in the config, the three scene screens start their character rotation one step apart (<code>?rot=</code>), so you would see three different pairs here instead of the same one three times. The alert previews are muted; on stream, a kill says "Work complete.", "For the Horde!" or "Victory or death!", and a new best "Work, work!" or another peon line. The other five alerts (follow, sub, cheer, tip, raid) get a small burst of the same fireworks, off to the sides of the alert.</p>
     </div>
   </section>
 
@@ -254,7 +254,8 @@
             <dt data-i18n-html="d71">Viewers, followers, uptime, title</dt><dd data-i18n-html="d72">DecAPI</dd>
             <dt data-i18n-html="d73">The sub goal</dt><dd data-i18n-html="d74">StreamElements' goal counter, or DecAPI for your real active count</dd>
             <dt data-i18n-html="d75">Follows, subs, bits, tips, raids</dt><dd data-i18n-html="d76">StreamElements, socket + REST</dd>
-            <dt data-i18n-html="m.data.boss">The boss on this page</dt><dd data-i18n-html="m.data.bossv"><a href="https://racetodutchfirst.bmiest.be" rel="noopener">Race to Dutch First</a>, the boss the guild is on (after Cutting Edge, the tier's last boss); Raider.IO live tracking if that does not answer</dd>
+            <dt data-i18n-html="d101">Race standings, race log, guild ranks</dt><dd data-i18n-html="d102"><a href="https://racetodutchfirst.nl" rel="noopener">Race to Dutch First</a>, its <code>race.json</code>, every 10 minutes (the site itself updates every 5 minutes on raid nights)</dd>
+            <dt data-i18n-html="m.data.boss">The boss on this page</dt><dd data-i18n-html="m.data.bossv"><a href="https://racetodutchfirst.nl" rel="noopener">Race to Dutch First</a>, the boss the guild is on (after Cutting Edge, the tier's last boss); Raider.IO live tracking if that does not answer</dd>
           </dl>
           <p class="hint" data-i18n-html="d77">The parts fail independently, on purpose. If the StreamElements socket drops out the labels keep working over the REST call, and the raid card has two sources plus a memory of the last good answer — so one of them going down no longer empties it. Add <code>?health=1</code> to a URL to see what is not responding and which source won. That is off by default, because a red warning on screen is worse than the problem it reports.</p>
         </div>
@@ -271,6 +272,7 @@
             <dt><code>?mute=1</code></dt><dd data-i18n-html="d84">on alerts.html: no sound, which is what the previews above use</dd>
             <dt><code>?health=1</code></dt><dd data-i18n-html="d85">reports what is not responding, top right</dd>
             <dt><code>?rio=native</code></dt><dd data-i18n-html="d86">raid card in the house style; <code>widget</code> or <code>off</code> also work</dd>
+            <dt><code>?page=race</code></dt><dd data-i18n-html="d103">on banner.html: keeps the raid card on one page instead of rotating; <code>log</code> and <code>guild</code> also work</dd>
             <dt><code>?channel=…</code></dt><dd data-i18n-html="d87">a different channel than the one in the config</dd>
             <dt><code>?lang=nl</code></dt><dd data-i18n-html="d100">Dutch on stream; <code>en</code> is the default. The browser's own language is ignored there, so OBS on a Dutch Windows does not switch by itself</dd>
           </dl>
@@ -294,7 +296,7 @@
     <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme" data-i18n-html="d94">Repo on GitHub</a>
     <a href="https://raider.io" rel="noopener" data-i18n-html="d95">Character and raid data by Raider.IO</a>
     <a href="https://www.warcraftlogs.com" rel="noopener" data-i18n-html="d96">Raid progress by Warcraft Logs</a>
-    <a href="https://racetodutchfirst.bmiest.be" rel="noopener" data-i18n-html="m.foot.race">The guild's boss from Race to Dutch First</a>
+    <a href="https://racetodutchfirst.nl" rel="noopener" data-i18n-html="m.foot.race">The race standings and the guild's boss from Race to Dutch First</a>
     <a href="https://wago.tools" rel="noopener" data-i18n-html="d97">Boss renders by Blizzard, matched via wago.tools</a>
     <a href="compare.html" data-i18n-html="d98">compare.html — both raid sources side by side</a>
   </footer>

@@ -399,6 +399,12 @@ A real page in an iframe at its 2560px design width, scaled to the box, in an in
 ### Install folds [family]
 Folds between 1px ink-700 hairlines: the drawn jade chevron, the fold title (jade on hover) and its ink-300 hint. Inside: numbered steps in two columns (a 34x30 jade step number with a 6px slant, mono 14px/700), a sources table (label heads, 1px ink-700 rules, mono file names, copy buttons), a facts list, and the base URL as a flush key/value strip.
 
+### Race board [overlay, OBS pages]
+One row per guild from racetodutchfirst.nl's `race.json` (css/race.css, built by `Race.row()` in js/race.js): rank in mono, name, a track of one slanted block per counting boss filled to the guild's race position (the boss it is on fills part way as an inner block, never a gradient), kills, and the best pull on that boss as HP left. Own guild: paper name, jade track; everyone else in greys; gold only on the leader's rank and on Cutting Edge. No guild colours from the race site on stream. Sizes come from custom properties (`--rr-*`): the scenes set 22px type and 34px blocks under the clock (786px wide, inside the halo), the raid card 16px type and 22px blocks.
+
+### Raid card pages [overlay, OBS pages]
+The bottom bar's raid card (610px since the character card went to 620px) rotates boss → race → race log → guild with a 300ms crossfade inside the card; the caption tag and the source pill change with the page, and rotation dots sit bottom right, clear of the cut corner. Every pull returns the card to the boss and holds it 3 minutes. The boss page draws the boss as a transparent cut-out from img/boss at the full card height, its left edge masked into the card, the text column kept 200px clear, at most two council bodies and none under 200px tall. The race log uses the "recent" card's slanted tags: first kill gold, kill jade, best pull grey. The guild page puts the guild emblem (img/guild, provenance beside it) at 132px next to the name in Outfit 800 caps and the ranks as mono figures with micro labels.
+
 ## Do's and Don'ts
 
 ### Do:

@@ -651,8 +651,12 @@ function raceCycle(){
     (next === 'boss' ? Math.max(seconds('boss'), hold) : seconds(next)) * 1000);
 }
 
+/* Met ?demo=1 komen de verzonnen pulls in de eerste tien seconden; drie
+   minuten vasthouden zou de voorpagina dan nooit de andere pagina's laten
+   zien. Daar is het twintig seconden. */
 function raceHold(){
-  raceUntil = Date.now() + (RB.holdMinutes != null ? RB.holdMinutes : 3) * 60000;
+  raceUntil = Date.now() + (DEMO ? 20000
+                                 : (RB.holdMinutes != null ? RB.holdMinutes : 3) * 60000);
   if(pageNow !== 'boss'){ pageNow = 'boss'; raceCycle(); }
 }
 

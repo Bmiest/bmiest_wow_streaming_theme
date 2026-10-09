@@ -1,12 +1,14 @@
 /* Race to Dutch First: waar je guild staat in de race naar Cutting Edge
-   tussen de Nederlandse guilds. De stand komt van racetodutchfirst.bmiest.be,
-   die hem elk half uur uit Raider.IO (en Warcraft Logs) opbouwt. Hier wordt
-   niets opnieuw uitgerekend: de rangorde daar is de rangorde, anders staan
-   er twee verschillende standen op je stream en op die site.
+   tussen de Nederlandse guilds. De stand komt van racetodutchfirst.nl, die
+   hem uit Raider.IO en Warcraft Logs opbouwt: op raidavonden elke vijf
+   minuten, anders elk uur. Hier wordt niets opnieuw uitgerekend: de
+   rangorde daar is de rangorde, anders staan er twee verschillende standen
+   op je stream en op die site.
 
-   GitHub Pages stuurt Access-Control-Allow-Origin: * mee, dus ophalen kan
-   rechtstreeks vanuit een browser source. Gaat het mis, dan geeft guild()
-   null en verdwijnt het blok; de rest van de pagina merkt er niets van.
+   De site stuurt Access-Control-Allow-Origin: * mee op data/*.json, dus
+   ophalen kan rechtstreeks vanuit een browser source. Gaat het mis, dan
+   geeft guild() null en verdwijnt het blok; de rest van de pagina merkt er
+   niets van.
 
    Velden die gebruikt worden: guilds[].name, mythicKills, totalBosses, rank,
    ceKilledAt, current.name, en tier.ceBoss.name (alleen de voorpagina).
@@ -235,8 +237,9 @@ function parts(s){
   return out;
 }
 
-/* Elke tien minuten: de site zelf ververst elk half uur en zet een cache
-   van tien minuten op het bestand. Vaker vragen levert niets op. */
+/* Elke tien minuten (race.pollSeconds). De site ververst op raidavonden
+   elke vijf minuten; wil je kills sneller in het raceverslag, zet hem op
+   300. Daaronder levert vragen niets op. */
 function watch(fn){
   if(!enabled()) return;
   U.poll(function(){ return guild().then(fn); }, RC.pollSeconds || 600);
