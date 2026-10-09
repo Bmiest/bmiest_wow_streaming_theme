@@ -1865,6 +1865,8 @@ css/scene.css    scenes
 css/chatting.css Just Chatting
 js/scene.js      scenes
 js/race.js       Race to Dutch First standing and board rows (racetodutchfirst.nl)
+js/version.js    latest release for the footer, release notes for changelog.html
+changelog.html   every release with its notes (js/changelog.js, css/changelog.css)
 css/race.css     Race to Dutch First board rows (scenes and bottom bar)
 js/i18n.js       English / Dutch: ?lang=, dictionary, front page switch
 js/i18n-index.js the front page in Dutch
@@ -1898,6 +1900,17 @@ obs-scene-collection.pages.json  ready-made, points at the hosted site
 > stands in for what viewers actually type.
 
 ---
+
+## 9b. Releases and the changelog
+
+Versions are GitHub releases (`v1.9.0`, `v1.10.0`, ...), made by hand after a
+merge, with notes in markdown. There is no build step on GitHub Pages, so
+nothing in the repo carries the number: the front page's footer shows the
+latest release, and `changelog.html` lists every release with its notes, both
+read from GitHub's API in the browser (`js/version.js`, cached 15 minutes per
+tab; without an answer the version label simply stays away). Write the notes
+for streamers: what changes on stream, and whether they need to reload their
+sources.
 
 ## 10. License
 
