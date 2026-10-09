@@ -240,8 +240,8 @@ window.OVERLAY_CONFIG = {
   //
   // Het klassement (elke guild met zijn baan van acht bosses) staat op de
   // scene-schermen onder de klok, en in de onderbalk als tweede pagina van
-  // de raidkaart. boardRows: zoveel guilds hoogstens; de jouwe staat er
-  // altijd bij. bar: de raidkaart toont bossSeconds de boss en dan
+  // de raidkaart. boardRows: zoveel guilds hoogstens op de scenes, bar.rows
+  // op de raidkaart (daar passen er 6); de jouwe staat er altijd bij. bar: de raidkaart toont bossSeconds de boss en dan
   // raceSeconds het klassement. Na elke pull blijft de boss holdMinutes
   // staan, zodat het klassement nooit een melding verstopt. Na het
   // klassement komt het raceverslag (logSeconds): de laatste logRows kills
@@ -256,9 +256,9 @@ window.OVERLAY_CONFIG = {
     url        : 'https://racetodutchfirst.nl/data/race.json',
     guild      : '',
     pollSeconds: 600,
-    boardRows  : 6,
+    boardRows  : 7,
     logRows    : 5,
-    bar        : { rotate: true, bossSeconds: 45, raceSeconds: 15, logSeconds: 15,
+    bar        : { rotate: true, rows: 6, bossSeconds: 45, raceSeconds: 15, logSeconds: 15,
                    guildSeconds: 12, log: true, guild: true, holdMinutes: 3 },
   },
 

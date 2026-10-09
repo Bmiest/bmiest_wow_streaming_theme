@@ -50,7 +50,8 @@ function guild(){
          daar die boss achter je character in plaats van niets. */
       ceBoss : d.tier && d.tier.ceBoss && d.tier.ceBoss.name || null,
       at     : d.generatedAt || null,
-      board  : board(list, g.name, total),
+      board  : board(list, g.name, total, RC.boardRows || 7),
+      boardBar: board(list, g.name, total, (RC.bar && RC.bar.rows) || 6),
       log    : log(d, g.name),
       ranks  : ranks(d, g)
     };
@@ -65,8 +66,10 @@ function guild(){
    boss dat eraf is (6.30 = zes kills en 30% van de zevende), en dat is wat
    de balk vult -- niet de bosses in volgorde, want guilds killen niet in
    dezelfde volgorde. Je eigen guild staat er altijd bij, ook als hij buiten
-   de eerste RC.boardRows valt; dan valt de laatste plek ervoor weg. */
-function board(list, own, total){
+   de eerste max valt; dan valt de laatste plek ervoor weg. Twee lengtes:
+   de scenes hebben ruimte voor 7 (RC.boardRows), de raidkaart voor 6
+   (RC.bar.rows) -- sinds Lelijkerds als twee teams meedoet zijn het er 7. */
+function board(list, own, total, max){
   var rows = list.filter(function(x){ return typeof x.mythicKills === 'number'; })
     .map(function(x){
       var n = x.totalBosses || total || 0;
@@ -84,7 +87,6 @@ function board(list, own, total){
       };
     })
     .sort(function(a, b){ return (a.rank || 99) - (b.rank || 99); });
-  var max = RC.boardRows || 6;
   if(rows.length <= max) return rows;
   var top = rows.slice(0, max);
   if(!top.some(function(r){ return r.own; })){

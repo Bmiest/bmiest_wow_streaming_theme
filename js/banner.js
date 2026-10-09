@@ -562,7 +562,7 @@ var pageNow = 'boss', raceUntil = 0, raceTimer = null;
    alleen als de stand binnen is en er iets in staat. */
 function cardPages(){
   var out = ['boss'];
-  if(raceState && raceState.board && raceState.board.length) out.push('race');
+  if(raceState && raceState.boardBar && raceState.boardBar.length) out.push('race');
   if(raceState && raceState.log && raceState.log.length && RB.log !== false) out.push('log');
   if(raceState && raceState.ranks && raceState.ranks.world && RB.guild !== false) out.push('guild');
   return out;
@@ -577,7 +577,7 @@ function paintBoard(){
   var rows = U.$('#raceRows'), lg = U.$('#logRows');
   rows.innerHTML = ''; lg.innerHTML = '';
   if(!raceState) return;
-  (raceState.board || []).forEach(function(r){ rows.appendChild(window.Race.row(r)); });
+  (raceState.boardBar || []).forEach(function(r){ rows.appendChild(window.Race.row(r)); });
   (raceState.log || []).forEach(function(e){ lg.appendChild(window.Race.logRow(e)); });
   /* De tijd van de stand zelf, niet van onze fetch -- zelfde regel als de
      andere stempeltjes. Het bestand ververst op raidavonden elke vijf

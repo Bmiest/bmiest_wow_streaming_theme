@@ -1428,8 +1428,8 @@ of eight bosses filled up to its race position (the boss it is on fills part
 way, by how much of that boss is down), its kills, and its best pull on that boss
 as HP left (`6/8  69.8%`). Same order and the same numbers as the site. Your own
 guild is the jade row; the rank is gold for the leader, and so is the kill count
-after Cutting Edge. At most `race.boardRows` guilds (6); yours is always
-included. That used to be a single line, and before that it lived in the stream
+after Cutting Edge. At most `race.boardRows` guilds (7) on the scenes and
+`race.bar.rows` (6) on the raid card; yours is always included. That used to be a single line, and before that it lived in the stream
 title by hand, which fell behind ("5/8M" while the race already counted 6/9).
 If the file does not load, the board is simply not there.
 
