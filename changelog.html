@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="strict-origin">
 <meta name="theme-color" content="#0a0b0d">
-<title>bmiest · changelog</title>
-<meta name="description" content="Every release of the bmiest stream overlay, newest first.">
+<title>Changelog · bmiest stream overlay</title>
+<meta name="description" content="What changed in the bmiest stream overlay, per version, newest first.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -14,21 +14,48 @@
 <link rel="stylesheet" href="css/index.css">
 <link rel="stylesheet" href="css/changelog.css">
 </head>
-<body>
-<main class="cl">
-  <a class="cl__back" href="./"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 6l-6 6 6 6"/></svg><span data-i18n-html="cl.back">Back to the overlay</span></a>
-  <h1 class="cl__title" data-i18n-html="cl.h">Changelog</h1>
-  <p class="cl__lead" data-i18n-html="cl.lead">Every release of the stream overlay, newest first. Reload your OBS sources after an update (<i>Refresh cache of current page</i>, or restart OBS).</p>
-  <ol class="cl__list" id="clList" aria-live="polite"><li class="cl__note" data-i18n-html="cl.loading">Loading the releases from GitHub…</li></ol>
-  <p class="cl__more"><a href="https://github.com/Bmiest/bmiest_wow_streaming_theme/releases" rel="noopener" data-i18n-html="cl.all">All releases on GitHub</a></p>
+<body class="pv-page" data-title-nl="Wijzigingen · bmiest streamoverlay" data-title-en="Changelog · bmiest stream overlay">
+
+<header class="pv-top">
+  <a class="bug pv-bug" href="./">
+    <span class="bug__name"><span class="bug__mark"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="3" fill="currentColor"></circle><path d="M4.2 4.2a6.8 6.8 0 0 0 0 9.6M13.8 4.2a6.8 6.8 0 0 1 0 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg></span>bmiest</span>
+    <span class="bug__slot pv-back"><span lang="en" data-pv="en">Back to the overlay</span><span lang="nl" data-pv="nl" hidden>Naar de overlay</span></span>
+  </a>
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button type="button" data-lang="en" aria-pressed="true" lang="en">EN</button>
+    <button type="button" data-lang="nl" aria-pressed="false" lang="nl">NL</button>
+  </div>
+</header>
+
+<main class="pv">
+<!-- Two languages on one page, like wijzigingen.html on racetodutchfirst.nl: js/changelog.js
+     fills both lists from js/changelog-data.js and shows the one js/i18n.js picks. -->
+<article class="pv__doc" lang="en" data-pv="en">
+  <h1 class="view__title">Changelog</h1>
+  <p class="pv__lead">What changed in the stream overlay, newest first. After an update, reload your sources in OBS (<i>Refresh cache of current page</i>, or restart OBS).</p>
+  <p class="pv__meta mono">Live now: <span class="js-live">—</span></p>
+  <ol class="ch" data-ch="en"></ol>
+</article>
+<article class="pv__doc" lang="nl" data-pv="nl" hidden>
+  <h1 class="view__title">Wijzigingen</h1>
+  <p class="pv__lead">Wat er aan de streamoverlay veranderde, nieuwste eerst. Na een update herlaad je je bronnen in OBS (<i>Refresh cache of current page</i>, of herstart OBS).</p>
+  <p class="pv__meta mono">Nu live: <span class="js-live">—</span></p>
+  <ol class="ch" data-ch="nl"></ol>
+</article>
 </main>
+
+<footer class="site-footer">
+  <div class="ft pv-ft">
+    <p class="ft__disclaimer" lang="en" data-pv="en">Fan-made, not affiliated with Blizzard Entertainment. World of Warcraft and the character and boss renders are trademarks and work of Blizzard Entertainment, Inc.</p>
+    <p class="ft__disclaimer" lang="nl" data-pv="nl" hidden>Gemaakt door een fan, niet verbonden aan Blizzard Entertainment. World of Warcraft en de character- en bossrenders zijn handelsmerken en werk van Blizzard Entertainment, Inc.</p>
+  </div>
+</footer>
 
 <script src="config.default.js"></script>
 <script src="js/util.js"></script>
 <script>window.I18N_INTERACTIVE = true;</script>
 <script src="js/i18n.js"></script>
-<script src="js/i18n-index.js"></script>
-<script src="js/version.js"></script>
+<script src="js/changelog-data.js"></script>
 <script src="js/changelog.js"></script>
 </body>
 </html>
