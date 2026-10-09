@@ -232,11 +232,21 @@ window.OVERLAY_CONFIG = {
   // klok ("6/9 M · #1 of 5 NL · now on ..."), in de onderbalk als rang in de
   // raidkaart. guild leeg = raiderio.guild.name. Lukt ophalen niet, dan
   // verdwijnt alleen dat stukje. Zie js/race.js.
+  //
+  // Het klassement (elke guild met zijn baan van acht bosses) staat op de
+  // scene-schermen onder de klok, en in de onderbalk als tweede pagina van
+  // de raidkaart. boardRows: zoveel guilds hoogstens; de jouwe staat er
+  // altijd bij. bar: de raidkaart toont bossSeconds de boss en dan
+  // raceSeconds het klassement. Na elke pull blijft de boss holdMinutes
+  // staan, zodat het klassement nooit een melding verstopt. rotate:false
+  // houdt de kaart op de boss. banner.html?page=race zet het klassement vast.
   race: {
     enabled    : true,
     url        : 'https://racetodutchfirst.nl/data/race.json',
     guild      : '',
     pollSeconds: 600,
+    boardRows  : 6,
+    bar        : { rotate: true, bossSeconds: 45, raceSeconds: 15, holdMinutes: 3 },
   },
 
   // ---- geluid per melding --------------------------------------------

@@ -98,21 +98,18 @@ html,body{width:100vw;height:100vh;background:var(--ink-900);overflow:hidden}
 }
 .topic:empty{display:none}
 
-/* Race to Dutch First: de stand van je guild, onder de titel. Een kopje in
-   de stijl van de eyebrow, kleiner, en daaronder de stand op één regel. */
-.race{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:10px;
-  max-width:940px}
+/* Race to Dutch First: het klassement onder de titel. Het kopje in de stijl
+   van de eyebrow, kleiner; de rijen zelf staan in race.css. */
+.race{margin-top:40px;display:flex;flex-direction:column;align-items:center;gap:16px}
 .race__cap{
   font-family:var(--f-mono);font-size:15px;color:var(--ink-300);
   letter-spacing:.32em;text-transform:uppercase;padding-left:.32em;
 }
-.race__line{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
-  gap:6px 16px;font-size:30px;font-weight:500;color:var(--paper)}
-.race__sep{color:var(--ink-500)}
-.race__p--kills,.race__p--rank{font-family:var(--f-mono);font-variant-numeric:tabular-nums;
-  font-size:28px}
-.race__p.is-lead{color:var(--gold)}
-.race__p--on{font-weight:400;color:var(--paper-dim)}
+/* De rijen hebben vaste kolommen (race.css), dus het blok is zo breed als
+   een rij, 786px, en staat in het midden -- op deze hoogte is de halo
+   smaller dan bovenaan, en een volle 940 liep met de percentages door de
+   ring heen. */
+.race .rboard{width:max-content}
 
 /* ---- voet ---------------------------------------------------------- */
 /* Bronvermelding voor de characters op de flanken. Rechtsonder, gedempt en

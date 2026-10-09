@@ -314,3 +314,32 @@ body.demo .cam__hint{display:grid}
   font-family:var(--f-mono);font-size:10px;color:var(--rose);
   opacity:0;transition:opacity var(--t-med)}
 #health.show{opacity:.75}
+
+/* =====================================================================
+   3b. RACE  --  tweede pagina van de raidkaart (js/banner.js)
+   Wisselt met de boss door een korte crossfade, zoals de characterkaart
+   zijn pagina's wisselt: 340px, dus geen beweging over de volle breedte.
+   De beste poging valt hier weg: op 300px kost die kolom de namen
+   ("RoyalTeam C..." naast "RoyalTeam T..."), en het half gevulde blokje
+   in de baan zegt hetzelfde. Je eigen getal staat op de bosspagina.
+   ===================================================================== */
+.card--boss .rio,.card--boss .boss,.rrace{transition:opacity var(--t-med) var(--ease)}
+.rrace{position:absolute;inset:0;padding:19px 20px 14px;opacity:0;
+  display:flex;flex-direction:column;justify-content:center}
+.card--boss.is-race .rrace{opacity:1}
+.card--boss.is-race .rio,.card--boss.is-race .boss{opacity:0}
+
+.rrace .rboard{
+  --rr-h:22px; --rr-gap:4px; --rr-fs:13px; --rr-num:12px;
+  --rr-rank:12px; --rr-name:minmax(0,1fr); --rr-seg:10px; --rr-seg-h:6px; --rr-seg-gap:2px;
+  --rr-k:26px; --rr-b:0px; --rr-col:8px;
+}
+.rrace .rrow{grid-template-columns:var(--rr-rank) var(--rr-name) auto var(--rr-k)}
+.rrace .rrow__b{display:none}
+
+/* Het bronlabel en de pagina-bolletjes wisselen mee. */
+.card--boss .src--race{display:none}
+.card--boss.is-race .src--race{display:flex}
+.card--boss.is-race .src--boss{display:none}
+/* Onderaan, links van de afgesneden hoek (30px). */
+#bossDots{top:auto;bottom:12px;right:44px}

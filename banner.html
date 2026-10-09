@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/ribbon.css">
 <link rel="stylesheet" href="css/backdrop.css">
+<link rel="stylesheet" href="css/race.css">
 <link rel="stylesheet" href="css/banner.css">
 
 <div id="stage">
@@ -42,9 +43,11 @@
 
     <!-- 3 ─ boss progress van de guild ---------------------------------->
     <div class="rcard-wrap card--boss">
-      <span class="rcard__cap" data-icon="raid" data-i18n="cap.raid">raid</span>
+      <!-- Het bijschrift wisselt mee met de pagina: 'raid' of 'race'. -->
+      <span class="rcard__cap" data-icon="raid"><span id="bossCap" data-i18n="cap.raid">raid</span></span>
       <!-- De bronnaam wisselt mee met wie de kaart vulde: zie js/progress.js -->
-      <span class="rcard__src"><span id="bossSrc">raider.io</span><b class="rcard__at" id="bossAt"></b></span>
+      <span class="rcard__src src--boss"><span id="bossSrc">raider.io</span><b class="rcard__at" id="bossAt"></b></span>
+      <span class="rcard__src src--race">racetodutchfirst.nl<b class="rcard__at" id="raceAt"></b></span>
       <div class="rcard"><div class="rcard__in">
 
         <div class="rio" id="rioWidget" style="display:none">
@@ -70,6 +73,12 @@
           <!-- melding bij een poging erbij, een nieuwe beste of een kill; js/banner.js -->
           <div class="boss__flash" id="bossFlash"></div>
         </div>
+
+        <!-- tweede pagina: het klassement van Race to Dutch First; js/banner.js -->
+        <div class="rrace" id="raceCard" aria-hidden="true">
+          <div class="rboard" id="raceRows"></div>
+        </div>
+        <div class="rotdots" id="bossDots"></div>
 
       </div></div>
     </div>

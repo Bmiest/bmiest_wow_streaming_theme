@@ -1420,14 +1420,27 @@ it wraps to at most three lines at 940px wide, gets smaller (38 down to 26px)
 when it still does not fit, and is cut off with an ellipsis after that. At the
 old 1500px a long title ran over both characters on the flanks.
 
-Below that, every scene screen shows where your guild stands in the
-**Race to Dutch First**: `6/9 M · #1 of 5 NL · now on The Twin Fangs`, from
-`https://racetodutchfirst.bmiest.be/data/race.json` (settings under `race` in the
-config, polled every 10 minutes). The rank is gold while you are first, the same
-rule as on that site. That used to live in the stream title by hand, and the
-title fell behind ("5/8M" while the race already counted 6/9). If the file does
-not load, the line is simply not there. The bottom bar's raid card carries the
-rank only (`#1 of 5 NL`), next to the progress line.
+Below that, every scene screen shows the **Race to Dutch First** standings,
+from `https://racetodutchfirst.nl/data/race.json` (settings under `race` in the
+config, polled every 10 minutes): one row per guild with its rank, name, a track
+of eight bosses filled up to its race position (the boss it is on fills part
+way, by how much of that boss is down), its kills, and its best pull on that boss
+as HP left (`6/8  69.8%`). Same order and the same numbers as the site. Your own
+guild is the jade row; the rank is gold for the leader, and so is the kill count
+after Cutting Edge. At most `race.boardRows` guilds (6); yours is always
+included. That used to be a single line, and before that it lived in the stream
+title by hand, which fell behind ("5/8M" while the race already counted 6/9).
+If the file does not load, the board is simply not there.
+
+The bottom bar's raid card carries the rank next to the progress line
+(`#1 of 6 NL`), and has the same board as its second page: the card shows the
+boss for `race.bar.bossSeconds` (45), then the standings for
+`race.bar.raceSeconds` (15). The boss comes first: after every pull the card
+goes back to it and stays there for `race.bar.holdMinutes` (3), so the
+standings never hide a pull alert. The bar version drops the best-pull column
+to keep the guild names readable at 340px. `race.bar.rotate: false` keeps the
+card on the boss; `banner.html?page=race` pins the standings for lining things
+up.
 
 All of them are browser sources, `2560 x 1440`, position `0, 0`. Countdown
 length, fallback topic, schedule and socials live in `config.js` under `scenes`.
@@ -1842,7 +1855,8 @@ stinger.html     one frame of the transition
 css/scene.css    scenes
 css/chatting.css Just Chatting
 js/scene.js      scenes
-js/race.js       Race to Dutch First standing (racetodutchfirst.bmiest.be)
+js/race.js       Race to Dutch First standing and board rows (racetodutchfirst.nl)
+css/race.css     Race to Dutch First board rows (scenes and bottom bar)
 js/i18n.js       English / Dutch: ?lang=, dictionary, front page switch
 js/i18n-index.js the front page in Dutch
 js/chatting.js   Just Chatting

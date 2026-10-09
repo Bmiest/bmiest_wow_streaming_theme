@@ -441,30 +441,26 @@ function refresh(){
 })();
 
 /* ---- race to dutch first --------------------------------------------
-   Onder de klok (of de afsluiter): hoe ver je guild is en waar hij staat
-   tussen de Nederlandse guilds. Dat stond tot nu met de hand in je
-   streamtitel, en die liep achter ("5/8M" terwijl de race al 6/9 telde).
-   Deze regel komt van dezelfde data als racetodutchfirst.bmiest.be. Geen
-   antwoord, geen regel: het blok blijft verborgen. Goud alleen voor de
-   rang en alleen als je eerste staat -- dezelfde regel als op de site, waar
-   goud de koploper is. */
+   Onder de klok (of de afsluiter): het klassement van de race, met je eigen
+   guild in jade. Eerst stond hier één regel ("6/8 M · #1 of 6 NL · now on
+   ..."), en die zei waar jij stond maar niet hoe ver de rest achter (of voor)
+   je zat -- en dat is op een wachtscherm net het gesprek. Dezelfde data als
+   racetodutchfirst.nl, zelfde rangorde. Geen antwoord, geen blok.
+
+   Binnen de halo: die is op deze hoogte nog zo'n 1000 breed, het blok 940. */
 (function(){
   if(!window.Race || !window.Race.enabled()) return;
   var box = U.el('div','race');
   box.style.display = 'none';
   box.appendChild(U.el('div','race__cap', T('race.cap')));
-  var line = U.el('div','race__line');
-  box.appendChild(line);
+  var list = U.el('div','rboard');
+  box.appendChild(list);
   U.$('.scene__mid').appendChild(box);
 
   window.Race.watch(function(s){
-    var parts = window.Race.parts(s);
-    if(!parts.length){ box.style.display = 'none'; return; }
-    line.innerHTML = '';
-    parts.forEach(function(p, i){
-      if(i) line.appendChild(U.el('span','race__sep','\u00b7'));
-      line.appendChild(U.el('span','race__p race__p--' + p.k + (p.lead ? ' is-lead' : ''), p.text));
-    });
+    if(!s || !s.board || !s.board.length){ box.style.display = 'none'; return; }
+    list.innerHTML = '';
+    s.board.forEach(function(r){ list.appendChild(window.Race.row(r)); });
     box.style.display = '';
   });
 })();

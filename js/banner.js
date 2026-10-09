@@ -373,6 +373,9 @@ function bossFlash(capText, val, minor){
      dus een lange standtijd houdt niets tegen. */
   if(minor) r.style.setProperty('--acc', 'var(--ink-300)');
   host.appendChild(r);
+  /* Staat het klassement in beeld, dan eerst terug naar de boss: deze
+     melding is waar de kaart voor is. */
+  raceHold();
   host.classList.remove('on'); void host.offsetWidth; host.classList.add('on');
   clearTimeout(flashTimer);
   flashTimer = setTimeout(function(){ host.classList.remove('on'); },
@@ -481,11 +484,13 @@ function paintBoss(L){
 }
 
 /* ---- race to dutch first ------------------------------------------
-   Achter de voortgangsregel van de raidkaart: "#1 of 5 NL". De kaart zegt
-   hoe ver je bent, dit zegt hoe dat zich verhoudt tot de andere
-   Nederlandse guilds. Alleen de rang, want de kills staan er al naast en
-   een tweede telling (de race telt Nymrissa mee, 6/9 tegen 5/8) zou op 340px
-   alleen verwarren. Komt hij niet binnen, dan staat er gewoon niets. */
+   Twee plekken in de raidkaart. Achter de voortgangsregel de rang ("#1 of
+   6 NL"), en als tweede pagina het klassement: elke guild met de baan van
+   acht bosses, je eigen guild in jade. De kaart wisselt tussen de boss en
+   het klassement (race.bar in de config), maar de boss gaat voor: komt er
+   een pull binnen, dan springt hij terug en blijft hij holdMinutes staan.
+   Een klassement over een wipe heen zou de melding verstoppen waar de kaart
+   voor is. Komt de stand niet binnen, dan blijft het bij de boss. */
 var raceRank = null, raceState = null;
 function paintRace(){
   if(!raceRank) return;
@@ -495,7 +500,68 @@ function paintRace(){
   if(!p) return;
   raceRank.appendChild(U.el('span', 'boss__race' + (p.lead ? ' is-lead' : ''), p.text));
 }
-if(window.Race) window.Race.watch(function(s){ raceState = s; paintRace(); });
+
+var RB = (CFG.race && CFG.race.bar) || {};
+var elBossCard = U.$('.card--boss'), elBossDots = U.$('#bossDots');
+var racePage = false, raceUntil = 0, raceTimer = null;
+
+function hasBoard(){ return !!(raceState && raceState.board && raceState.board.length); }
+
+function paintBoard(){
+  var rows = U.$('#raceRows');
+  rows.innerHTML = '';
+  if(!hasBoard()) return;
+  raceState.board.forEach(function(r){ rows.appendChild(window.Race.row(r)); });
+  /* De tijd van de stand zelf, niet van onze fetch -- zelfde regel als de
+     andere stempeltjes. Het bestand ververst op raidavonden elke vijf
+     minuten en anders elk uur; pas daarboven is hij laat. */
+  stamp('#raceAt', raceState.at, 90);
+}
+
+function showRacePage(on){
+  racePage = !!on && hasBoard();
+  elBossCard.classList.toggle('is-race', racePage);
+  U.$('#bossCap').textContent = T(racePage ? 'cap.race' : 'cap.raid');
+  Array.prototype.forEach.call(elBossDots.children, function(d, i){
+    d.classList.toggle('on', i === (racePage ? 1 : 0));
+  });
+}
+
+/* Om en om: bossSeconds de boss, raceSeconds het klassement. Een pull zet
+   raceUntil vooruit; tot dan slaat de wissel het klassement over. */
+function raceCycle(){
+  clearTimeout(raceTimer);
+  var hold = (raceUntil - Date.now()) / 1000, next;
+  if(racePage || !hasBoard() || hold > 0){
+    showRacePage(false);
+    next = Math.max(RB.bossSeconds || 45, hold);
+  } else {
+    showRacePage(true);
+    next = RB.raceSeconds || 15;
+  }
+  raceTimer = setTimeout(raceCycle, next * 1000);
+}
+
+function raceHold(){
+  raceUntil = Date.now() + (RB.holdMinutes != null ? RB.holdMinutes : 3) * 60000;
+  if(racePage){ showRacePage(false); raceCycle(); }
+}
+
+var RACE_ROTATE = RB.rotate !== false;
+/* ?page=race houdt het klassement vast in beeld: voor de voorpagina en om
+   uit te lijnen, zonder op de wissel te wachten. */
+var RACE_PIN = /[?&]page=race\b/.test(location.search);
+if(window.Race) window.Race.watch(function(s){
+  raceState = s; paintRace();
+  if(!RACE_ROTATE && !RACE_PIN) return;
+  paintBoard();
+  if(RACE_PIN){ showRacePage(true); return; }
+  if(hasBoard() && !elBossDots.children.length){
+    elBossDots.appendChild(U.el('i', 'on')); elBossDots.appendChild(U.el('i'));
+    raceTimer = setTimeout(raceCycle, (RB.bossSeconds || 45) * 1000);
+  }
+  if(!hasBoard()){ elBossDots.innerHTML = ''; clearTimeout(raceTimer); showRacePage(false); }
+});
 
 /* Faalt stil: ongedocumenteerde endpoints, dus als Raider.IO ze verandert
    blijft alleen dit blok leeg en loopt de rest door. */
