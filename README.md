@@ -1242,6 +1242,10 @@ covers the whole gameplay zone:
 - a **new best** fires the same shape in gold with the percentage that was
   still standing, held for 8 seconds.
 
+Both carry the guild emblem (`raiderio.guild.image`, the same image as the raid
+card's guild page) centred above the heading; without an image they look as
+before.
+
 A plain pull deliberately fires nothing here. That is what the small ribbon in
 the card is for: a wipe every two minutes has no business covering your
 gameplay.

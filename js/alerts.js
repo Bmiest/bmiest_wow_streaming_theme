@@ -849,6 +849,18 @@ function renderRaid(e){
   if(e.kill) node.appendChild(fireworks(node));
 
   var mid = U.el('div','raid__mid');
+  /* Het guildembleem boven de kop, bij een kill en bij een nieuwe beste:
+     raiderio.guild.image, hetzelfde plaatje als de guildpagina van de
+     raidkaart (img/guild/). Zonder plaatje, of als het niet laadt, staat de
+     melding zoals voorheen. */
+  var crest = CFG.raiderio && CFG.raiderio.guild && CFG.raiderio.guild.image;
+  if(crest){
+    var im = U.el('img','raid__crest');
+    im.alt = '';
+    im.onerror = function(){ im.remove(); };
+    im.src = crest;
+    mid.appendChild(im);
+  }
   mid.appendChild(U.el('div','raid__eyebrow', T(e.kill ? 'flash.down' : 'flash.best')));
   mid.appendChild(U.el('div','raid__boss', e.boss || ''));
   /* Alleen bij een kill: wie 'm neerlegde. Zelfde haakjes als de raidkaart,
