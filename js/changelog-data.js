@@ -11,12 +11,10 @@ window.CHANGELOG = [
     version: '1.11.0', date: '2026-10-09',
     nl: [
       'Bij een bosskill en een nieuwe beste pull staat het embleem van Kelderklasse boven de melding.',
-      'Het klassement op de schermen toont alle zeven teams, nu Lelijkerds als twee teams meedoet.',
       'De lijst met wijzigingen ziet eruit zoals die van Race to Dutch First, in het Nederlands en het Engels.',
     ],
     en: [
       'A boss kill and a new best pull show the Kelderklasse emblem above the alert.',
-      'The standings on the screens show all seven teams, now that Lelijkerds races as two teams.',
       'The list of changes looks like Race to Dutch First\'s, in Dutch and English.',
     ],
   },
