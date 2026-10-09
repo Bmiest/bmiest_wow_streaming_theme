@@ -103,7 +103,8 @@ Where the data comes from (`js/index.js`):
 - **The boss**: the boss the guild is on, from the Race to Dutch First standing
   (`js/race.js`); after Cutting Edge, the tier's CE boss. If that site does not
   answer, Raider.IO's live tracking (`js/rio-live.js`, light mode). The render is
-  a transparent cut-out from `img/boss/`, see below.
+  a transparent cut-out from `img/boss/`, see below; the bottom bar's raid card uses the same
+  cut-outs.
 - **LIVE** in the top-left bug: DecAPI's uptime (`js/stats.js`), every two minutes.
 
 The three scene previews each start the character rotation a step further along
@@ -1433,14 +1434,22 @@ title by hand, which fell behind ("5/8M" while the race already counted 6/9).
 If the file does not load, the board is simply not there.
 
 The bottom bar's raid card carries the rank next to the progress line
-(`#1 of 6 NL`), and has the same board as its second page: the card shows the
-boss for `race.bar.bossSeconds` (45), then the standings for
-`race.bar.raceSeconds` (15). The boss comes first: after every pull the card
-goes back to it and stays there for `race.bar.holdMinutes` (3), so the
-standings never hide a pull alert. The bar version drops the best-pull column
-to keep the guild names readable at 340px. `race.bar.rotate: false` keeps the
-card on the boss; `banner.html?page=race` pins the standings for lining things
-up.
+(`#1 of 6 NL`) and rotates through four pages: the boss
+(`race.bar.bossSeconds`, 45), the standings (`raceSeconds`, 15), the race log
+(`logSeconds`, 15: the latest `race.logRows` kills and runs of new best pulls
+of every guild, first kills in gold), and the guild page (`guildSeconds`, 12:
+`raiderio.guild.image`, world / region / realm rank, the race rank, and the
+best kill rank). The boss comes first: after every pull the card goes back to
+it and stays there for `race.bar.holdMinutes` (3), so the other pages never
+hide a pull alert. `log: false` or `guild: false` skips a page,
+`rotate: false` keeps the card on the boss, and `banner.html?page=race`
+(or `log`, `guild`) pins a page for lining things up. Overtakes from the
+site's log are not in the race log: the site works them out from the progress
+lines over time, and a second version here could tell a different story.
+
+The boss page shows the boss as a transparent cut-out from `img/boss/` at the
+card's full height (a council: at most the two largest bodies; renders under
+200px tall are skipped), with Raider.IO's portrait as the fallback.
 
 All of them are browser sources, `2560 x 1440`, position `0, 0`. Countdown
 length, fallback topic, schedule and socials live in `config.js` under `scenes`.

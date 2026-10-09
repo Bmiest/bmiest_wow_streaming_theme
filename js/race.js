@@ -48,7 +48,9 @@ function guild(){
          daar die boss achter je character in plaats van niets. */
       ceBoss : d.tier && d.tier.ceBoss && d.tier.ceBoss.name || null,
       at     : d.generatedAt || null,
-      board  : board(list, g.name, total)
+      board  : board(list, g.name, total),
+      log    : log(d, g.name),
+      ranks  : ranks(d, g)
     };
   }).catch(function(e){
     console.warn('[race]', e.message);
@@ -88,6 +90,93 @@ function board(list, own, total){
     if(mine) top[max - 1] = mine;
   }
   return top;
+}
+
+/* De rangen van je guild buiten Nederland, voor de guildpagina van de
+   raidkaart: Raider.IO's raidranking op de raid met de CE-boss (wereld,
+   regio, realm), plus de beste killrang van een boss die meetelt -- de
+   kill waarmee je het hoogst in de wereld eindigde. */
+function ranks(d, g){
+  var ce = d.tier && d.tier.ceBoss, counts = {};
+  ((d.tier && d.tier.raids) || []).forEach(function(r){ counts[r.slug] = r.counts !== false; });
+  var r = (ce && g.raids && g.raids[ce.raid]) || {};
+  var best = null;
+  (g.bosses || []).forEach(function(b){
+    var k = b.killRank;
+    if(!k || typeof k.world !== 'number' || counts[b.raid] === false) return;
+    if(!best || k.world < best.world) best = { boss: b.name, world: k.world, region: k.region };
+  });
+  return { world: r.worldRank || g.worldRank || null, region: r.regionRank || null,
+           realm: r.realmRank || null, realmName: g.realm || '', regionName: g.region || '',
+           summary: r.summary || '', best: best };
+}
+
+/* Het raceverslag: de laatste kills en nieuwe beste pogingen van alle
+   guilds, nieuwste eerst -- dezelfde momenten als 'Laatste nieuws' op de
+   site, die dat in de browser uit dezelfde race.json opbouwt
+   (site/voortgang.js, logItems). Twee soorten:
+
+   - een kill op een boss die meetelt (een raid met counts:false, zoals de
+     Tidebound Grotto, niet); 'first' als die guild hem als eerste lag;
+   - een reeks nieuwe beste pogingen van één guild op zijn huidige boss op
+     één avond, als één regel met de beste van die avond. Op de site heet
+     dat ook één regel; elke pull apart zou de kaart vullen met één guild.
+
+   Inhalen (de site zegt "X haalt Y in") staat er bewust niet bij: de site
+   rekent dat uit de voortgangslijnen over tijd, en een eigen versie hier
+   zou soms een ander verhaal vertellen dan de site. */
+function log(d, own){
+  var counts = {}, firsts = {};
+  ((d.tier && d.tier.raids) || []).forEach(function(r){
+    counts[r.slug] = r.counts !== false;
+    (r.bosses || []).forEach(function(b){
+      if(b.firstKill) firsts[r.slug + '/' + b.slug] = b.firstKill.guild;
+    });
+  });
+  var out = [];
+  (d.guilds || []).forEach(function(g){
+    (g.bosses || []).forEach(function(b){
+      if(b.state !== 'killed' || !b.defeatedAt || counts[b.raid] === false) return;
+      out.push({ t: Date.parse(b.defeatedAt), guild: g.name, own: g.name === own, boss: b.name,
+                 kind: firsts[b.raid + '/' + b.slug] === g.name ? 'first' : 'kill',
+                 pulls: b.pullCount || null });
+    });
+    var c = g.current;
+    if(!c || g.ceKilledAt || !Array.isArray(c.pulls)) return;
+    var was = null, run = null;
+    c.pulls.forEach(function(p){
+      if(typeof p.percent !== 'number' || p.success || !(was === null || p.percent < was)) return;
+      var t = Date.parse(p.at), day = new Date(t).toDateString();
+      if(run && run.day === day){ run.t = t; run.best = p.percent; }
+      else {
+        run = { t: t, day: day, guild: g.name, own: g.name === own, boss: c.name,
+                kind: 'best', best: p.percent };
+        out.push(run);
+      }
+      was = p.percent;
+    });
+  });
+  return out.filter(function(e){ return !isNaN(e.t); })
+            .sort(function(a, b){ return b.t - a.t; })
+            .slice(0, RC.logRows || 5);
+}
+
+/* Eén regel van het verslag: wanneer, wat, wie op welke boss, en het getal
+   dat erbij hoort (pulls tot de kill, of de beste poging als resterend HP). */
+function logRow(e){
+  var T = window.I18N.t, d = new Date(e.t);
+  var when = d.toLocaleDateString(window.I18N.locale(), { weekday: 'short' }).replace('.', '')
+           + ' ' + U.hhmm(d);
+  var el = U.el('div', 'rlog rlog--' + e.kind + (e.own ? ' is-own' : ''));
+  el.appendChild(U.el('span', 'rlog__t', when));
+  el.appendChild(U.el('span', 'rlog__tag', T('log.' + e.kind)));
+  var txt = U.el('span', 'rlog__txt');
+  txt.appendChild(U.el('b', null, e.guild));
+  txt.appendChild(U.el('span', null, e.boss));
+  el.appendChild(txt);
+  el.appendChild(U.el('span', 'rlog__v', e.kind === 'best' ? e.best.toFixed(1) + '%'
+                                       : e.pulls ? T('boss.pullsN', { n: e.pulls }) : ''));
+  return el;
 }
 
 /* Eén baan: een blokje per boss, gevuld tot de racepositie. Het blokje van
@@ -153,5 +242,5 @@ function watch(fn){
   U.poll(function(){ return guild().then(fn); }, RC.pollSeconds || 600);
 }
 
-window.Race = { guild:guild, parts:parts, watch:watch, enabled:enabled, row:row };
+window.Race = { guild:guild, parts:parts, watch:watch, enabled:enabled, row:row, logRow:logRow };
 })();

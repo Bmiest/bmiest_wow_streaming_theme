@@ -395,6 +395,59 @@ function tryLine(p){
   return [pct, p.phase].filter(Boolean).join('  \u00b7  ');
 }
 
+/* De boss zelf, als uitgesneden render rechts in de kaart, hoog genoeg om
+   hem te herkennen. Eerst stond hier Raider.IO's portret op 17% dekking als
+   achtergrond, en dat las als een vlek: wie keek zag niet tegen wie er
+   gepulld werd. De uitsnedes zijn dezelfde als achter je character op de
+   voorpagina (img/boss/, build-bosscutouts.py, herkomst in PROVENANCE.md).
+
+   Een council heeft meer lijven: hooguit twee, de grootste eerst, en een
+   render die te klein is om op 180px hoog te tonen valt weg (Zul'jan is
+   78x107; opgeblazen wordt dat pap). Niets te vinden, dan het oude portret
+   als terugval, zoals voorheen. */
+var CUT_MIN_H = 200;
+var cutSizes = {};
+function cutouts(L){
+  var art = window.BossArt; if(!art) return [];
+  var enc = L.encounter || (L.bossName && art.byName[String(L.bossName).toLowerCase()]);
+  return ((enc && art.byEncounter[enc]) || []).map(function(x){
+    var m = /creature-display-(\d+)\.jpg$/.exec(x.img || '');
+    return m && 'img/boss/creature-display-' + m[1] + '.png';
+  }).filter(Boolean);
+}
+var artKey = null;
+function paintArt(L){
+  var box = U.$('#bossArt');
+  var list = cutouts(L), key = list.join('|') + '#' + (L.bossImg || '');
+  if(key === artKey) return;
+  artKey = key;
+  box.innerHTML = '';
+  box.classList.remove('is-cut');
+  box.style.backgroundImage = 'none';
+  if(!list.length){ fallback(); return; }
+  Promise.all(list.map(function(src){
+    return new Promise(function(ok){
+      var im = new Image();
+      im.onload  = function(){ ok({ src: src, w: im.naturalWidth, h: im.naturalHeight }); };
+      im.onerror = function(){ ok(null); };
+      im.src = src;
+    });
+  })).then(function(res){
+    if(artKey !== key) return;
+    var good = res.filter(function(r){ return r && r.h >= CUT_MIN_H; })
+                  .sort(function(a, b){ return b.w * b.h - a.w * a.h; }).slice(0, 2);
+    if(!good.length){ fallback(); return; }
+    box.classList.add('is-cut');
+    good.forEach(function(r){
+      var im = U.el('img'); im.src = r.src; im.alt = '';
+      box.appendChild(im);
+    });
+  });
+  function fallback(){
+    box.style.backgroundImage = L.bossImg ? 'url("' + L.bossImg + '")' : 'none';
+  }
+}
+
 function paintBoss(L){
   if(!L) return;
   /* Hier en niet in loadLive: wie deze kaart tekent, tekent ook hoe vers hij
@@ -416,8 +469,7 @@ function paintBoss(L){
     [L.raidName, cap(L.difficulty)].filter(Boolean).join('  ·  ');
   U.$('#bossName').textContent = L.bossName || '—';
 
-  var art = U.$('#bossArt');
-  art.style.backgroundImage = L.bossImg ? 'url("' + L.bossImg + '")' : 'none';
+  paintArt(L);
 
   var tag = U.$('#bossTag');
   if(L.bossName){
@@ -503,64 +555,119 @@ function paintRace(){
 
 var RB = (CFG.race && CFG.race.bar) || {};
 var elBossCard = U.$('.card--boss'), elBossDots = U.$('#bossDots');
-var racePage = false, raceUntil = 0, raceTimer = null;
+var PAGE_CAP = { boss: 'cap.raid', race: 'cap.race', log: 'cap.log', guild: 'cap.guild' };
+var pageNow = 'boss', raceUntil = 0, raceTimer = null;
 
-function hasBoard(){ return !!(raceState && raceState.board && raceState.board.length); }
+/* Welke pagina's er zijn: de boss altijd, het klassement en het verslag
+   alleen als de stand binnen is en er iets in staat. */
+function cardPages(){
+  var out = ['boss'];
+  if(raceState && raceState.board && raceState.board.length) out.push('race');
+  if(raceState && raceState.log && raceState.log.length && RB.log !== false) out.push('log');
+  if(raceState && raceState.ranks && raceState.ranks.world && RB.guild !== false) out.push('guild');
+  return out;
+}
+function seconds(p){
+  return p === 'boss' ? (RB.bossSeconds || 45)
+       : p === 'race' ? (RB.raceSeconds || 15)
+       : p === 'log'  ? (RB.logSeconds  || 15) : (RB.guildSeconds || 12);
+}
 
 function paintBoard(){
-  var rows = U.$('#raceRows');
-  rows.innerHTML = '';
-  if(!hasBoard()) return;
-  raceState.board.forEach(function(r){ rows.appendChild(window.Race.row(r)); });
+  var rows = U.$('#raceRows'), lg = U.$('#logRows');
+  rows.innerHTML = ''; lg.innerHTML = '';
+  if(!raceState) return;
+  (raceState.board || []).forEach(function(r){ rows.appendChild(window.Race.row(r)); });
+  (raceState.log || []).forEach(function(e){ lg.appendChild(window.Race.logRow(e)); });
   /* De tijd van de stand zelf, niet van onze fetch -- zelfde regel als de
      andere stempeltjes. Het bestand ververst op raidavonden elke vijf
      minuten en anders elk uur; pas daarboven is hij laat. */
   stamp('#raceAt', raceState.at, 90);
+  paintGuild();
 }
 
-function showRacePage(on){
-  racePage = !!on && hasBoard();
-  elBossCard.classList.toggle('is-race', racePage);
-  U.$('#bossCap').textContent = T(racePage ? 'cap.race' : 'cap.raid');
-  Array.prototype.forEach.call(elBossDots.children, function(d, i){
-    d.classList.toggle('on', i === (racePage ? 1 : 0));
+/* De guildpagina: het guildplaatje (raiderio.guild.image, een pad of URL;
+   zonder plaatje valt dat vak weg en schuift de rest op), de naam, en de
+   rangen: wereld, regio, realm en de plek in de race. Goud alleen voor die
+   laatste en alleen op één -- verdiend, zoals overal. */
+function paintGuild(){
+  var R = raceState && raceState.ranks; if(!R) return;
+  var G = (CFG.raiderio && CFG.raiderio.guild) || {};
+  var img = U.$('#guildImg');
+  img.innerHTML = '';
+  img.parentNode.classList.toggle('no-img', !G.image);
+  if(G.image){
+    var im = U.el('img'); im.alt = '';
+    im.onerror = function(){ img.parentNode.classList.add('no-img'); };
+    im.src = G.image; img.appendChild(im);
+  }
+  U.$('#guildName').textContent = raceState.name;
+  U.$('#guildSub').textContent = [R.regionName + '-' + R.realmName, R.summary].filter(Boolean).join('  \u00b7  ');
+  var box = U.$('#guildRanks'); box.innerHTML = '';
+  [[T('gr.world'), R.world], [R.regionName, R.region], [R.realmName, R.realm],
+   [T('gr.nl'), raceState.rank, raceState.rank === 1]].forEach(function(x){
+    if(!x[1]) return;
+    var c = U.el('div', 'gstat' + (x[2] ? ' is-lead' : ''));
+    c.appendChild(U.el('div', 'gstat__v', '#' + U.num(x[1])));
+    c.appendChild(U.el('div', 'gstat__l', x[0]));
+    box.appendChild(c);
   });
+  var best = U.$('#guildBest'); best.innerHTML = '';
+  if(R.best){
+    best.appendChild(U.el('span', 'gcard__k', T('gr.best')));
+    best.appendChild(U.el('b', null, R.best.boss));
+    best.appendChild(U.el('span', 'gcard__n', '#' + U.num(R.best.world) + ' ' + T('gr.world')
+      + (R.best.region ? '  \u00b7  #' + U.num(R.best.region) + ' ' + R.regionName : '')));
+  }
 }
 
-/* Om en om: bossSeconds de boss, raceSeconds het klassement. Een pull zet
-   raceUntil vooruit; tot dan slaat de wissel het klassement over. */
+function paintDots(){
+  var ps = cardPages();
+  elBossDots.innerHTML = '';
+  if(ps.length < 2) return;
+  ps.forEach(function(p){ elBossDots.appendChild(U.el('i', p === pageNow ? 'on' : null)); });
+}
+
+function showCardPage(p){
+  if(cardPages().indexOf(p) < 0) p = 'boss';
+  pageNow = p;
+  elBossCard.classList.toggle('is-race', p === 'race');
+  elBossCard.classList.toggle('is-log',  p === 'log');
+  elBossCard.classList.toggle('is-guild', p === 'guild');
+  elBossCard.classList.toggle('is-alt',  p !== 'boss');
+  U.$('#bossCap').textContent = T(PAGE_CAP[p]);
+  paintDots();
+}
+
+/* Rond: de boss bossSeconds, dan het klassement en het verslag elk hun
+   eigen tijd, en terug. Een pull zet raceUntil vooruit; tot dan blijft de
+   boss staan en slaat de wissel de rest over. */
 function raceCycle(){
   clearTimeout(raceTimer);
-  var hold = (raceUntil - Date.now()) / 1000, next;
-  if(racePage || !hasBoard() || hold > 0){
-    showRacePage(false);
-    next = Math.max(RB.bossSeconds || 45, hold);
-  } else {
-    showRacePage(true);
-    next = RB.raceSeconds || 15;
-  }
-  raceTimer = setTimeout(raceCycle, next * 1000);
+  var ps = cardPages(), hold = (raceUntil - Date.now()) / 1000;
+  var next = hold > 0 ? 'boss' : ps[(ps.indexOf(pageNow) + 1) % ps.length];
+  showCardPage(next);
+  raceTimer = setTimeout(raceCycle,
+    (next === 'boss' ? Math.max(seconds('boss'), hold) : seconds(next)) * 1000);
 }
 
 function raceHold(){
   raceUntil = Date.now() + (RB.holdMinutes != null ? RB.holdMinutes : 3) * 60000;
-  if(racePage){ showRacePage(false); raceCycle(); }
+  if(pageNow !== 'boss'){ pageNow = 'boss'; raceCycle(); }
 }
 
 var RACE_ROTATE = RB.rotate !== false;
-/* ?page=race houdt het klassement vast in beeld: voor de voorpagina en om
-   uit te lijnen, zonder op de wissel te wachten. */
-var RACE_PIN = /[?&]page=race\b/.test(location.search);
+/* ?page=race, ?page=log of ?page=guild houdt die pagina vast in beeld: voor de
+   voorpagina en om uit te lijnen, zonder op de wissel te wachten. */
+var RACE_PIN = (location.search.match(/[?&]page=(race|log|guild)\b/) || [])[1];
 if(window.Race) window.Race.watch(function(s){
   raceState = s; paintRace();
   if(!RACE_ROTATE && !RACE_PIN) return;
   paintBoard();
-  if(RACE_PIN){ showRacePage(true); return; }
-  if(hasBoard() && !elBossDots.children.length){
-    elBossDots.appendChild(U.el('i', 'on')); elBossDots.appendChild(U.el('i'));
-    raceTimer = setTimeout(raceCycle, (RB.bossSeconds || 45) * 1000);
-  }
-  if(!hasBoard()){ elBossDots.innerHTML = ''; clearTimeout(raceTimer); showRacePage(false); }
+  if(RACE_PIN){ showCardPage(RACE_PIN); return; }
+  if(cardPages().length < 2){ clearTimeout(raceTimer); raceTimer = null; showCardPage('boss'); return; }
+  showCardPage(pageNow);
+  if(!raceTimer) raceTimer = setTimeout(raceCycle, seconds('boss') * 1000);
 });
 
 /* Faalt stil: ongedocumenteerde endpoints, dus als Raider.IO ze verandert
