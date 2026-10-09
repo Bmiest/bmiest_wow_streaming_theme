@@ -247,6 +247,10 @@ img.alert__wig{object-fit:contain}
 @keyframes raidRise{from{opacity:0;transform:translateY(26px)}
                     to  {opacity:1;transform:none}}
 
+/* Het guildembleem boven de kop (raiderio.guild.image). Vierkant, zonder
+   lijst of schaduw: het plaatje heeft zijn eigen rand. Komt mee op met
+   .raid__mid. */
+.raid__crest{display:block;width:200px;height:200px;margin:0 auto 30px;object-fit:contain}
 .raid__eyebrow{
   font-family:var(--f-mono);font-size:30px;color:var(--acc);
   letter-spacing:.42em;text-transform:uppercase;padding-left:.42em;
