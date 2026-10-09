@@ -74,7 +74,7 @@ window.OVERLAY_CONFIG = {
     ],
     // image: het guildplaatje op de guildpagina van de raidkaart (pad of
     // URL, vierkant werkt het best). Leeg = die pagina zonder plaatje.
-    guild: { realm: 'draenor', name: 'Kelderklasse', image: '' },
+    guild: { realm: 'draenor', name: 'Kelderklasse', image: 'img/guild/kelderklasse.png' },
     raidSlug      : '',    // '' = automatisch de nieuwste raid
 
     // Live boss progress: de boss waar de guild nu op zit, met pullcount,
