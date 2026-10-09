@@ -1,0 +1,55 @@
+/* =====================================================================
+   RACE TO DUTCH FIRST  --  het klassement, op de scenes en in de onderbalk
+   Eén rij per guild: rang, naam, de baan van acht bosses, kills en de
+   beste poging. js/race.js bouwt de rij; de maten komen van wie hem
+   neerzet (scene.css, banner.css) via de variabelen hieronder.
+
+   Kleur zoals overal in de overlay: weinig. Jade is je eigen guild (de
+   gevulde baan en de naam), goud alleen voor de koploper (het rangcijfer)
+   en voor Cutting Edge, de rest staat in grijzen. De guildkleuren van de
+   site komen hier bewust niet: zes kleuren naast je gameplay is ruis, en
+   op je eigen stream is de vraag "waar sta ik", niet "wie is oranje".
+   Geen gradients en geen beweging: het staat stil tot de stand verandert.
+   ===================================================================== */
+
+.rboard{
+  --rr-h:34px; --rr-gap:6px; --rr-fs:22px; --rr-num:20px;
+  --rr-rank:32px; --rr-name:250px; --rr-seg:34px; --rr-seg-h:10px; --rr-seg-gap:4px;
+  --rr-k:56px; --rr-b:76px; --rr-col:16px;
+  display:flex;flex-direction:column;gap:var(--rr-gap);
+}
+
+.rrow{
+  display:grid;align-items:center;column-gap:var(--rr-col);height:var(--rr-h);
+  grid-template-columns:var(--rr-rank) var(--rr-name) auto var(--rr-k) var(--rr-b);
+  font-size:var(--rr-fs);color:var(--ink-200);
+}
+.rrow__rank,.rrow__k,.rrow__b{
+  font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:var(--rr-num);
+  white-space:nowrap;
+}
+.rrow__rank{color:var(--ink-400);text-align:right}
+.rrow__nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.rrow__k{color:var(--paper-dim);text-align:right}
+.rrow__b{color:var(--ink-300);text-align:right}
+
+/* De baan: een blokje per boss, schuin aan de achterkant zoals de ribbons. */
+.rtrack{display:flex;gap:var(--rr-seg-gap)}
+.rtrack i{
+  position:relative;display:block;width:var(--rr-seg);height:var(--rr-seg-h);
+  background:var(--ink-700);overflow:hidden;
+  clip-path:polygon(0 0,100% 0,calc(100% - var(--rr-seg-h) * .5) 100%,0 100%);
+}
+.rtrack i.is-full{background:var(--ink-300)}
+.rtrack i b{position:absolute;left:0;top:0;bottom:0;background:var(--ink-400)}
+
+/* Je eigen guild: naam in papier, de baan in jade. */
+.rrow.is-own .rrow__nm{color:var(--paper);font-weight:700}
+.rrow.is-own .rrow__k{color:var(--paper)}
+.rrow.is-own .rrow__b{color:var(--paper-dim)}
+.rrow.is-own .rtrack i.is-full{background:var(--jade)}
+.rrow.is-own .rtrack i b{background:var(--jade-deep)}
+
+/* Goud is verdiend: de koploper, en Cutting Edge. */
+.rrow.is-lead .rrow__rank{color:var(--gold)}
+.rrow.is-ce .rrow__k{color:var(--gold)}

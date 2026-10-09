@@ -65,11 +65,16 @@ window.OVERLAY_CONFIG = {
     characters: [
       { realm: 'ragnaros',        name: 'Shiftheal' },  // cross-realm lid van Kelderklasse
       { realm: 'twisting-nether', name: 'Bhikhu'    },  // cross-realm lid van Kelderklasse
-      { realm: 'ragnaros',        name: 'Beo'       },  // arms warrior
-      { realm: 'ragnaros',        name: 'Beos'      },  // prot paladin
-      { realm: 'ragnaros',        name: 'Beoh'      },  // druid
+      // Alts, even uit beeld (oktober 2026): met alleen het hoofdpaar
+      // rouleert er niets en kon de kaart smaller voor het raceklassement.
+      // Terugzetten = weghalen van de //; dan rouleert de kaart weer per paar.
+      // { realm: 'ragnaros',        name: 'Beo'       },  // arms warrior
+      // { realm: 'ragnaros',        name: 'Beos'      },  // prot paladin
+      // { realm: 'ragnaros',        name: 'Beoh'      },  // druid
     ],
-    guild: { realm: 'draenor', name: 'Kelderklasse' },
+    // image: het guildplaatje op de guildpagina van de raidkaart (pad of
+    // URL, vierkant werkt het best). Leeg = die pagina zonder plaatje.
+    guild: { realm: 'draenor', name: 'Kelderklasse', image: 'img/guild/kelderklasse.png' },
     raidSlug      : '',    // '' = automatisch de nieuwste raid
 
     // Live boss progress: de boss waar de guild nu op zit, met pullcount,
@@ -232,11 +237,29 @@ window.OVERLAY_CONFIG = {
   // klok ("6/9 M · #1 of 5 NL · now on ..."), in de onderbalk als rang in de
   // raidkaart. guild leeg = raiderio.guild.name. Lukt ophalen niet, dan
   // verdwijnt alleen dat stukje. Zie js/race.js.
+  //
+  // Het klassement (elke guild met zijn baan van acht bosses) staat op de
+  // scene-schermen onder de klok, en in de onderbalk als tweede pagina van
+  // de raidkaart. boardRows: zoveel guilds hoogstens; de jouwe staat er
+  // altijd bij. bar: de raidkaart toont bossSeconds de boss en dan
+  // raceSeconds het klassement. Na elke pull blijft de boss holdMinutes
+  // staan, zodat het klassement nooit een melding verstopt. Na het
+  // klassement komt het raceverslag (logSeconds): de laatste logRows kills
+  // en beste pogingen van alle guilds; log:false slaat die pagina over.
+  // Daarna de guildpagina (guildSeconds): raiderio.guild.image met de
+  // wereld-, regio- en realmrang en je beste killrang; guild:false slaat
+  // hem over.
+  // rotate:false houdt de kaart op de boss. banner.html?page=race of
+  // ?page=log zet die pagina vast.
   race: {
     enabled    : true,
     url        : 'https://racetodutchfirst.nl/data/race.json',
     guild      : '',
     pollSeconds: 600,
+    boardRows  : 6,
+    logRows    : 5,
+    bar        : { rotate: true, bossSeconds: 45, raceSeconds: 15, logSeconds: 15,
+                   guildSeconds: 12, log: true, guild: true, holdMinutes: 3 },
   },
 
   // ---- geluid per melding --------------------------------------------

@@ -373,6 +373,9 @@ function bossFlash(capText, val, minor){
      dus een lange standtijd houdt niets tegen. */
   if(minor) r.style.setProperty('--acc', 'var(--ink-300)');
   host.appendChild(r);
+  /* Staat het klassement in beeld, dan eerst terug naar de boss: deze
+     melding is waar de kaart voor is. */
+  raceHold();
   host.classList.remove('on'); void host.offsetWidth; host.classList.add('on');
   clearTimeout(flashTimer);
   flashTimer = setTimeout(function(){ host.classList.remove('on'); },
@@ -390,6 +393,59 @@ function lastTry(L){
 function tryLine(p){
   var pct = p.pct != null ? p.pct.toFixed(2) + '%' : '';
   return [pct, p.phase].filter(Boolean).join('  \u00b7  ');
+}
+
+/* De boss zelf, als uitgesneden render rechts in de kaart, hoog genoeg om
+   hem te herkennen. Eerst stond hier Raider.IO's portret op 17% dekking als
+   achtergrond, en dat las als een vlek: wie keek zag niet tegen wie er
+   gepulld werd. De uitsnedes zijn dezelfde als achter je character op de
+   voorpagina (img/boss/, build-bosscutouts.py, herkomst in PROVENANCE.md).
+
+   Een council heeft meer lijven: hooguit twee, de grootste eerst, en een
+   render die te klein is om op 180px hoog te tonen valt weg (Zul'jan is
+   78x107; opgeblazen wordt dat pap). Niets te vinden, dan het oude portret
+   als terugval, zoals voorheen. */
+var CUT_MIN_H = 200;
+var cutSizes = {};
+function cutouts(L){
+  var art = window.BossArt; if(!art) return [];
+  var enc = L.encounter || (L.bossName && art.byName[String(L.bossName).toLowerCase()]);
+  return ((enc && art.byEncounter[enc]) || []).map(function(x){
+    var m = /creature-display-(\d+)\.jpg$/.exec(x.img || '');
+    return m && 'img/boss/creature-display-' + m[1] + '.png';
+  }).filter(Boolean);
+}
+var artKey = null;
+function paintArt(L){
+  var box = U.$('#bossArt');
+  var list = cutouts(L), key = list.join('|') + '#' + (L.bossImg || '');
+  if(key === artKey) return;
+  artKey = key;
+  box.innerHTML = '';
+  box.classList.remove('is-cut');
+  box.style.backgroundImage = 'none';
+  if(!list.length){ fallback(); return; }
+  Promise.all(list.map(function(src){
+    return new Promise(function(ok){
+      var im = new Image();
+      im.onload  = function(){ ok({ src: src, w: im.naturalWidth, h: im.naturalHeight }); };
+      im.onerror = function(){ ok(null); };
+      im.src = src;
+    });
+  })).then(function(res){
+    if(artKey !== key) return;
+    var good = res.filter(function(r){ return r && r.h >= CUT_MIN_H; })
+                  .sort(function(a, b){ return b.w * b.h - a.w * a.h; }).slice(0, 2);
+    if(!good.length){ fallback(); return; }
+    box.classList.add('is-cut');
+    good.forEach(function(r){
+      var im = U.el('img'); im.src = r.src; im.alt = '';
+      box.appendChild(im);
+    });
+  });
+  function fallback(){
+    box.style.backgroundImage = L.bossImg ? 'url("' + L.bossImg + '")' : 'none';
+  }
 }
 
 function paintBoss(L){
@@ -413,8 +469,7 @@ function paintBoss(L){
     [L.raidName, cap(L.difficulty)].filter(Boolean).join('  ·  ');
   U.$('#bossName').textContent = L.bossName || '—';
 
-  var art = U.$('#bossArt');
-  art.style.backgroundImage = L.bossImg ? 'url("' + L.bossImg + '")' : 'none';
+  paintArt(L);
 
   var tag = U.$('#bossTag');
   if(L.bossName){
@@ -481,11 +536,13 @@ function paintBoss(L){
 }
 
 /* ---- race to dutch first ------------------------------------------
-   Achter de voortgangsregel van de raidkaart: "#1 of 5 NL". De kaart zegt
-   hoe ver je bent, dit zegt hoe dat zich verhoudt tot de andere
-   Nederlandse guilds. Alleen de rang, want de kills staan er al naast en
-   een tweede telling (de race telt Nymrissa mee, 6/9 tegen 5/8) zou op 340px
-   alleen verwarren. Komt hij niet binnen, dan staat er gewoon niets. */
+   Twee plekken in de raidkaart. Achter de voortgangsregel de rang ("#1 of
+   6 NL"), en als tweede pagina het klassement: elke guild met de baan van
+   acht bosses, je eigen guild in jade. De kaart wisselt tussen de boss en
+   het klassement (race.bar in de config), maar de boss gaat voor: komt er
+   een pull binnen, dan springt hij terug en blijft hij holdMinutes staan.
+   Een klassement over een wipe heen zou de melding verstoppen waar de kaart
+   voor is. Komt de stand niet binnen, dan blijft het bij de boss. */
 var raceRank = null, raceState = null;
 function paintRace(){
   if(!raceRank) return;
@@ -495,7 +552,127 @@ function paintRace(){
   if(!p) return;
   raceRank.appendChild(U.el('span', 'boss__race' + (p.lead ? ' is-lead' : ''), p.text));
 }
-if(window.Race) window.Race.watch(function(s){ raceState = s; paintRace(); });
+
+var RB = (CFG.race && CFG.race.bar) || {};
+var elBossCard = U.$('.card--boss'), elBossDots = U.$('#bossDots');
+var PAGE_CAP = { boss: 'cap.raid', race: 'cap.race', log: 'cap.log', guild: 'cap.guild' };
+var pageNow = 'boss', raceUntil = 0, raceTimer = null;
+
+/* Welke pagina's er zijn: de boss altijd, het klassement en het verslag
+   alleen als de stand binnen is en er iets in staat. */
+function cardPages(){
+  var out = ['boss'];
+  if(raceState && raceState.board && raceState.board.length) out.push('race');
+  if(raceState && raceState.log && raceState.log.length && RB.log !== false) out.push('log');
+  if(raceState && raceState.ranks && raceState.ranks.world && RB.guild !== false) out.push('guild');
+  return out;
+}
+function seconds(p){
+  return p === 'boss' ? (RB.bossSeconds || 45)
+       : p === 'race' ? (RB.raceSeconds || 15)
+       : p === 'log'  ? (RB.logSeconds  || 15) : (RB.guildSeconds || 12);
+}
+
+function paintBoard(){
+  var rows = U.$('#raceRows'), lg = U.$('#logRows');
+  rows.innerHTML = ''; lg.innerHTML = '';
+  if(!raceState) return;
+  (raceState.board || []).forEach(function(r){ rows.appendChild(window.Race.row(r)); });
+  (raceState.log || []).forEach(function(e){ lg.appendChild(window.Race.logRow(e)); });
+  /* De tijd van de stand zelf, niet van onze fetch -- zelfde regel als de
+     andere stempeltjes. Het bestand ververst op raidavonden elke vijf
+     minuten en anders elk uur; pas daarboven is hij laat. */
+  stamp('#raceAt', raceState.at, 90);
+  paintGuild();
+}
+
+/* De guildpagina: het guildplaatje (raiderio.guild.image, een pad of URL;
+   zonder plaatje valt dat vak weg en schuift de rest op), de naam, en de
+   rangen: wereld, regio, realm en de plek in de race. Goud alleen voor die
+   laatste en alleen op één -- verdiend, zoals overal. */
+function paintGuild(){
+  var R = raceState && raceState.ranks; if(!R) return;
+  var G = (CFG.raiderio && CFG.raiderio.guild) || {};
+  var img = U.$('#guildImg');
+  img.innerHTML = '';
+  img.parentNode.classList.toggle('no-img', !G.image);
+  if(G.image){
+    var im = U.el('img'); im.alt = '';
+    im.onerror = function(){ img.parentNode.classList.add('no-img'); };
+    im.src = G.image; img.appendChild(im);
+  }
+  U.$('#guildName').textContent = raceState.name;
+  U.$('#guildSub').textContent = [R.regionName + '-' + R.realmName, R.summary].filter(Boolean).join('  \u00b7  ');
+  var box = U.$('#guildRanks'); box.innerHTML = '';
+  [[T('gr.world'), R.world], [R.regionName, R.region], [R.realmName, R.realm],
+   [T('gr.nl'), raceState.rank, raceState.rank === 1]].forEach(function(x){
+    if(!x[1]) return;
+    var c = U.el('div', 'gstat' + (x[2] ? ' is-lead' : ''));
+    c.appendChild(U.el('div', 'gstat__v', '#' + U.num(x[1])));
+    c.appendChild(U.el('div', 'gstat__l', x[0]));
+    box.appendChild(c);
+  });
+  var best = U.$('#guildBest'); best.innerHTML = '';
+  if(R.best){
+    best.appendChild(U.el('span', 'gcard__k', T('gr.best')));
+    best.appendChild(U.el('b', null, R.best.boss));
+    best.appendChild(U.el('span', 'gcard__n', '#' + U.num(R.best.world) + ' ' + T('gr.world')
+      + (R.best.region ? '  \u00b7  #' + U.num(R.best.region) + ' ' + R.regionName : '')));
+  }
+}
+
+function paintDots(){
+  var ps = cardPages();
+  elBossDots.innerHTML = '';
+  if(ps.length < 2) return;
+  ps.forEach(function(p){ elBossDots.appendChild(U.el('i', p === pageNow ? 'on' : null)); });
+}
+
+function showCardPage(p){
+  if(cardPages().indexOf(p) < 0) p = 'boss';
+  pageNow = p;
+  elBossCard.classList.toggle('is-race', p === 'race');
+  elBossCard.classList.toggle('is-log',  p === 'log');
+  elBossCard.classList.toggle('is-guild', p === 'guild');
+  elBossCard.classList.toggle('is-alt',  p !== 'boss');
+  U.$('#bossCap').textContent = T(PAGE_CAP[p]);
+  paintDots();
+}
+
+/* Rond: de boss bossSeconds, dan het klassement en het verslag elk hun
+   eigen tijd, en terug. Een pull zet raceUntil vooruit; tot dan blijft de
+   boss staan en slaat de wissel de rest over. */
+function raceCycle(){
+  clearTimeout(raceTimer);
+  var ps = cardPages(), hold = (raceUntil - Date.now()) / 1000;
+  var next = hold > 0 ? 'boss' : ps[(ps.indexOf(pageNow) + 1) % ps.length];
+  showCardPage(next);
+  raceTimer = setTimeout(raceCycle,
+    (next === 'boss' ? Math.max(seconds('boss'), hold) : seconds(next)) * 1000);
+}
+
+/* Met ?demo=1 komen de verzonnen pulls in de eerste tien seconden; drie
+   minuten vasthouden zou de voorpagina dan nooit de andere pagina's laten
+   zien. Daar is het twintig seconden. */
+function raceHold(){
+  raceUntil = Date.now() + (DEMO ? 20000
+                                 : (RB.holdMinutes != null ? RB.holdMinutes : 3) * 60000);
+  if(pageNow !== 'boss'){ pageNow = 'boss'; raceCycle(); }
+}
+
+var RACE_ROTATE = RB.rotate !== false;
+/* ?page=race, ?page=log of ?page=guild houdt die pagina vast in beeld: voor de
+   voorpagina en om uit te lijnen, zonder op de wissel te wachten. */
+var RACE_PIN = (location.search.match(/[?&]page=(race|log|guild)\b/) || [])[1];
+if(window.Race) window.Race.watch(function(s){
+  raceState = s; paintRace();
+  if(!RACE_ROTATE && !RACE_PIN) return;
+  paintBoard();
+  if(RACE_PIN){ showCardPage(RACE_PIN); return; }
+  if(cardPages().length < 2){ clearTimeout(raceTimer); raceTimer = null; showCardPage('boss'); return; }
+  showCardPage(pageNow);
+  if(!raceTimer) raceTimer = setTimeout(raceCycle, seconds('boss') * 1000);
+});
 
 /* Faalt stil: ongedocumenteerde endpoints, dus als Raider.IO ze verandert
    blijft alleen dit blok leeg en loopt de rest door. */
