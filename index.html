@@ -289,19 +289,53 @@
     </div>
   </section>
 
-  <footer class="foot">
-    <a href="README.md" data-i18n-html="d91">README — setup, OBS settings, background</a>
-    <a href="obs-scene-collection.pages.json" data-i18n-html="d92">OBS scene collection (ready-made)</a>
-    <a href="stinger.webm">stinger.webm</a>
-    <a href="https://github.com/Bmiest/bmiest_wow_streaming_theme" data-i18n-html="d94">Repo on GitHub</a>
-    <a href="https://raider.io" rel="noopener" data-i18n-html="d95">Character and raid data by Raider.IO</a>
-    <a href="https://www.warcraftlogs.com" rel="noopener" data-i18n-html="d96">Raid progress by Warcraft Logs</a>
-    <a href="https://racetodutchfirst.nl" rel="noopener" data-i18n-html="m.foot.race">The race standings and the guild's boss from Race to Dutch First</a>
-    <a href="https://wago.tools" rel="noopener" data-i18n-html="d97">Boss renders by Blizzard, matched via wago.tools</a>
-    <a href="compare.html" data-i18n-html="d98">compare.html — both raid sources side by side</a>
-  </footer>
 
 </main>
+
+<footer class="site-footer">
+  <div class="ft">
+    <div class="ft__head">
+      <p class="ft__id"><span class="ft__name">bmiest stream overlay</span><span class="ft__meta" data-i18n-html="ft.meta">Ultrawide World of Warcraft theme</span></p>
+      <nav class="ft__nav" aria-label="Sections">
+        <a href="#stH" data-i18n-html="ft.nav.stream">On stream</a>
+        <a href="#emH" data-i18n-html="ft.nav.emotes">Emotes</a>
+        <a href="#gxH" data-i18n-html="ft.nav.gx">Graphics</a>
+        <a href="#installH" data-i18n-html="ft.nav.install">Install</a>
+      </nav>
+      <a class="ft__up" href="#"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 14l6-6 6 6"/></svg><span data-i18n-html="ft.top">Back to top</span></a>
+    </div>
+    <div class="ft__cols">
+      <section aria-labelledby="ftSrcH">
+        <h2 id="ftSrcH" class="ft__h" data-i18n-html="ft.src">Sources</h2>
+        <ul class="ft__src">
+          <li><a href="https://raider.io" rel="noopener">Raider.IO</a><span data-i18n-html="ft.src.rio">characters, raid progress and live tracking</span></li>
+          <li><a href="https://www.warcraftlogs.com" rel="noopener">Warcraft Logs</a><span data-i18n-html="ft.src.wcl">logged pulls, first source for the raid card</span></li>
+          <li><a href="https://racetodutchfirst.nl" rel="noopener">Race to Dutch First</a><span data-i18n-html="ft.src.race">standings, race log and guild ranks</span></li>
+          <li><a href="https://decapi.me" rel="noopener">DecAPI</a><span data-i18n-html="ft.src.dec">viewers, followers, uptime and title</span></li>
+          <li><a href="https://streamelements.com" rel="noopener">StreamElements</a><span data-i18n-html="ft.src.se">follows, subs, bits, tips and raids</span></li>
+          <li><a href="https://dev.twitch.tv/docs/irc" rel="noopener">Twitch</a><span data-i18n-html="ft.src.tw">chat</span></li>
+          <li><a href="https://worldofwarcraft.blizzard.com" rel="noopener">Blizzard</a><span data-i18n-html="ft.src.bz">character and boss renders, matched via <a href="https://wago.tools" rel="noopener">wago.tools</a></span></li>
+        </ul>
+      </section>
+      <section aria-labelledby="ftHowH">
+        <h2 id="ftHowH" class="ft__h" data-i18n-html="ft.how">How it runs</h2>
+        <p data-i18n-html="ft.how1">Every screen is a static page on this site that OBS loads as a browser source. Tokens ride along after the <code>#</code> in the URL, so they never reach this server.</p>
+        <p data-i18n-html="ft.how2">The parts fail independently: when one source stops answering, only its part goes quiet. Add <code>?health=1</code> to see what is not responding.</p>
+        <p class="ft__files"><a href="README.md">README</a><a href="obs-scene-collection.pages.json" data-i18n-html="ft.files.obs">OBS scene collection</a><a href="stinger.webm">stinger.webm</a><a href="compare.html">compare.html</a><a href="https://github.com/Bmiest/bmiest_wow_streaming_theme" rel="noopener">GitHub</a></p>
+      </section>
+      <section aria-labelledby="ftFbH">
+        <h2 id="ftFbH" class="ft__h">Feedback</h2>
+        <p data-i18n-html="ft.fb">Something broken on stream, a screen you are missing, or an idea? Let me know.</p>
+        <a class="ft__btn" href="https://github.com/Bmiest/bmiest_wow_streaming_theme/issues/new" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5h16v11H9l-5 4z"/></svg><span data-i18n-html="ft.fb.btn">Open an issue</span></a>
+        <p class="ft__dm"><span data-i18n-html="ft.fb.dm">Or on Discord:</span> <a class="ft__handle" href="https://discord.com/users/186853261477806081" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg><span>bmiest</span></a></p>
+      </section>
+    </div>
+    <div class="ft__legal">
+      <p class="ft__disclaimer" data-i18n-html="ft.legal">Fan-made, not affiliated with Blizzard Entertainment. World of Warcraft and the character and boss renders are trademarks and work of Blizzard Entertainment, Inc.</p>
+      <a class="ft__ver js-ver" href="changelog.html" hidden></a>
+    </div>
+  </div>
+</footer>
 
 <script src="config.default.js"></script>
 <!-- Geen config.js hier. Deze pagina is de publieke etalage en heeft aan de
@@ -320,5 +354,6 @@
 <script src="js/stats.js"></script>
 <script src="js/emotes.js"></script>
 <script src="js/index.js"></script>
+<script src="js/version.js"></script>
 </body>
 </html>

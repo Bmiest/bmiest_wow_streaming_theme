@@ -360,9 +360,56 @@ img { max-width: 100%; }
 .facts dd { color: var(--ink-200); }
 
 /* ---- footer ----------------------------------------------------------------------- */
-.foot { border-top: 1px solid var(--ink-700); padding-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; }
-.foot a { color: var(--ink-300); text-decoration: none; }
-.foot a:hover { color: var(--jade); }
+/* Same build as racetodutchfirst.nl's footer (family): a full-width ink-850 band under the page.
+   The name with the version, the sections again, back to top; then three columns (sources as
+   name + what it gives, how the pages run with the files, feedback), and the legal line with the
+   version as a link to changelog.html. No tracker here, so no privacy page either. */
+.site-footer { background: var(--ink-850); border-top: 1px solid var(--ink-700); font-size: 14px; line-height: 1.55; color: var(--ink-300); }
+.ft { max-width: var(--wrap); margin: 0 auto; padding: 28px var(--gut) 44px; }
+.ft__head { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 32px; padding-bottom: 22px; border-bottom: 1px solid var(--ink-700); }
+.ft__id { display: grid; gap: 2px; margin-right: auto; }
+.ft__name { font-size: 18px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--paper); }
+.ft__meta { font-family: var(--f-mono); font-size: 12px; color: var(--ink-300); }
+.ft__nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.ft__nav a { padding: 6px 0; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-200); text-decoration: none; }
+.ft__nav a:hover { color: var(--paper); }
+.ft__up, .ft__btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 18px 0 14px; background: var(--ink-800);
+  font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--paper-dim); text-decoration: none;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  transition: color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.ft__btn { color: var(--jade); margin-top: 12px; }
+.ft__up svg, .ft__btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: square; }
+.ft__btn svg { stroke-width: 2; stroke-linejoin: round; }
+.ft__up:hover, .ft__btn:hover { color: var(--jade); background: var(--ink-750); }
+.ft__cols { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.2fr) minmax(0, .9fr); gap: 28px 56px; padding-top: 24px; }
+.ft__h { margin-bottom: 10px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-200); }
+.ft__src { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
+.ft__src li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+.ft__src > li > a { font-weight: 600; text-decoration: none; }
+.ft__src a:hover { text-decoration: underline; }
+.ft__cols p { max-width: 62ch; margin: 0; }
+.ft__cols p + p { margin-top: 8px; }
+.ft__files { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 4px; }
+.ft__files a { font-family: var(--f-mono); font-size: 13px; text-decoration: none; }
+.ft__files a:hover { text-decoration: underline; }
+.ft__dm { margin-top: 12px !important; font-size: 13px; }
+.ft__handle { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono); color: var(--paper-dim); text-decoration: none; }
+.ft__handle svg { width: 16px; height: 16px; fill: currentColor; }
+.ft__handle:hover { color: var(--jade); }
+.ft__legal { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--ink-700); }
+.ft__disclaimer { max-width: 80ch; margin: 0; font-size: 12px; line-height: 1.5; color: var(--ink-300); }
+.ft__ver { font-family: var(--f-mono); font-size: 12px; color: var(--ink-300); text-decoration: none; }
+.ft__ver:hover { color: var(--jade); }
+.ft a:focus-visible { outline: 2px solid var(--jade); outline-offset: 3px; }
+@media (max-width: 900px) {
+  .ft__cols { grid-template-columns: minmax(0, 1fr); }
+  .ft__head { align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .ft__src li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}
 
 /* ---- motion ------------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
