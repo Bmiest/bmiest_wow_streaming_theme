@@ -8,6 +8,17 @@
    Engelse zegt hetzelfde. Zet het blok erbij in de PR die de release maakt, en tag daarna. */
 window.CHANGELOG = [
   {
+    version: '1.11.1', date: '2026-10-15',
+    nl: [
+      'De raidkaart toont weer de boss waar de guild op zit, ook nu er naast de hoofdraid een raid met één boss is.',
+      'Kith\'ix heeft een afbeelding bij de meldingen, en op de raidkaart als die op zijn raid staat.',
+    ],
+    en: [
+      'The raid card shows the boss the guild is on again, now that a one-boss raid sits next to the main raid.',
+      'Kith\'ix has a picture in the alerts, and on the raid card when it is set to his raid.',
+    ],
+  },
+  {
     version: '1.11.0', date: '2026-10-09',
     nl: [
       'Bij een bosskill en een nieuwe beste pull staat het embleem van Kelderklasse boven de melding.',
