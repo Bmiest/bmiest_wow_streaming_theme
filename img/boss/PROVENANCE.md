@@ -23,3 +23,4 @@ Same thresholds as the race site's `scripts/boss-cutouts.py`. Written by
 | `creature-display-143436.png` | Blood of Ula'tek | https://render.worldofwarcraft.com/eu/npcs/zoom/creature-display-143436.jpg |
 | `creature-display-143437.png` | Breath of Ula'tek | https://render.worldofwarcraft.com/eu/npcs/zoom/creature-display-143437.jpg |
 | `creature-display-143824.png` | Mor'zahi | https://render.worldofwarcraft.com/eu/npcs/zoom/creature-display-143824.jpg |
+| `creature-display-145178.png` | Kith'ix | stand-in until that render exists: see the PNG's `impeccable:prompt` |
