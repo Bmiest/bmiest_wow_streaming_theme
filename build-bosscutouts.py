@@ -17,6 +17,7 @@ drempels, zodat een boss op beide sites hetzelfde silhouet heeft. Draai het opni
 import io
 import pathlib
 import re
+import urllib.error
 import urllib.request
 
 from PIL import Image, ImageFilter
@@ -78,6 +79,8 @@ def write_provenance():
     ]
     for name, url in sorted(set(rows), key=lambda r: r[1]):
         png = url.rsplit('/', 1)[1].replace('.jpg', '.png')
+        if 'stand-in' in Image.open(OUT / png).info.get('impeccable:prompt', ''):
+            url = 'stand-in until that render exists: see the PNG\'s `impeccable:prompt`'
         lines.append(f'| `{png}` | {name} | {url} |')
     (OUT / 'PROVENANCE.md').write_text('\n'.join(lines) + '\n')
 
@@ -89,7 +92,16 @@ def main():
     for url in urls:
         name = url.rsplit('/', 1)[1].replace('.jpg', '.png')
         req = urllib.request.Request(url, headers={'User-Agent': 'bmiest overlay bosscutouts'})
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        try:
+            resp = urllib.request.urlopen(req, timeout=30)
+        except urllib.error.HTTPError as exc:
+            # Nog niet gepubliceerd (een nieuwe boss: 403). Laat het bestand dat er is staan,
+            # een stand-in als die er is (Kith'ix uit Wowheads thumbnail), tot de render laadt.
+            if exc.code not in (403, 404) or not (OUT / name).exists():
+                raise
+            print(f'{name}: HTTP {exc.code}, het bestaande blijft staan')
+            continue
+        with resp:
             info = PngInfo()
             info.add_text('impeccable:prompt', PROVENANCE.format(url=url))
             cutout(resp.read()).save(OUT / name, optimize=True, pnginfo=info)

@@ -113,7 +113,10 @@ window.OVERLAY_CONFIG = {
       // gewoon wat js/bossart.js voor die boss heeft.
       //   bossArt: { '3421': 'media/vexhul.jpg',
       //              'the twin fangs': ['media/vexhul.jpg', 'media/ithraz.jpg'] },
-      bossArt    : {},
+      // Kith'ix (3513): Blizzards CDN geeft nog een 403 voor zijn render, dus
+      // de meldingen nemen de stand-in uit img/boss/. Weghalen zodra
+      // build-bosscutouts.py de echte render binnenhaalt.
+      bossArt    : { '3513': 'img/boss/creature-display-145178.png' },
 
       // Volume van elk meldingsgeluid: de klok uit js/chime.js en de clips
       // uit alertSounds (onderaan dit bestand). 0 is stil.

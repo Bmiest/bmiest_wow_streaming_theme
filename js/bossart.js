@@ -2,7 +2,11 @@
    Bewerk dit bestand niet met de hand: draai het script opnieuw
    met de nieuwe raid-tier als een tier begint.
 
-   Bronnen: wago.tools DB2 exports + Blizzard render CDN */
+   Bronnen: wago.tools DB2 exports + Blizzard render CDN
+
+   Uitzondering: Kith'ix (3513, The Unbinding of Kith'ix) staat er met de hand in. Blizzards
+   CDN gaf nog een 403 voor display 145178, dus build-bossart.py liet hem weg; zet hem na een
+   nieuwe run terug tot die render bestaat. */
 window.BossArt = {
   "byEncounter": {
     "3470": [
@@ -68,6 +72,12 @@ window.BossArt = {
         "name": "Ula'tek",
         "img": "https://render.worldofwarcraft.com/eu/npcs/zoom/creature-display-140369.jpg"
       }
+    ],
+    "3513": [
+      {
+        "name": "Kith'ix",
+        "img": "https://render.worldofwarcraft.com/eu/npcs/zoom/creature-display-145178.jpg"
+      }
     ]
   },
   "byName": {
@@ -78,6 +88,7 @@ window.BossArt = {
     "sszorak": "3420",
     "the twin fangs": "3421",
     "the coiled altar": "3429",
-    "ula'tek": "3492"
+    "ula'tek": "3492",
+    "kith'ix": "3513"
   }
 };
