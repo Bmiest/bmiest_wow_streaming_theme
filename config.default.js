@@ -142,7 +142,13 @@ window.OVERLAY_CONFIG = {
       // die elkaar om beurten een paar seconden verslaan.
       switchAfterSeconds: 60,
 
-      raid       : 'latest',        // of een slug, bv. 'the-venomous-abyss'
+      // Vast op de hoofdraid, niet 'latest'. Op 14 oktober 2026 kwam The
+      // Unbinding of Kithix uit (een losse raid van één boss), en met
+      // 'latest' stond de kaart de hele avond op Nymrissa Wavecaller (1/1
+      // Mythic, 9 september) terwijl de guild op The Coiled Altar zat. Elke
+      // nieuwe eenbaas-raid kan dat opnieuw doen; een slug niet. Nieuwe tier =
+      // deze slug bijwerken.
+      raid       : 'the-venomous-abyss',
 
       // latest | normal | heroic | mythic. 'latest' betekent bij Raider.IO
       // "waar het laatst iets gebeurde", en dat sleept eenbaas-raids mee:
