@@ -424,7 +424,7 @@ paintTicker(); onLang(paintTicker);
   list.forEach(function(p){
     var slug = String(p.label).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     var a = document.createElement('a'); a.href = 'graphics/panel-' + slug + '.png';
-    var im = new Image(320, 100); im.src = a.getAttribute('href'); im.alt = String(p.label); im.loading = 'lazy';
+    var im = new Image(320, 80); im.src = a.getAttribute('href'); im.alt = String(p.label); im.loading = 'lazy';
     a.appendChild(im); strip.appendChild(a);
   });
 })();
