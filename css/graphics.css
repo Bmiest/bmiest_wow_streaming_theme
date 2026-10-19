@@ -103,9 +103,11 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin
 /* Eén breedte voor de hele set. Twitch zet de panelen onder elkaar in een
    kolom van 320; knoppen die elk zo breed zijn als hun woord staan dan als
    een rafelige trap gecentreerd onder elkaar. Nu lopen het kopblok, het
-   woord en de schuine staart in één lijn door de hele kolom. */
+   woord en de schuine staart in één lijn door de hele kolom. 312 is de
+   breedte van de infopanelen (320 min hun 4px aan elke kant), zodat een
+   knop precies boven zijn paneel staat. */
 .g--panel #stage{display:grid;place-items:center;padding:0}
-.g--panel .rib{width:300px}
+.g--panel .rib{width:312px}
 .g--panel .rib__in{padding-right:calc(var(--rib-cut) + 8px)}
 .g--panel .rib__val{flex:1 1 auto;font-weight:600;letter-spacing:-.01em}
 /* De pijl zegt wat het is: een paneel dat ergens heen gaat. Ink-400, zodat
