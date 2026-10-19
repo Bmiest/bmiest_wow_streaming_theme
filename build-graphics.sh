@@ -20,13 +20,13 @@ curl -sf -o /dev/null "http://127.0.0.1:$PORT/graphics.html" \
 
 mkdir -p "$OUT"
 
-shoot(){ # naam breedte hoogte querystring
+shoot(){ # naam breedte hoogte querystring [schaal]
   "$CHROME" --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
-    --default-background-color=00000000 --force-device-scale-factor=1 \
+    --default-background-color=00000000 --force-device-scale-factor="${5:-1}" \
     --window-size="$2","$3" --virtual-time-budget=9000 \
     --screenshot="$OUT/$1.png" \
     "http://127.0.0.1:$PORT/graphics.html?$4" >/dev/null 2>&1
-  printf '  %-22s %sx%s\n' "$OUT/$1.png" "$2" "$3"
+  printf '  %-30s %sx%s\n' "$OUT/$1.png" "$(( $2 * ${5:-1} ))" "$(( $3 * ${5:-1} ))"
 }
 
 echo "rendert kanaalgraphics..."
@@ -36,6 +36,17 @@ shoot profile-banner 1200  480 "a=profile"
 # Het infopaneel over de overlay. Geen knop maar een heel paneel, dus het
 # staat naast de lus hieronder en niet erin.
 shoot panel-overlay   320  430 "a=overlay"
+
+# De projectpanelen, met een screenshot erin: op dubbele resolutie, anders
+# is de site op 320 breed een vlek. Twitch toont ze toch op 320.
+node -e '
+  global.window = {};
+  require("./config.default.js");
+  var p = (window.OVERLAY_CONFIG.graphics || {}).projects || [];
+  p.forEach(function(x, i){ console.log(i + " " + x.slug); });
+' | while read -r i slug; do
+  shoot "project-$slug" 320 372 "a=project&i=$i" 2
+done
 
 # De panelknoppen komen uit config.default.js, zodat de lijst op één plek
 # staat. Slug van het label wordt de bestandsnaam.
@@ -49,7 +60,7 @@ node -e '
     console.log(i + " " + slug);
   });
 ' | while read -r i slug; do
-  shoot "panel-$slug" 320 100 "a=panel&i=$i"
+  shoot "panel-$slug" 320 80 "a=panel&i=$i" 2
 done
 
 echo
@@ -58,3 +69,4 @@ echo "   offline.png        Creator Dashboard > Settings > Channel > Video Playe
 echo "   profile-banner.png Settings > Channel > Brand > Profile Banner"
 echo "   panel-*.png        je kanaalpagina > About > Edit Panels"
 echo "   panel-overlay.png  idem; zet de repo-URL eronder als link"
+echo "   project-*.png      idem; zet de URL uit het paneel eronder als link"

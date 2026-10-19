@@ -186,14 +186,51 @@ function about(){
   stage.appendChild(card);
 }
 
+/* ---- projectpaneel --------------------------------------------------
+   Zelfde kaart als het overlaypaneel hierboven, maar met een screenshot van
+   de site in plaats van een opsomming: wie onder About doorklikt ziet zo
+   eerst wat hij gaat openen. De screenshots staan in img/panels/ en komen
+   van bmiest.be (zie PROVENANCE.md daar). */
+function project(){
+  var list = G.projects || [];
+  var P = list[parseInt(q.get('i') || '0', 10)] || {};
+  size(320, 372);
+  document.body.classList.add('g--about', 'g--project');
+
+  var card = R.card(P.cap || 'project', 'follow');
+  var b = card.body;
+
+  if(P.shot){
+    var fig = U.el('div','pj__shot');
+    var im = U.el('img');
+    im.alt = '';
+    im.src = P.shot;
+    fig.appendChild(im);
+    b.appendChild(fig);
+  }
+  b.appendChild(U.el('div','ab__h pj__h', P.title || ''));
+  b.appendChild(U.el('div','ab__p pj__p', P.body || ''));
+  if(P.url){
+    var url = U.el('div','ab__url pj__url');
+    url.appendChild(U.el('span','ab__urlr', P.url));
+    b.appendChild(url);
+  }
+
+  stage.appendChild(card);
+}
+
 /* ---- panelknop ------------------------------------------------------ */
 function panel(){
   var list = G.panels || [];
   var p = list[parseInt(q.get('i') || '0', 10)] || { label:'panel', kind:'link' };
-  size(320, 100);
+  size(320, 80);
   document.body.classList.add('g--panel');
   var el = R.make(p.kind || 'link', '', p.label);
   el.classList.add('rib--lg');
+  var go = U.el('span','pn__go');
+  go.innerHTML = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9h9.6M9.6 5l4 4-4 4" ' +
+    'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  el.querySelector('.rib__in').appendChild(go);
   /* Eén tint voor de hele set. De soort bepaalt normaal ook de kleur, en dan
      krijg je vijf knoppen in vijf kleuren die niets betekenen. Hier
      differentieert het icoon; jade houdt ze bij elkaar. De inline --acc van
@@ -202,5 +239,6 @@ function panel(){
   stage.appendChild(el);
 }
 
-({ offline:offline, profile:profile, panel:panel, overlay:about }[A] || offline)();
+({ offline:offline, profile:profile, panel:panel, overlay:about,
+   project:project }[A] || offline)();
 })();

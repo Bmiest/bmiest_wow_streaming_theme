@@ -468,6 +468,42 @@ window.OVERLAY_CONFIG = {
       url: 'github.com/Bmiest/bmiest_wow_streaming_theme',
     },
 
+    // De projectpanelen (a=project&i=N): één per project, met een
+    // screenshot van de site erin. build-graphics.sh schiet ze als
+    // graphics/project-<slug>.png, op dubbele resolutie. Zet de URL ook als
+    // link onder het paneel bij Twitch; in beeld staat hij om over te typen.
+    // De tekst komt van bmiest.be, zodat beide hetzelfde zeggen.
+    projects: [
+      { slug : 'bmiest-be',
+        cap  : 'bmiest.be',
+        title: 'Everything in one place',
+        body : 'The stream, the tools behind it and where to find them, ' +
+               'on one page.',
+        shot : 'img/panels/landing.webp',
+        url  : 'bmiest.be' },
+      { slug : 'overlay',
+        cap  : 'the overlay',
+        title: 'Stream overlay',
+        body : 'The bars, raid card and alerts you see on stream. One static ' +
+               'site that OBS opens in a browser.',
+        shot : 'img/panels/overlay.webp',
+        url  : 'streamoverlay.bmiest.be' },
+      { slug : 'race',
+        cap  : 'the race',
+        title: 'Race to Dutch First',
+        body : 'Which Dutch guild reaches Cutting Edge first? Live standings ' +
+               'from Raider.IO and Warcraft Logs.',
+        shot : 'img/panels/race.webp',
+        url  : 'racetodutchfirst.nl' },
+      { slug : 'wishlist',
+        cap  : 'wishlist updater',
+        title: 'Wishlist updater',
+        body : 'Fills in your WoWAudit wishlist from the daily QE Live ' +
+               'reports, so nobody forgets before raid.',
+        shot : 'img/panels/wishlist.webp',
+        url  : 'wishlistupdater.bmiest.be' },
+    ],
+
     // Eén PNG per knop, vernoemd naar het label. De soort bepaalt icoon en
     // tint; kies er een die bestaat in js/ribbon.js (follow, sub, cheer,
     // tip, raid, clock, chat, link, cam, sword, live, viewers).

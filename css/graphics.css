@@ -9,7 +9,11 @@
    ===================================================================== */
 
 html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin:0}
-#stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden}
+/* background expliciet leeg: css/scene.css verft #stage ink-900, en zonder
+   deze regel kreeg elk paneel een zwart vlak mee in plaats van een
+   transparant doek -- een donker blok op Twitch' lichte thema. */
+#stage{position:absolute;top:0;left:0;transform-origin:0 0;overflow:hidden;
+  background:transparent}
 
 .g .bg__band,.g .bg__edge,.g .bg__mote,.g .halo-big circle{animation:none}
 
@@ -80,9 +84,33 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin
 .ab__urlr{display:block;margin-top:2px;font-size:13.5px;font-weight:500;
   color:var(--jade);word-break:break-word}
 
+/* ---- projectpaneel --------------------------------------------------
+   Het overlaypaneel met een screenshot bovenaan. Het plaatje is 16:10 (de
+   1440x900 van bmiest.be) en krijgt de rand van de kaart zelf, geen eigen
+   schaduw: het is een venster op de site, geen foto op de kaart. */
+.g--project .rcard__in{padding:20px 16px 18px}
+.pj__shot{aspect-ratio:16/10;overflow:hidden;background:var(--ink-900);
+  border:1px solid var(--ink-700)}
+.pj__shot img{display:block;width:100%;height:100%;object-fit:cover;
+  object-position:top left}
+.pj__h{margin-top:18px;font-size:22px}
+.pj__p{margin-top:8px}
+.pj__url{padding-top:14px}
+
 /* ---- panelknop ------------------------------------------------------
    Doek blijft transparant: op de kanaalpagina staat de knop dan los op
    Twitch' eigen achtergrond, en dat werkt in beide thema's. */
-.g--panel #stage{display:grid;place-items:center;padding:0 10px}
-.g--panel .rib{max-width:300px}
-.g--panel .rib__val{font-weight:600;letter-spacing:-.01em}
+/* Eén breedte voor de hele set. Twitch zet de panelen onder elkaar in een
+   kolom van 320; knoppen die elk zo breed zijn als hun woord staan dan als
+   een rafelige trap gecentreerd onder elkaar. Nu lopen het kopblok, het
+   woord en de schuine staart in één lijn door de hele kolom. 312 is de
+   breedte van de infopanelen (320 min hun 4px aan elke kant), zodat een
+   knop precies boven zijn paneel staat. */
+.g--panel #stage{display:grid;place-items:center;padding:0}
+.g--panel .rib{width:312px}
+.g--panel .rib__in{padding-right:calc(var(--rib-cut) + 8px)}
+.g--panel .rib__val{flex:1 1 auto;font-weight:600;letter-spacing:-.01em}
+/* De pijl zegt wat het is: een paneel dat ergens heen gaat. Ink-400, zodat
+   hij er staat zonder met het woord te concurreren. */
+.pn__go{flex:0 0 auto;display:grid;place-items:center;color:var(--ink-400)}
+.pn__go svg{width:18px;height:18px}
