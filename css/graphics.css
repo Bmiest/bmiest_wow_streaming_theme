@@ -80,6 +80,19 @@ html,body{width:100vw;height:100vh;background:transparent;overflow:hidden;margin
 .ab__urlr{display:block;margin-top:2px;font-size:13.5px;font-weight:500;
   color:var(--jade);word-break:break-word}
 
+/* ---- projectpaneel --------------------------------------------------
+   Het overlaypaneel met een screenshot bovenaan. Het plaatje is 16:10 (de
+   1440x900 van bmiest.be) en krijgt de rand van de kaart zelf, geen eigen
+   schaduw: het is een venster op de site, geen foto op de kaart. */
+.g--project .rcard__in{padding:20px 16px 18px}
+.pj__shot{aspect-ratio:16/10;overflow:hidden;background:var(--ink-900);
+  border:1px solid var(--ink-700)}
+.pj__shot img{display:block;width:100%;height:100%;object-fit:cover;
+  object-position:top left}
+.pj__h{margin-top:18px;font-size:22px}
+.pj__p{margin-top:8px}
+.pj__url{padding-top:14px}
+
 /* ---- panelknop ------------------------------------------------------
    Doek blijft transparant: op de kanaalpagina staat de knop dan los op
    Twitch' eigen achtergrond, en dat werkt in beide thema's. */
