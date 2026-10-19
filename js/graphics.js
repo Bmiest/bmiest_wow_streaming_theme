@@ -223,10 +223,14 @@ function project(){
 function panel(){
   var list = G.panels || [];
   var p = list[parseInt(q.get('i') || '0', 10)] || { label:'panel', kind:'link' };
-  size(320, 100);
+  size(320, 80);
   document.body.classList.add('g--panel');
   var el = R.make(p.kind || 'link', '', p.label);
   el.classList.add('rib--lg');
+  var go = U.el('span','pn__go');
+  go.innerHTML = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9h9.6M9.6 5l4 4-4 4" ' +
+    'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  el.querySelector('.rib__in').appendChild(go);
   /* Eén tint voor de hele set. De soort bepaalt normaal ook de kleur, en dan
      krijg je vijf knoppen in vijf kleuren die niets betekenen. Hier
      differentieert het icoon; jade houdt ze bij elkaar. De inline --acc van

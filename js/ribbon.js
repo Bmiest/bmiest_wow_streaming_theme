@@ -23,7 +23,9 @@ var GLYPH = {
   chat   :'<path d="M2.4 4.2h13.2v8.2H7.2l-3.4 2.8v-2.8H2.4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
   link   :'<path d="M7.4 10.6a3 3 0 0 0 4.2 0l2.6-2.6a3 3 0 1 0-4.2-4.2l-.9.9M10.6 7.4a3 3 0 0 0-4.2 0L3.8 10a3 3 0 1 0 4.2 4.2l.9-.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   cam    :'<path d="M2.4 5.2h8.4v7.6H2.4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.8 9l4.8-2.6v5.2z" fill="currentColor"/>',
-  sword  :'<path d="M14.6 3.4 7.8 10.2M12.4 3.4h2.2v2.2M3.4 14.6l3.2-3.2M4.6 12.2l1.2 1.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  /* Kling, pareerstang, greep en knop. De oude had een haakje aan de punt en
+     las daardoor als een pijl naar rechtsboven. */
+  sword  :'<path d="M15 3 7.6 10.4M5.2 8.8l4 4M6.8 11.2l-3 3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="3.3" cy="14.7" r="1.3" fill="currentColor"/>',
   live   :'<circle cx="9" cy="9" r="3" fill="currentColor"/><path d="M4.2 4.2a6.8 6.8 0 0 0 0 9.6M13.8 4.2a6.8 6.8 0 0 1 0 9.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   viewers:'<path d="M9 4.4c-3.3 0-6 2-7.2 4.6C3 11.6 5.7 13.6 9 13.6s6-2 7.2-4.6C15 7.4 12.3 4.4 9 4.4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="9" r="2.1" fill="currentColor"/>'
 };

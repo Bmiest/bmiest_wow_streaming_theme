@@ -60,7 +60,7 @@ node -e '
     console.log(i + " " + slug);
   });
 ' | while read -r i slug; do
-  shoot "panel-$slug" 320 100 "a=panel&i=$i"
+  shoot "panel-$slug" 320 80 "a=panel&i=$i" 2
 done
 
 echo
