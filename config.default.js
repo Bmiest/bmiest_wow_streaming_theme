@@ -160,14 +160,15 @@ window.OVERLAY_CONFIG = {
       // hoofdtier, dezelfde die de characterkaart toont.
       difficulty : 'mythic',
       period     : 'until_kill',    // until_kill | week
-      // Elke 20 seconden, en dat getal hangt aan het puntenbudget van
-      // Warcraft Logs (3600 per uur). Er pollen twee pagina's los van elkaar,
-      // dus 20s = 360 queries per uur, en met reportLimit 6 op 7 punten is
-      // dat 2520 -- 70% van je budget, met ruimte om compare.html open te
-      // zetten. Op 30 seconden mét reportLimit 25 zat je op 93%. Zie de kop
-      // van js/wcl.js voor de meting; sneller pollen kan alleen als je de
-      // prijs per query eerst omlaag brengt.
-      pollSeconds: 20,              // alleen voor mode 'native'
+      // Elke 30 seconden. Er pollen twee pagina's los van elkaar (banner.html
+      // en alerts.html), dus 30s = 240 queries per uur, en met reportLimit 6
+      // op 7 punten is dat ~1680 -- minder dan de helft van je budget. Dat
+      // budget (3600 punten per uur) is per Warcraft Logs-account, en de
+      // racetodutchfirst.nl-fetcher trekt van hetzelfde account, vandaar 30
+      // en niet 20. Op 30 seconden mét reportLimit 25 zat je op 93%. Zie de
+      // kop van js/wcl.js voor de meting; sneller kan alleen als je de prijs
+      // per query eerst omlaag brengt.
+      pollSeconds: 30,              // alleen voor mode 'native'
 
       // Hoe lang het ribbonnetje (last try, new best, boss down) over de
       // raidkaart blijft staan. Het schuift over het grote getal en de

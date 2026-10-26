@@ -58,7 +58,7 @@ window.I18N_INDEX = { nl: {
   d53: 'De onderbalk toont Shiftheal en Bhikhu naast elkaar, en de pauzeschermen zetten ze voluit op de flanken. Met meer characters in de config rouleren ze allebei per paar. Rechtstreeks van Raider.IO, dus dit is dezelfde data waar de overlay op draait — item level en score inbegrepen.',
   d54: 'Twee bronnen voor de raidkaart',
   d55: 'Raider.IO haalt zijn live tracking uit dezelfde geüploade logs die Warcraft Logs bewaart, dus hij kan achterlopen maar nooit voorlopen. De kaart leest beide en draait op Warcraft Logs zodra die antwoordt, met de naam van de bron die hij gebruikte; Raider.IO blijft de terugval en levert de twee dingen die alleen hij heeft, het bossportret en de voortgangsregel. Hieronder een echte meting, geen mock-up: Raider.IO had de boss op 19 pulls nog levend terwijl zijn eigen voortgangsregel de kill al telde.',
-  d56: 'Open <a href="compare.html">compare.html</a> met een Warcraft Logs-token tijdens een raid en hij doet dit live, elke 20 seconden, met het oordeel uit dezelfde code die de kaart gebruikt.',
+  d56: 'Open <a href="compare.html">compare.html</a> met een Warcraft Logs-token tijdens een raid en hij doet dit live, elke 30 seconden, met het oordeel uit dezelfde code die de kaart gebruikt.',
   d57: 'Kanaalgraphics',
   d58: 'Offline-scherm — 1920 × 1080, hoort in Video Player Banner',
   d59: 'Profielbanner — 1200 × 480',

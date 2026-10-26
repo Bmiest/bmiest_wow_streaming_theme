@@ -714,7 +714,7 @@ gameplay. If that fetch fails, the card works from the polls alone and tries
 again five minutes later.
 
 Rate limits are nowhere near a problem at this volume: unauthenticated requests
-are limited per minute, and this overlay makes a handful every 20 seconds. If
+are limited per minute, and this overlay makes a handful every 30 seconds. If
 you ever do get an HTTP 429, the response carries a `Retry-After` header and
 their docs ask you to honour it rather than retry on a fixed interval. This
 overlay does not read that header; it polls on a fixed schedule and a failed
@@ -769,16 +769,16 @@ the oldest crawl among the characters in the card (`raider.io: 45u oud`) once it
 is over two hours old, so you can see at a glance whether you are on stage with
 stale numbers.
 
-**The raid card, every 20 seconds.** This is the one that moves on a raid
+**The raid card, every 30 seconds.** This is the one that moves on a raid
 night. `liveTracking.pollSeconds` drives it: the pull count climbs, the best
 percentage drops, and on a kill the block flips to "pulls to the kill" in jade,
-all within twenty seconds. In `widget` mode the iframe carries `refresh=60`
+all within thirty seconds. In `widget` mode the iframe carries `refresh=60`
 instead and Raider.IO refreshes its own widget every 60 s.
 
 That interval is set by Warcraft Logs' points budget, not by taste, and it is
 worth knowing the arithmetic before you lower it. Their limit is 3600 points an
-hour. Measured through `rateLimitData` on 21 September 2026, with the query
-this overlay actually sends:
+hour, per Warcraft Logs account. Measured through `rateLimitData` on 21
+September 2026, with the query this overlay actually sends:
 
 | `reportLimit` | points per query |
 |---|---|
@@ -789,13 +789,17 @@ this overlay actually sends:
 
 **Two pages poll independently** -- `banner.html` and `alerts.html` each keep
 their own reading, by design -- so the hourly count is double what one page
-suggests. At the old settings (30 s, `reportLimit` 25) that came to 240 queries
-an hour, 3360 points, **93% of the budget**: opening `compare.html` during a
-raid would have pushed it over, and the code comment claiming 8 points a query
-was a year-old measurement that had quietly grown with the report archive. At
-20 s with `reportLimit` 6 it is 360 queries, 2520 points, 70%, with room to
-spare. Raider.IO is unaffected either way -- its responses carry
-`cache-control: max-age=10`, so anything above ten seconds is honest polling.
+suggests. At 30 s with `reportLimit` 6 that is 240 queries an hour, about 1680
+points, under half the budget. The budget is shared: the racetodutchfirst.nl
+fetcher draws from the same Warcraft Logs account, so the two together are what
+hit HTTP 429 on raid nights (25 October 2026, roughly :45 to :05 every hour).
+That is why this is 30 s and not 20 s. At the old settings (30 s, `reportLimit`
+25) it came to 240 queries an hour, 3360 points, **93% of the budget**, before
+the other fetcher was counted: opening `compare.html` during a raid would have
+pushed it over. The code comment claiming 8 points a query was a year-old
+measurement that had quietly grown with the report archive. Raider.IO is
+unaffected either way -- its responses carry `cache-control: max-age=10`, so
+anything above ten seconds is honest polling.
 
 To go faster you have to make a query cheaper first, not just shorten the
 interval. `reportLimit` is the blunt lever; `fights` also accepts an
@@ -1191,7 +1195,7 @@ own boss-progress widget makes; I derived them from the network requests on
   goes empty: `js/rio-live.js` fails quietly and the rest of the banner keeps
   running.
 - CORS is open (the server mirrors your Origin) and the responses carry
-  `cache-control: max-age=10`, so polling is cheap. Every 20 s by default, and
+  `cache-control: max-age=10`, so polling is cheap. Every 30 s by default, and
   while Warcraft Logs is filling the card only `boss-progress` is fetched --
   `boss-pulls` is skipped until Raider.IO actually has to fill it.
 - Turn it off with `liveTracking.enabled: false` in `config.js`.
