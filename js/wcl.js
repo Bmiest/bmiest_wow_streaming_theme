@@ -38,8 +38,11 @@
    Vandaar reportLimit 6, en het halveert de prijs. De pullteller hangt er
    niet meer aan -- die komt uit de hele tier, zie history() -- maar zes
    verslagen is wat de kaart heeft als die geschiedenis niet binnenkomt. Zet
-   je hem hoger, reken het na: pollSeconds staat op 20, dus 360 queries per
-   uur, en 3600 / 360 = 10 punten is je plafond per query.
+   je hem hoger, reken het na: pollSeconds staat op 30, dus 240 queries per
+   uur, en 3600 / 240 = 15 punten is je plafond per query. Dat budget is per
+   Warcraft Logs-account, en de racetodutchfirst.nl-fetcher trekt van
+   hetzelfde account; samen liepen ze op 25 okt van ~:45 tot ~:05 tegen een
+   429 aan.
 
    Daarbovenop haalt elke pagina bij het laden één keer de hele tier op (zie
    history()): 15 punten per 40 verslagen, gemeten op 24 september met 14
