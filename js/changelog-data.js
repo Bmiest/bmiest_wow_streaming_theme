@@ -8,6 +8,21 @@
    Engelse zegt hetzelfde. Zet het blok erbij in de PR die de release maakt, en tag daarna. */
 window.CHANGELOG = [
   {
+    version: '1.12.0', date: '2026-10-28',
+    nl: [
+      'Op The Coiled Altar en Ula\'tek staat de beste pull zoals raiders hem noemen: de fase en wat ervan overbleef ("P3 4,93%"), met het hele gevecht eronder. Dezelfde getallen als op Race to Dutch First.',
+      'De eerste keer dat de guild een nieuwe fase haalt, zegt de raidkaart en de melding over je beeld "eerste keer P3" in plaats van "nieuwe beste".',
+      'Streepjes in de pullbalkjes en in de baan van het klassement tonen waar elke fase begint.',
+      'Het klassement en het raceverslag tonen de fase bij de beste pull, en een avond die een nieuwe fase haalde krijgt een eigen label.',
+    ],
+    en: [
+      'On The Coiled Altar and Ula\'tek the best pull reads the way raiders say it: the phase and what was left of it ("P3 4.93%"), with the whole fight underneath. The same numbers as Race to Dutch First.',
+      'The first time the guild reaches a new phase, the raid card and the alert over your gameplay say "first time P3" instead of "new best".',
+      'Small cuts in the pull bars and in the standings track show where each phase starts.',
+      'The standings and the race log show the phase of the best pull, and an evening that reached a new phase gets its own label.',
+    ],
+  },
+  {
     version: '1.11.1', date: '2026-10-15',
     nl: [
       'De raidkaart toont weer de boss waar de guild op zit, ook nu er naast de hoofdraid een raid met één boss is.',

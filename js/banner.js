@@ -392,7 +392,28 @@ function lastTry(L){
 }
 function tryLine(p){
   var pct = p.pct != null ? p.pct.toFixed(2) + '%' : '';
+  /* Op een boss met fases zoals raiders het zeggen, en zoals
+     racetodutchfirst.nl het schrijft: de fase en wat daarvan overbleef
+     voorop, de hele fight erachter. js/progress.js haalt de fase weg op een
+     boss zonder fases, dus dan blijft alleen het percentage over. */
+  if(p.phase && p.phasePct != null) return phaseText(p.phase, p.phasePct) + '  \u00b7  ' + pct;
   return [pct, p.phase].filter(Boolean).join('  \u00b7  ');
+}
+function phaseText(label, pct){ return label + ' ' + pct.toFixed(2) + '%'; }
+
+/* De streepjes in de sparkline: waar elke fase na de eerste begint, op de
+   hoogte van de staafjes (die zijn de hele fight). Alleen op WCL's cijfers:
+   de grenzen in race.json staan op WCL's schaal, en Raider.IO weegt de fases
+   anders -- op Raider.IO stonden ze naast de staafjes die ze moeten delen. */
+var SPARK_H = 30;
+function sparkNotches(sp, L){
+  if(!L.phases || (L.source !== 'warcraftlogs' && L.source !== 'demo')) return;
+  L.phases.forEach(function(ph){
+    if(!(ph.from < 100)) return;
+    var n = U.el('s', 'spark__ph');
+    n.style.bottom = (2 + Math.round((1 - ph.from / 100) * SPARK_H)) + 'px';
+    sp.appendChild(n);
+  });
 }
 
 /* De boss zelf, als uitgesneden render rechts in de kaart, hoog genoeg om
@@ -490,6 +511,15 @@ function paintBoss(L){
   if(L.defeated){
     big.textContent = U.num(n); big.className = 'boss__v jade';
     lbl.textContent = T('boss.toKill', { n:n });
+  } else if(L.bestPct != null && L.bestPhase && L.bestPhasePct != null){
+    /* Een boss met fases: "P3 4.93%" groot, de hele fight klein eronder.
+       Hetzelfde getal als racetodutchfirst.nl voorop zet ("P3 4,93% · 145
+       pulls · 2,09%"); eerst stond hier de hele fight groot, en dan zei je
+       stream 2.09% terwijl je raid en de site het over 4,93% hadden. */
+    big.textContent = ''; big.className = 'boss__v gold';
+    big.appendChild(U.el('span', 'boss__ph', L.bestPhase));
+    big.appendChild(document.createTextNode(L.bestPhasePct.toFixed(2) + '%'));
+    lbl.textContent = T('boss.bestOfFight', { n:n, pct:L.bestPct.toFixed(2) + '%' });
   } else if(L.bestPct != null){
     big.textContent = L.bestPct.toFixed(2) + '%'; big.className = 'boss__v gold';
     lbl.textContent = T('boss.bestOf', { n:n }) +
@@ -509,7 +539,14 @@ function paintBoss(L){
      beeld hetzelfde. Stond 'better' hier eerst, dan zei de kaart "new best"
      terwijl er "BOSS DOWN" over je gameplay lag. */
   if(ev.down)        bossFlash(T('flash.down'), T('boss.pullsN', { n:U.num(L.pullCount || 0) }));
-  else if(ev.better) bossFlash(T('flash.best'), L.bestPct.toFixed(2) + '%');
+  /* Voor het eerst in een latere fase staat in de kop van die melding: dat
+     is het nieuws van de avond, meer dan het getal. De verste telt; haalde
+     één pull er twee, dan is "first time P3" het verhaal, niet I1. */
+  else if(ev.better || (ev.phases && ev.phases.length))
+    bossFlash(ev.phases && ev.phases.length
+                ? T('flash.phase', { p: ev.phases[ev.phases.length - 1] }) : T('flash.best'),
+              L.bestPhase && L.bestPhasePct != null
+                ? phaseText(L.bestPhase, L.bestPhasePct) : L.bestPct.toFixed(2) + '%');
   else if(ev.fresh)  bossFlash(T('flash.last'), lastTry(L), true);
   /* Een wipe tijdens een reclear: wel het ribbonnetje, maar geen flits op het
      grote getal en geen nieuw staafje, want de cijfers van een boss die al
@@ -525,7 +562,7 @@ function paintBoss(L){
   var last = all.length - 1;
   all.slice(-14).forEach(function(p, i, arr){
     var b = U.el('i');
-    b.style.height = Math.max(2, Math.round((1 - p.pct/100) * 30)) + 'px';
+    b.style.height = Math.max(2, Math.round((1 - p.pct/100) * SPARK_H)) + 'px';
     if(p.kill)                              b.className = 'kill';
     else if(bestOf !== null && p.pct === bestOf) b.className = 'best';
     /* Alleen het nieuwe staafje groeit in. De rest staat stil, want de hele
@@ -533,6 +570,7 @@ function paintBoss(L){
     if(ev.fresh && i === arr.length - 1) b.className += ' fresh';
     sp.appendChild(b);
   });
+  sparkNotches(sp, L);
 }
 
 /* ---- race to dutch first ------------------------------------------
@@ -778,14 +816,24 @@ function demo(){
      dan de kill. De pulls staan op oplopende kwaliteit zodat het beste
      staafje in de sparkline hetzelfde percentage aanwijst als het grote
      getal -- anders licht er een ander staafje op dan de kaart noemt. */
-  var PULLS = [{pct:65.01},{pct:54.02},{pct:52.45},{pct:47.19},
-               {pct:52.08},{pct:43.89},{pct:44.87},{pct:0,kill:true}];
-  function stand(n, best, dead){
+  /* Een boss met fases, zodat je ook "P3 4.93%" en de streepjes ziet: de
+     grenzen van The Coiled Altar zoals race.json ze geeft, en de pulls op
+     WCL's schaal daarbinnen. De nieuwe beste is de eerste keer P3. */
+  var PHASES = [{label:'P1', from:100}, {label:'P2', from:80},
+                {label:'I1', from:50, intermission:true}, {label:'P3', from:42.5}];
+  var PULLS = [{pct:83.40, phase:'P1', phasePct:17.00},{pct:64.12, phase:'P2', phasePct:47.07},
+               {pct:52.45, phase:'P2', phasePct: 8.17},{pct:47.19, phase:'I1', phasePct:62.50},
+               {pct:58.08, phase:'P2', phasePct:26.93},{pct:41.04, phase:'P3', phasePct:96.59},
+               {pct:44.87, phase:'I1', phasePct:31.60},{pct:0, phase:'P3', phasePct:0, kill:true}];
+  function stand(n, dead){
+    var best = null;
+    PULLS.slice(0, n).forEach(function(p){ if(!p.kill && (!best || p.pct < best.pct)) best = p; });
     paintBoss({
       source:'demo',
       raidName:'The Venomous Abyss', difficulty:'mythic', guild:'Kelderklasse',
-      bossName:'The Lost Explorers', bossImg:'', summary:'2/8 Mythic',
-      defeated:dead, pullCount:n, bestPct:best, bestPhase:'P3',
+      bossName:'The Coiled Altar', bossImg:'', summary:'6/8 Mythic',
+      defeated:dead, pullCount:n, bestPct:best.pct, bestPhase:best.phase,
+      bestPhasePct:best.phasePct, phases:PHASES, phased:true,
       /* Deze pulls gebeuren in het verhaal nu, dus het stempeltje staat op
          de klok van wie kijkt. Bewust niet iets ouds om de gouden 'late'
          te laten zien: op de voorpagina leest dat als een overlay die het
@@ -797,10 +845,10 @@ function demo(){
   /* De eerste stand zet alleen de beginwaarde: de watcher meldt op zijn
      eerste aanroep niets, anders kondigt de overlay bij het opstarten van
      OBS een pull van een uur geleden aan. */
-  stand(4, 47.19, false);
-  setTimeout(function(){ stand(5, 47.19, false); }, 2400);   // last try
-  setTimeout(function(){ stand(6, 43.89, false); }, 5800);   // new best
-  setTimeout(function(){ stand(8, 43.89, true);  }, 9000);   // boss down
+  stand(4, false);
+  setTimeout(function(){ stand(5, false); }, 2400);   // last try
+  setTimeout(function(){ stand(6, false); }, 5800);   // new best, first time P3
+  setTimeout(function(){ stand(8, true);  }, 9000);   // boss down
 
   [['follow','joesswow',T('ev.follow'),''],
    ['sub','vassham',T('ev.sub'),'T2 · ' + T('ev.months', { n:14 })],

@@ -84,6 +84,70 @@ var KEY = 'overlay.progress.last';
    browser source begint gewoon opnieuw met kiezen. */
 var held = null;
 
+/* ---- fases ------------------------------------------------------------
+   Welke bosses fases hebben, en waar elke fase begint, komt van
+   racetodutchfirst.nl (race.json tier.raids[].bosses[].phases, uit
+   guilds.toml daar). Niet hier opnieuw bijhouden: dan staat er na een
+   aanpassing op de site een andere fase op je stream dan daar.
+
+   Waarom niet gewoon elke fase tonen die een pull meekrijgt: WCL en
+   Raider.IO plakken ook op een boss van één fase soms "P1" op elke pull, en
+   "P1 43,89%" op Sszorak zegt niets. De site laat de fase daarom alleen staan
+   op een boss die hem in zijn lijst heeft, en deze kaart doet hetzelfde.
+
+   Eens per uur ophalen is genoeg (de lijst verandert per tier, niet per
+   pull). Komt hij niet binnen, dan blijft de vorige staan; is er nog nooit
+   een geweest, dan geldt een boss als boss met fases zodra een pull verder
+   kwam dan P1 -- beter dan de fase op Ula'tek weglaten omdat de site even
+   plat lag. */
+var RACE = U.CFG.race || {};
+var BOOK_MS = 60 * 60 * 1000;
+var book = null, bookAt = 0;
+
+/* Op naam, want race.json heeft geen encounter-ID per boss. Zonder leestekens
+   en hoofdletters: WCL, Raider.IO en de site hoeven het niet eens te zijn
+   over de apostrof in Ula'tek. */
+function key(name){ return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+function loadBook(){
+  if(RACE.enabled === false || !RACE.url || Date.now() - bookAt < BOOK_MS)
+    return Promise.resolve(book);
+  bookAt = Date.now();
+  return U.getJSON(RACE.url, 8000).then(function(d){
+    var out = {};
+    ((d && d.tier && d.tier.raids) || []).forEach(function(r){
+      (r.bosses || []).forEach(function(b){
+        if(b.name && Array.isArray(b.phases) && b.phases.length)
+          out[key(b.name)] = b.phases;
+      });
+    });
+    book = out;
+    return book;
+  }).catch(function(){
+    bookAt = Date.now() - BOOK_MS + 5 * 60 * 1000;   // over vijf minuten opnieuw
+    return book;
+  });
+}
+
+/* De fases van deze boss op de stand zetten (phases, phased), en op een boss
+   zonder fases elke fase van de stand halen. Ook voor compare.html, die zijn
+   twee standen zelf ophaalt. */
+function annotate(rec){
+  if(!rec) return rec;
+  var list = book && rec.bossName ? book[key(rec.bossName)] || null : null;
+  var phased = book ? !!list
+                    : (rec.pulls || []).some(function(p){ return p.phase && p.phase !== 'P1'; });
+  rec.phases = list;
+  rec.phased = phased;
+  if(!phased){
+    rec.bestPhase = ''; rec.bestPhasePct = null; rec.phase = '';
+    (rec.pulls || []).concat(rec.farmLast ? [rec.farmLast] : []).forEach(function(p){
+      p.phase = ''; p.phasePct = null;
+    });
+  }
+  return rec;
+}
+
 function cacheGet(){
   try {
     var raw = localStorage.getItem(KEY);
@@ -183,7 +247,8 @@ function load(){
   return Promise.all([
     wantW ? tryLoad(function(){ return window.WCL.load(); }) : Promise.resolve(null),
     wantR ? tryLoad(function(){ return window.RioLive.load({ light: light }); })
-          : Promise.resolve(null)
+          : Promise.resolve(null),
+    loadBook()
   ]).then(function(res){
     var wcl = res[0], rio = res[1];
 
@@ -219,6 +284,7 @@ function finish(wcl, rio){
   var rec = got.rec;
   rec.stale = false;
   borrow(rec, rio);
+  annotate(rec);
   held = rec.source;
 
   /* Deze regel staat achter ?health=1 op je stream, dus Engels net als de
@@ -230,5 +296,5 @@ function finish(wcl, rio){
   return rec;
 }
 
-window.Progress = { load: load, pick: pick };
+window.Progress = { load: load, pick: pick, annotate: annotate, loadBook: loadBook };
 })();

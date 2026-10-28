@@ -122,14 +122,18 @@ function gql(query, vars){
   });
 }
 
-/* 'P3', of 'INT' in een tussenfase, en niets bij een boss zonder fases
+/* 'P3', of 'I1' in een tussenfase, en niets bij een boss zonder fases
    (lastPhase is dan 0, en "P0" is geen fase). Dezelfde vorm als phase_label
    uit Raider.IO's pulls, en dat is de bedoeling: js/banner.js en js/alerts.js
    lezen `pull.phase` zonder te weten welke bron eronder zat, dus stond hier
    het kale getal, dan zette de schermvullende melding "3" neer waar bij
-   Raider.IO "P3" staat. */
+   Raider.IO "P3" staat.
+
+   Een tussenfase heette hier eerst 'INT'. racetodutchfirst.nl schrijft 'I1',
+   net als Raider.IO en guilds.toml daar, en js/progress.js zoekt de fase op
+   in de fasenlijst van de site: met 'INT' vond hij hem niet. */
 function phaseLabel(n, interm){
-  return n ? (interm ? 'INT' : 'P' + n) : '';
+  return n ? (interm ? 'I' : 'P') + n : '';
 }
 
 /* Alle fights van de tier op één tijdlijn. WCL geeft fight.startTime als
@@ -150,6 +154,11 @@ function timeline(reports){
            verkeerd. */
         pct      : f.fightPercentage != null ? f.fightPercentage : f.bossPercentage,
         phase    : phaseLabel(f.lastPhase, f.lastPhaseIsIntermission),
+        /* Wat er van de fase overbleef: bossPercentage, dat hierboven als
+           rangschikking niet deugt, is precies het getal dat raiders noemen
+           ("P3 4,93%") en dat racetodutchfirst.nl voorop zet. Alleen voor de
+           weergave; welke pull de beste is blijft pct beslissen. */
+        phasePct : f.bossPercentage != null ? f.bossPercentage : null,
         /* De duur van de poging. js/alerts.js zet hem als eigen tegel in de
            schermvullende melding en las hem tot nu toe alleen uit Raider.IO's
            pulls, dus toen WCL de hoofdbron werd verdween die tegel stilletjes.
@@ -275,10 +284,10 @@ function load(){
        kill naar 0.01% met de fase van de kill erbij -- en dan meldt
        compare.html een verschil tussen de bronnen dat alleen maar een
        verschil in definitie is. */
-    var best = null, bestPhase = '';
+    var best = null, bestPhase = '', bestPhasePct = null;
     upto.forEach(function(f){
       if(!f.kill && f.pct != null && (best === null || f.pct < best)){
-        best = f.pct; bestPhase = f.phase;
+        best = f.pct; bestPhase = f.phase; bestPhasePct = f.phasePct;
       }
     });
 
@@ -297,6 +306,7 @@ function load(){
       pullCount : upto.length,
       bestPct   : best,
       bestPhase : bestPhase,
+      bestPhasePct: bestPhasePct,
       phase     : last.phase,
       defeated  : first >= 0,
       running   : cur.running,

@@ -62,7 +62,7 @@
      regels vullen -- Raider.IO laat hem vallen zodra hij niet bij zijn eigen
      bestPercent hoort -- en hij landt via js/alerts.js in de schermvullende
      melding. Een veld dat in beeld komt hoort op de vergelijkpagina. */
-  var FIELDS = ['bossName','pullCount','bestPct','bestPhase','phase','defeated','summary','updated'];
+  var FIELDS = ['bossName','pullCount','bestPct','bestPhase','bestPhasePct','phase','defeated','summary','updated'];
 
   function fmt(k, v){
     if(v == null || v === '') return '—';
@@ -74,7 +74,7 @@
       var sameDay = d.toDateString() === now.toDateString();
       return (sameDay ? '' : d.toLocaleDateString() + ' ') + d.toLocaleTimeString();
     }
-    if(k === 'bestPct') return Number(v).toFixed(2) + '%';
+    if(k === 'bestPct' || k === 'bestPhasePct') return Number(v).toFixed(2) + '%';
     if(k === 'defeated') return v ? 'yes' : 'no';
     return String(v);
   }
@@ -87,11 +87,20 @@
       dl.innerHTML = '<dt>status</dt><dd class="dim">no answer</dd>';
       return;
     }
+    /* Op een boss met fases wegen de twee bronnen de fases anders (The Coiled
+       Altar: Raider.IO 30/30/10/30, WCL 20/30/7.5/42.5), dus hun bestPct en
+       bestPhasePct verschillen altijd. Dat is een andere schaal en geen
+       fout: grijs met een uitleg in plaats van goud. */
+    var scaled = rec.phased && other && other.phased;
     FIELDS.forEach(function(k){
       var mine = fmt(k, rec[k]);
       var dt = document.createElement('dt'); dt.textContent = k;
       var dd = document.createElement('dd'); dd.textContent = mine;
-      if(other && fmt(k, other[k]) !== mine) dd.classList.add('diff');
+      var differs = other && fmt(k, other[k]) !== mine;
+      if(differs && scaled && (k === 'bestPct' || k === 'bestPhasePct')){
+        dd.classList.add('dim');
+        dd.textContent = mine + '  (other scale)';
+      } else if(differs) dd.classList.add('diff');
       dl.appendChild(dt); dl.appendChild(dd);
     });
   }
@@ -179,7 +188,14 @@
       window.WCL.available()
         ? window.WCL.load().catch(function(e){ note('wcl failed: ' + e.message); return null; })
         : Promise.resolve(null)
-    ]).then(function(r){ render(r[1], r[0]); });
+    ]).then(function(r){
+      /* Dezelfde fases als de kaart: van race.json, en op een boss zonder
+         fases weg. Anders vergelijkt deze pagina een "P1" die de kaart nooit
+         toont. */
+      return window.Progress.loadBook().then(function(){
+        render(window.Progress.annotate(r[1]), window.Progress.annotate(r[0]));
+      });
+    });
   }
 
   function render(wcl, rio){

@@ -250,6 +250,14 @@ body.demo .cam__hint{display:grid}
 .spark i{width:6px;min-height:2px;display:block;background:var(--ink-500)}
 .spark i.best{background:var(--paper-dim)}
 .spark i.kill{background:var(--jade)}
+/* Waar een fase begint, als snede door de staafjes in de kleur van de kaart:
+   een pull die erdoorheen steekt kwam in die fase. js/banner.js zet ze alleen
+   op WCL's cijfers (zie sparkNotches()). */
+.spark{position:relative}
+.spark__ph{position:absolute;left:0;right:0;height:1px;background:var(--ink-850);pointer-events:none}
+/* "P3" voor het percentage van de fase: papier, zoals op de site, zodat het
+   goud het getal blijft. */
+.boss__ph{color:var(--paper);margin-right:.32em}
 
 /* Alleen het nieuwe staafje groeit in, en het grote getal licht kort op.
    Beweging die antwoordt op iets dat gebeurd is, en verder staat de reeks
@@ -357,7 +365,8 @@ body.demo .cam__hint{display:grid}
 .rrace .rboard{
   --rr-h:22px; --rr-gap:3px; --rr-fs:16px; --rr-num:14px;
   --rr-rank:14px; --rr-name:minmax(0,1fr); --rr-seg:22px; --rr-seg-h:8px; --rr-seg-gap:3px;
-  --rr-k:34px; --rr-b:52px; --rr-col:14px;
+  --rr-k:34px; --rr-b:72px; --rr-col:14px;
+  --rr-ph:1px; --rr-ground:var(--ink-850);
 }
 
 /* Het verslag: vijf regels van 25px. Tijd en getal in mono, de soort als
@@ -366,7 +375,7 @@ body.demo .cam__hint{display:grid}
    eigen guild in papier. Bij een lange guildnaam kort de boss in, niet de
    guild: wie het deed is het nieuws. */
 .rlogs{display:flex;flex-direction:column;gap:4px}
-.rlog{display:grid;grid-template-columns:62px 54px minmax(0,1fr) auto;column-gap:12px;
+.rlog{display:grid;grid-template-columns:62px 66px minmax(0,1fr) auto;column-gap:12px;
   align-items:center;height:25px;font-size:15px;color:var(--ink-200)}
 .rlog__t{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:12px;
   color:var(--ink-400);white-space:nowrap}
@@ -376,6 +385,8 @@ body.demo .cam__hint{display:grid}
   background:var(--ink-600);color:var(--ink-200)}
 .rlog--kill  .rlog__tag{background:var(--jade-ghost);color:var(--jade)}
 .rlog--first .rlog__tag{background:rgba(216,178,99,.15);color:var(--gold)}
+/* Voor het eerst in een latere fase: jade, zoals de tag op de site. */
+.rlog--phase .rlog__tag{background:var(--jade-ghost);color:var(--jade)}
 .rlog__txt{display:flex;gap:8px;min-width:0;white-space:nowrap}
 .rlog__txt b{flex:0 0 auto;font-weight:500}
 .rlog__txt span{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--ink-300)}

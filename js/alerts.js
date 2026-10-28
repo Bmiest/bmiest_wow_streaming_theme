@@ -861,7 +861,7 @@ function renderRaid(e){
     im.src = crest;
     mid.appendChild(im);
   }
-  mid.appendChild(U.el('div','raid__eyebrow', T(e.kill ? 'flash.down' : 'flash.best')));
+  mid.appendChild(U.el('div','raid__eyebrow', e.title || T(e.kill ? 'flash.down' : 'flash.best')));
   mid.appendChild(U.el('div','raid__boss', e.boss || ''));
   /* Alleen bij een kill: wie 'm neerlegde. Zelfde haakjes als de raidkaart,
      zie guildOf() hierboven en '‹' + guild + '›' in js/banner.js. */
@@ -1080,13 +1080,22 @@ window.SE.start(push);
     var kill = ev.down;
     var p = window.RioLive.pullOf(L, kill ? 'kill' : 'best') || {};
     var stats = [];
+    /* Op een boss met fases eerst wat er van de fase overbleef, met de fase
+       erbij in het label ("4.93%" / "P3 · boss hp left"), en daarna de hele
+       fight. Hetzelfde als de raidkaart en racetodutchfirst.nl; de losse
+       fasetegel valt dan weg, want die staat al in de eerste. */
+    var inPhase = !kill && L.bestPhase && L.bestPhasePct != null;
     if(kill){
       stats.push([U.num(L.pullCount || 0), T('boss.toKill', { n:L.pullCount || 0 })]);
+    } else if(inPhase){
+      stats.push([L.bestPhasePct.toFixed(2) + '%', T('alert.phaseLeft', { p:L.bestPhase })]);
+      stats.push([L.bestPct.toFixed(2) + '%', T('alert.fightLeft')]);
+      stats.push([U.num(L.pullCount || 0), T('boss.pulls', { n:L.pullCount || 0 })]);
     } else {
       stats.push([L.bestPct.toFixed(2) + '%', T('alert.hpLeft')]);
       stats.push([U.num(L.pullCount || 0), T('boss.pulls', { n:L.pullCount || 0 })]);
     }
-    if(p.phase || L.bestPhase) stats.push([p.phase || L.bestPhase, T('alert.phase')]);
+    if(!inPhase && (p.phase || L.bestPhase)) stats.push([p.phase || L.bestPhase, T('alert.phase')]);
     if(mmss(p.seconds))        stats.push([mmss(p.seconds), T('alert.duration')]);
     if(p.deaths)               stats.push([U.num(p.deaths), T('alert.deaths', { n:p.deaths })]);
 
@@ -1098,6 +1107,10 @@ window.SE.start(push);
       encounter: L.encounter,
       guild    : guildOf(L),
       src      : L.source || 'raiderio',
+      /* Voor het eerst in een latere fase: dat wordt de kop in plaats van
+         "new best". De verste, zoals op de raidkaart. */
+      title    : !kill && ev.phases && ev.phases.length
+                   ? T('flash.phase', { p: ev.phases[ev.phases.length - 1] }) : '',
       where: [L.raidName, L.difficulty ? L.difficulty.charAt(0).toUpperCase() + L.difficulty.slice(1) : '',
               L.summary].filter(Boolean).join('  \u00b7  '),
       stats: stats,
@@ -1118,7 +1131,7 @@ window.SE.start(push);
       preloadArt(L);
       var ev = watch(L);
       if(ev.down)                                  fire(L, ev);
-      else if(ev.better && WANT === 'both' && L.bestPct != null) fire(L, ev);
+      else if((ev.better || ev.phases.length) && WANT === 'both' && L.bestPct != null) fire(L, ev);
     }).catch(function(e){ console.warn('[rio-live]', e.message); });
   }, LT.pollSeconds || 30);
 })();
@@ -1132,10 +1145,13 @@ if(TEST){
     {kind:'cheer',  who:'TheNoremac', extra:T('ev.bits', { n:184 })},
     {kind:'raid',   who:'Amphroxia',  extra:T('ev.viewers', { n:42 })},
     {kind:'tip',    who:'xxmaebeexx', extra:'EUR 5,00', message:'voor de guildbank'},
-    {kind:'progress', src:'demo', boss:'The Lost Explorers',
-     where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  2/8 Mythic',
-     stats:[['43.89%',T('alert.hpLeft')],['7',T('boss.pulls', { n:7 })],['P3',T('alert.phase')],
-            ['4:12',T('alert.duration')],['18',T('alert.deaths', { n:18 })]], hold:8000},
+    /* Een boss met fases, en de eerste keer P3: zo ziet de melding er op
+       The Coiled Altar en Ula'tek uit. */
+    {kind:'progress', src:'demo', boss:'The Coiled Altar', title:T('flash.phase', { p:'P3' }),
+     where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  6/8 Mythic',
+     stats:[['4.93%',T('alert.phaseLeft', { p:'P3' })],['2.09%',T('alert.fightLeft')],
+            ['145',T('boss.pulls', { n:145 })],['6:12',T('alert.duration')],
+            ['16',T('alert.deaths', { n:16 })]], hold:8000},
     {kind:'progress', kill:true, src:'demo', boss:'The Lost Explorers',
      where:'The Venomous Abyss  \u00b7  Mythic  \u00b7  3/8 Mythic',
      /* Wel de echte gildenaam: dat is geen verzonnen cijfer maar wie deze

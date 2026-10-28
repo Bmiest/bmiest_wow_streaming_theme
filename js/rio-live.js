@@ -72,6 +72,9 @@ function load(opts){
       return {
         pct    : (h.overall_percent || 0) * 100,
         phase  : h.phase_label || '',
+        /* boss_percent dan toch, maar alleen om te tonen ("P3 5,74%"), zoals
+           phasePct in js/wcl.js. Rangschikken blijft op pct. */
+        phasePct: h.boss_percent != null ? h.boss_percent * 100 : null,
         kill   : !!x.is_success,
         seconds: Math.round((x.duration_ms || 0) / 1000),
         deaths : x.num_deaths || 0
@@ -79,15 +82,17 @@ function load(opts){
     });
 
     // Beste poging = laagste overall-percentage van de niet-geslaagde pulls.
-    var best = null, bestPhase = '';
+    var best = null, bestPhase = '', bestPhasePct = null;
     pulls.forEach(function(p){
-      if(!p.kill && (best === null || p.pct < best)){ best = p.pct; bestPhase = p.phase; }
+      if(!p.kill && (best === null || p.pct < best)){
+        best = p.pct; bestPhase = p.phase; bestPhasePct = p.phasePct;
+      }
     });
     /* d.bestPercent is al een percentage (12.22 = 12,22%), geen fractie.
        De server is gezaghebbend, maar de fase komt uit onze eigen pulls --
        laat die vallen als hij niet bij het servergetal hoort. */
     if(d.bestPercent != null && d.bestPercent > 0){
-      if(best === null || Math.abs(best - d.bestPercent) > 0.5) bestPhase = '';
+      if(best === null || Math.abs(best - d.bestPercent) > 0.5){ bestPhase = ''; bestPhasePct = null; }
       best = d.bestPercent;
     }
 
@@ -139,6 +144,7 @@ function load(opts){
       pullCount : d.pullCount || pulls.length,
       bestPct   : best,
       bestPhase : bestPhase,
+      bestPhasePct: bestPhasePct,
       phase     : d.phase_label || '',
       defeated  : !!d.isDefeated,
       updated   : updated,
@@ -178,11 +184,34 @@ function currentRaid(){
    opstarten van OBS een pull van een uur geleden aan. Bij een andere boss
    begint hij opnieuw, anders leest de lagere pullcount van een verse boss als
    een verbetering. */
+/* De verste fase die de pulls van deze stand haalden, als plek in de
+   fasenlijst van de boss (L.phases, zie js/progress.js); -1 als we dat niet
+   weten: geen lijst, of (nog) geen pulls. */
+function reach(L){
+  var list = L.phases, top = -1;
+  if(!list || !list.length) return -1;
+  (L.pulls || []).forEach(function(p){
+    for(var i = list.length - 1; i > top; i--){
+      if(list[i].label === p.phase){ top = i; break; }
+    }
+  });
+  return top;
+}
+
+/* De fases die sinds de vorige stand voor het eerst gehaald werden, in
+   volgorde ('P2', 'I1', 'P3'). Dezelfde regel als newPhases() op
+   racetodutchfirst.nl: zonder een vorige fase is niets nieuw, dus het
+   opstarten van OBS meldt geen "eerste keer P1". */
+function gained(L, from, to){
+  if(from < 0 || to <= from) return [];
+  return L.phases.slice(from + 1, to + 1).map(function(p){ return p.label; });
+}
+
 function watcher(){
   var seen = { src:null, boss:null, pulls:null, best:null, down:false, stale:false,
-               farm:0, at:null };
+               farm:0, at:null, reach:-1 };
   return function(L){
-    if(!L) return { fresh:false, better:false, down:false, farm:false };
+    if(!L) return { fresh:false, better:false, down:false, farm:false, phases:[] };
     var n = L.pullCount || 0, f = L.farmCount || 0;
     var src = L.source || 'raiderio';
     /* Opnieuw ijken, en deze ronde niets melden, zodra we niet meer met
@@ -210,9 +239,10 @@ function watcher(){
                   seen.at != null && L.updated > seen.at &&
                   !!L.farmLast && !L.farmLast.kill && L.farmLast.ended === L.updated;
       seen = { src:src, boss:L.bossName, pulls:n, best:L.bestPct,
-               down:!!L.defeated, stale:!!L.stale, farm:f, at:L.updated };
-      return { fresh:false, better:false, down:false, farm:moved };
+               down:!!L.defeated, stale:!!L.stale, farm:f, at:L.updated, reach:reach(L) };
+      return { fresh:false, better:false, down:false, farm:moved, phases:[] };
     }
+    var at = reach(L);
     var out = {
       fresh : seen.pulls != null && n > seen.pulls,
       /* Een lager percentage is beter: dat is boss-HP dat nog overstond. */
@@ -221,8 +251,13 @@ function watcher(){
       /* Een wipe op een boss die al lag. Alleen js/wcl.js zet farmCount;
          farmpulls veranderen geen cijfer, dus zonder dit veld zag de kaart
          ze helemaal niet. Een farmkill is geen nieuws en telt hier niet. */
-      farm  : f > seen.farm && !!L.farmLast && !L.farmLast.kill
+      farm  : f > seen.farm && !!L.farmLast && !L.farmLast.kill,
+      /* Voor het eerst in een latere fase: het moment van de avond, en de
+         kaart en de melding zetten het in hun kop ("first time P3"). */
+      phases: gained(L, seen.reach, at)
     };
+    /* Een lichte stand of een lege pullijst zegt niet dat de fase terugviel. */
+    if(at > seen.reach) seen.reach = at;
     seen.farm  = f;
     seen.at    = L.updated;
     seen.pulls = n;

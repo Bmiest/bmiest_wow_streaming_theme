@@ -1165,9 +1165,23 @@ history as bars**. Taller means more boss HP gone, the kill is jade, your best
 attempt light grey.
 
 While you are still mid-boss it shows the **best percentage** large in gold,
-with the pull count and the phase that best attempt died in underneath, for
-example `12.22%` / `best of 184 pulls, P3`. Once the boss is down it becomes the
-number of pulls to the kill, in jade.
+with the pull count underneath, for example `12.22%` / `best of 184 pulls`.
+Once the boss is down it becomes the number of pulls to the kill, in jade.
+
+On a boss with **phases** (The Coiled Altar and Ula'tek this tier) it reads the
+way raiders say it and the way racetodutchfirst.nl writes it: the phase and
+what was left of it large, the whole fight underneath, for example `P3 4.93%` /
+`best of 145 pulls · 2.09% of the fight left`. The sparkline gets a thin cut
+where each phase starts, so a bar that crosses it reached that phase. Which
+bosses have phases, and where each one starts, comes from the site's
+`race.json` (`tier.raids[].bosses[].phases`, fetched once an hour by
+`js/progress.js`); on any other boss the card shows no phase, even when a source
+labels every pull "P1". Without that file it falls back to "a pull got further
+than P1". The cuts only show on Warcraft Logs' numbers: the phase starts are on
+WCL's scale, and Raider.IO weighs the phases differently (Altar: Raider.IO
+30/30/10/30 over P1/P2/I1/P3, WCL 20/30/7.5/42.5), so the same pull reads
+59.64% on one and 69.64% on the other. If WCL drops out the card still shows
+Raider.IO's own phase % and fight %, under the `raider.io` label.
 
 Two things I had wrong here that are worth knowing if you go into
 `js/rio-live.js` yourself:
@@ -1218,7 +1232,8 @@ count, the best percentage and whether the boss is down:
   you already killed gets the same ribbon and nothing else;
 - a new best attempt (a *lower* percentage: that is boss HP still standing)
   slides a `new best` ribbon up over the card, the same way the event bar moves
-  over your camera's name plate;
+  over your camera's name plate. When that pull reached a phase the guild had
+  never reached before, the ribbon says `first time P3` instead;
 - a kill does the same with `boss down` and the pull count.
 
 Each ribbon holds for `liveTracking.flashSeconds` (20) and then drops away. It
@@ -1244,7 +1259,10 @@ covers the whole gameplay zone:
   difficulty, and the numbers of that pull -- pulls to kill, the phase, how
   long the fight ran and how many people died. Jade, held for 19 seconds.
 - a **new best** fires the same shape in gold with the percentage that was
-  still standing, held for 8 seconds.
+  still standing, held for 8 seconds. On a boss with phases the first tile is
+  what was left of the phase (`4.93%` / `left of P3`) and the second the whole
+  fight; the first time the guild reaches a phase the heading reads
+  `first time P3` instead of `new best`.
 
 Both carry the guild emblem (`raiderio.guild.image`, the same image as the raid
 card's guild page) centred above the heading; without an image they look as
@@ -1434,7 +1452,8 @@ from `https://racetodutchfirst.nl/data/race.json` (settings under `race` in the
 config, polled every 10 minutes): one row per guild with its rank, name, a track
 of eight bosses filled up to its race position (the boss it is on fills part
 way, by how much of that boss is down), its kills, and its best pull on that boss
-as HP left (`6/8  69.8%`). Same order and the same numbers as the site. Your own
+as HP left (`6/8  69.8%`, or `6/8  P3 4.9%` on a boss with phases, whose block in
+the track then has a notch where each phase starts). Same order and the same numbers as the site. Your own
 guild is the jade row; the rank is gold for the leader, and so is the kill count
 after Cutting Edge. At most `race.boardRows` guilds (7) on the scenes and
 `race.bar.rows` (6) on the raid card; yours is always included. That used to be a single line, and before that it lived in the stream
@@ -1445,7 +1464,8 @@ The bottom bar's raid card carries the rank next to the progress line
 (`#1 of 6 NL`) and rotates through four pages: the boss
 (`race.bar.bossSeconds`, 45), the standings (`raceSeconds`, 15), the race log
 (`logSeconds`, 15: the latest `race.logRows` kills and runs of new best pulls
-of every guild, first kills in gold), and the guild page (`guildSeconds`, 12:
+of every guild, first kills in gold, an evening that reached a new phase tagged
+`first P3` in jade like on the site), and the guild page (`guildSeconds`, 12:
 `raiderio.guild.image`, world / region / realm rank, the race rank, and the
 best kill rank). The boss comes first: after every pull the card goes back to
 it and stays there for `race.bar.holdMinutes` (3), so the other pages never
