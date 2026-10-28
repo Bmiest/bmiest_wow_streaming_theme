@@ -369,7 +369,7 @@ var DEMO = [
   ['cheer', 'TheNoremac', function(){ return t('bitsN', { n: 184 }); }],
   ['raidIn', 'Amphroxia', function(){ return t('viewersN', { n: 42 }); }],
   ['tip', 'xxmaebeexx', function(){ return money(5); }],
-  ['best', 'The Lost Explorers', function(){ return pct(43.89); }],
+  ['best', 'The Coiled Altar', function(){ return 'P3 ' + pct(4.93); }],
   ['kill', 'The Lost Explorers', function(){ return (CFG.raiderio.guild || {}).name || ''; }]
 ];
 function paintTicker(){

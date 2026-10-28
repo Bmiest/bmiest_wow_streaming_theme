@@ -15,7 +15,7 @@
 .rboard{
   --rr-h:34px; --rr-gap:6px; --rr-fs:22px; --rr-num:20px;
   --rr-rank:32px; --rr-name:250px; --rr-seg:34px; --rr-seg-h:10px; --rr-seg-gap:4px;
-  --rr-k:56px; --rr-b:76px; --rr-col:16px;
+  --rr-k:56px; --rr-b:108px; --rr-col:16px;
   display:flex;flex-direction:column;gap:var(--rr-gap);
 }
 
@@ -42,6 +42,11 @@
 }
 .rtrack i.is-full{background:var(--ink-300)}
 .rtrack i b{position:absolute;left:0;top:0;bottom:0;background:var(--ink-400)}
+/* Een boss met fases: een inkeping in het blokje van de huidige boss waar
+   elke fase na de eerste begint, zoals de baan op racetodutchfirst.nl. In de
+   kleur van de grond, dus een snede en geen extra streep. */
+.rtrack__ph{position:absolute;top:0;bottom:0;width:var(--rr-ph,2px);
+  margin-left:calc(var(--rr-ph,2px) * -.5);background:var(--rr-ground,var(--ink-900))}
 
 /* Je eigen guild: naam in papier, de baan in jade. */
 .rrow.is-own .rrow__nm{color:var(--paper);font-weight:700}

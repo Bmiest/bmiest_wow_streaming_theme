@@ -15,7 +15,10 @@
    De eerste zes bestaan al sinds de eerste versie van de
    site en de Warcraft Logs-PR daar laat ze staan. Het klassement (board)
    leest daarnaast racePosition en current.bestPercent, en generatedAt voor
-   het tijdstempel in de onderbalk. */
+   het tijdstempel in de onderbalk. Op een boss met fases (sinds 27 oktober
+   2026) ook current.bestPhase ({label, percent}), current.pulls[].phase en
+   tier.raids[].bosses[].phases: waar elke fase begint, op de schaal van
+   bestPercent. */
 (function(){
 'use strict';
 var U = window.U, CFG = U.CFG;
@@ -35,6 +38,7 @@ function guild(){
   var want = guildName().toLowerCase();
   return U.getJSON(RC.url, 8000).then(function(d){
     var list = (d && d.guilds) || [];
+    var book = phaseBook(d);
     var g = list.filter(function(x){ return String(x.name).toLowerCase() === want; })[0];
     if(!g || typeof g.mythicKills !== 'number') return null;
     var total = g.totalBosses || (d.tier && d.tier.totalBosses) || null;
@@ -50,9 +54,9 @@ function guild(){
          daar die boss achter je character in plaats van niets. */
       ceBoss : d.tier && d.tier.ceBoss && d.tier.ceBoss.name || null,
       at     : d.generatedAt || null,
-      board  : board(list, g.name, total, RC.boardRows || 7),
-      boardBar: board(list, g.name, total, (RC.bar && RC.bar.rows) || 6),
-      log    : log(d, g.name),
+      board  : board(list, g.name, total, RC.boardRows || 7, book),
+      boardBar: board(list, g.name, total, (RC.bar && RC.bar.rows) || 6, book),
+      log    : log(d, g.name, book),
       ranks  : ranks(d, g)
     };
   }).catch(function(e){
@@ -60,6 +64,22 @@ function guild(){
     return null;
   });
 }
+
+/* De fases per boss, op naam: alleen bosses die ze in race.json hebben
+   (guilds.toml op de site). Een boss zonder lijst toont geen fase, ook als
+   een pull er een meekreeg -- dat doet de site ook. */
+function phaseBook(d){
+  var out = {};
+  ((d.tier && d.tier.raids) || []).forEach(function(r){
+    (r.bosses || []).forEach(function(b){
+      if(Array.isArray(b.phases) && b.phases.length) out[b.name] = b.phases;
+    });
+  });
+  return out;
+}
+
+/* "P3 4.9%": zoals raiders het zeggen en de site het schrijft. */
+function phaseText(label, pct, digits){ return label + ' ' + pct.toFixed(digits) + '%'; }
 
 /* Het klassement zoals de site het toont: op de rang van de site, niet
    opnieuw gesorteerd. racePosition is kills plus het deel van de huidige
@@ -69,11 +89,13 @@ function guild(){
    de eerste max valt; dan valt de laatste plek ervoor weg. Twee lengtes:
    de scenes hebben ruimte voor 7 (RC.boardRows), de raidkaart voor 6
    (RC.bar.rows) -- sinds Lelijkerds als twee teams meedoet zijn het er 7. */
-function board(list, own, total, max){
+function board(list, own, total, max, book){
   var rows = list.filter(function(x){ return typeof x.mythicKills === 'number'; })
     .map(function(x){
       var n = x.totalBosses || total || 0;
       var pos = typeof x.racePosition === 'number' ? x.racePosition : x.mythicKills;
+      var c = x.current, phases = c && book[c.name] || null;
+      var bp = !x.ceKilledAt && phases && c.bestPhase;
       return {
         name : x.name,
         rank : x.rank || null,
@@ -82,6 +104,13 @@ function board(list, own, total, max){
         pos  : Math.max(0, Math.min(n, pos)),
         best : !x.ceKilledAt && x.current && typeof x.current.bestPercent === 'number'
                ? x.current.bestPercent : null,
+        /* De fase van de beste pull en wat daarvan overbleef, alleen op een
+           boss met fases; dan zegt de rij "P3 4.9%" in plaats van de hele
+           fight, net als de site. */
+        phase: bp && typeof bp.percent === 'number' && bp.label ? bp : null,
+        /* Waar de fases beginnen, voor de streepjes in het blokje van de
+           huidige boss (track()). */
+        phases: !x.ceKilledAt ? phases : null,
         ce   : !!x.ceKilledAt,
         own  : x.name === own
       };
@@ -129,7 +158,7 @@ function ranks(d, g){
    Inhalen (de site zegt "X haalt Y in") staat er bewust niet bij: de site
    rekent dat uit de voortgangslijnen over tijd, en een eigen versie hier
    zou soms een ander verhaal vertellen dan de site. */
-function log(d, own){
+function log(d, own, book){
   var counts = {}, firsts = {};
   ((d.tier && d.tier.raids) || []).forEach(function(r){
     counts[r.slug] = r.counts !== false;
@@ -148,14 +177,30 @@ function log(d, own){
     var c = g.current;
     if(!c || g.ceKilledAt || !Array.isArray(c.pulls)) return;
     var was = null, run = null;
+    /* Op een boss met fases: welke fase de beste pulls tot nu toe haalden
+       (top), zodat een avond die verder kwam een tag per nieuwe fase krijgt
+       ("eerste P3"). Dezelfde regel als newPhases() op de site: vóór de
+       eerste beste pull is er niets om mee te vergelijken, dus niets nieuw. */
+    var phases = book[c.name] || null, top = -1;
+    function at(label){
+      for(var i = 0; phases && i < phases.length; i++) if(phases[i].label === label) return i;
+      return -1;
+    }
     c.pulls.forEach(function(p){
       if(typeof p.percent !== 'number' || p.success || !(was === null || p.percent < was)) return;
       var t = Date.parse(p.at), day = new Date(t).toDateString();
-      if(run && run.day === day){ run.t = t; run.best = p.percent; }
-      else {
+      if(!(run && run.day === day)){
         run = { t: t, day: day, guild: g.name, own: g.name === own, boss: c.name,
-                kind: 'best', best: p.percent };
+                kind: 'best', best: p.percent, phases: [] };
         out.push(run);
+      }
+      run.t = t; run.best = p.percent;
+      var i = phases && p.phase ? at(p.phase) : -1;
+      run.phase = i >= 0 && typeof p.phasePercent === 'number'
+                ? { label: p.phase, percent: p.phasePercent } : null;
+      if(i > top){
+        if(top >= 0){ run.phases.push(p.phase); run.kind = 'phase'; }
+        top = i;
       }
       was = p.percent;
     });
@@ -173,12 +218,14 @@ function logRow(e){
            + ' ' + U.hhmm(d);
   var el = U.el('div', 'rlog rlog--' + e.kind + (e.own ? ' is-own' : ''));
   el.appendChild(U.el('span', 'rlog__t', when));
-  el.appendChild(U.el('span', 'rlog__tag', T('log.' + e.kind)));
+  el.appendChild(U.el('span', 'rlog__tag', e.kind === 'phase'
+    ? T('log.phase', { p: e.phases[e.phases.length - 1] }) : T('log.' + e.kind)));
   var txt = U.el('span', 'rlog__txt');
   txt.appendChild(U.el('b', null, e.guild));
   txt.appendChild(U.el('span', null, e.boss));
   el.appendChild(txt);
-  el.appendChild(U.el('span', 'rlog__v', e.kind === 'best' ? e.best.toFixed(1) + '%'
+  var best = e.phase ? phaseText(e.phase.label, e.phase.percent, 1) : e.best != null ? e.best.toFixed(1) + '%' : '';
+  el.appendChild(U.el('span', 'rlog__v', e.kind === 'best' || e.kind === 'phase' ? best
                                        : e.pulls ? T('boss.pullsN', { n: e.pulls }) : ''));
   return el;
 }
@@ -197,6 +244,18 @@ function track(r){
       part.style.width = (f * 100).toFixed(1) + '%';
       seg.appendChild(part);
     }
+    /* Het blokje van de boss waar ze op zitten (net als racePosition de
+       hele fight) krijgt een streepje waar elke fase na de eerste begint,
+       zoals de baan op de site: dan zie je dat 70% eraf "in P3" betekent. */
+    if(r.phases && i === Math.floor(r.pos) && i < r.total){
+      seg.classList.add('has-ph');
+      r.phases.forEach(function(ph){
+        if(!(ph.from < 100)) return;
+        var n = U.el('s', 'rtrack__ph');
+        n.style.left = (100 - ph.from).toFixed(1) + '%';
+        seg.appendChild(n);
+      });
+    }
     box.appendChild(seg);
   }
   return box;
@@ -209,7 +268,8 @@ function figures(r){
   var T = window.I18N.t;
   if(r.ce) return { kills: T('race.ce'), best: '' };
   return { kills: r.kills + '/' + r.total,
-           best : r.best != null ? r.best.toFixed(1) + '%' : '' };
+           best : r.phase ? phaseText(r.phase.label, r.phase.percent, 1)
+                : r.best != null ? r.best.toFixed(1) + '%' : '' };
 }
 
 /* Een rij van het klassement, voor de scenes en de onderbalk. Dezelfde
