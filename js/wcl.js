@@ -240,6 +240,41 @@ function history(g, z, d){
   return asking;
 }
 
+/* Eén pull per pull, ook als twee raiders dezelfde avond loggen.
+
+   `seen` sleutelt op verslag + starttijd, dus dezelfde pull uit een tweede
+   verslag telde gewoon mee. Op 18 november 2026 zei de balk 260 pulls voor
+   Ula'tek waar het er 192 waren: 4 en 15 november stonden in twee verslagen
+   (41 + 41 en 27 + 27), en de kill van die avond ook, waardoor er na de kill
+   meteen een "farmpull" stond. Kopieën beginnen binnen 5 seconden van elkaar,
+   de volgende echte pull komt 80 seconden of later; 10 seconden is de grens,
+   dezelfde als wcl.dedupe op racetodutchfirst.nl.
+
+   Van de twee houden we de kill, het laagste percentage (met zijn fase) en het
+   laatste eind; hij loopt nog alleen als geen van beide kopieën klaar is. */
+var DUPLICATE_MS = 10 * 1000;
+
+function dedupe(sorted){
+  var out = [], last = {};
+  sorted.forEach(function(f){
+    var prev = last[f.enc];
+    if(prev && f.at - prev.at <= DUPLICATE_MS && f.code !== prev.code){
+      prev.kill = prev.kill || f.kill;
+      if(f.pct != null && (prev.pct == null || f.pct < prev.pct)){
+        prev.pct = f.pct; prev.phase = f.phase; prev.phasePct = f.phasePct;
+      }
+      if(f.ended > prev.ended){ prev.ended = f.ended; prev.seconds = Math.round((prev.ended - prev.at) / 1000); }
+      prev.running = prev.running && f.running;
+      return;
+    }
+    var copy = {};
+    for(var k in f) copy[k] = f[k];
+    out.push(copy);
+    last[f.enc] = copy;
+  });
+  return out;
+}
+
 function load(){
   if(!available()) return Promise.resolve(null);
   var g = +CFG.guildId, z = +CFG.zoneId, diff = DIFF[(CFG.difficulty || 'mythic')] || 5;
@@ -251,7 +286,8 @@ function load(){
     keep(timeline(((res[0].reportData || {}).reports || {}).data), true);
     var all = Object.keys(seen).map(function(k){ return seen[k]; });
     if(!all.length) return null;
-    all.sort(function(a,b){ return a.at - b.at; });
+    all.sort(function(a,b){ return a.at - b.at || (b.kill - a.kill); });
+    all = dedupe(all);
 
     /* De boss waar je nu op zit is die van de laatste pull -- ook tijdens een
        reclear, en ook na een kill, want dan hoort de kaart die kill te laten
