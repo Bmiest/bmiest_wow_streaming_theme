@@ -8,6 +8,15 @@
    Engelse zegt hetzelfde. Zet het blok erbij in de PR die de release maakt, en tag daarna. */
 window.CHANGELOG = [
   {
+    version: '1.12.1', date: '2026-11-18',
+    nl: [
+      'De pullteller op de raidkaart telt een pull één keer, ook als twee raiders dezelfde avond loggen. Ula\'tek stond op 260 pulls waar het er 192 waren.',
+    ],
+    en: [
+      'The pull counter on the raid card counts a pull once, even when two raiders log the same night. Ula\'tek read 260 pulls where there were 192.',
+    ],
+  },
+  {
     version: '1.12.0', date: '2026-10-28',
     nl: [
       'Op The Coiled Altar en Ula\'tek staat de beste pull zoals raiders hem noemen: de fase en wat ervan overbleef ("P3 4,93%"), met het hele gevecht eronder. Dezelfde getallen als op Race to Dutch First.',
